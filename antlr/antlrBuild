@@ -1,7 +1,7 @@
 #!/bin/sh
 
-LEXER_FILE=BasicLexer.g4
-PARSER_FILE=Basic.g4
+LEXER_FILE=WaccLexer.g4
+PARSER_FILE=WaccParser.g4
 
 BASEDIR=$(dirname $0)
 
@@ -10,7 +10,7 @@ TARGET_DIR=../src/antlr
 rm -rf $TARGET_DIR
 
 echo Compiling the lexer..
-java -jar $BASEDIR/../lib/antlr-4.4-complete.jar $BASEDIR/$LEXER_FILE -o $TARGET_DIR -no-listener -visitor -Werror 
+java -jar $BASEDIR/../lib/antlr-4.4-complete.jar $BASEDIR/$LEXER_FILE -o $TARGET_DIR -no-listener -visitor -Werror -package antlr
 
 if [ $? -ne 0 ]
 then 
@@ -18,4 +18,4 @@ then
 fi
 
 echo Compiling the parser..
-java -jar $BASEDIR/../lib/antlr-4.4-complete.jar $BASEDIR/$PARSER_FILE -o $TARGET_DIR -no-listener -visitor -Werror
+java -jar $BASEDIR/../lib/antlr-4.4-complete.jar $BASEDIR/$PARSER_FILE -o $TARGET_DIR -no-listener -visitor -Werror -package antlr
