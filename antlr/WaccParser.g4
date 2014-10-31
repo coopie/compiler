@@ -1,9 +1,7 @@
 parser grammar WaccParser;
 
-// NEED TO SORT THIS CRAP OUT WHEN WE FIGURE OUT HOW TO
-// BASICALLY WE NEED TO GET RID OF WHITESPACE SOMETIMES...
-// michael stop fooling around its fine
-// WHITESPACE SHOULD BE IGNORED WHEN NOT EXPECTED
+//./grun antlr.Wacc program -whatever
+
 
 options {
   tokenVocab=WaccLexer;
@@ -12,26 +10,27 @@ options {
 // EOF indicates that the program must consume to the end of the input.
 program: BEGIN func* stat END EOF;
 
-func : type WS+ IDENT OPEN_PARENTHESES paramList? CLOSE_PARENTHESES IS WS+ stat WS+ END ;
+func : type IDENT OPEN_PARENTHESES paramList? CLOSE_PARENTHESES IS  stat  END ;
 
 paramList : param (COMMA param)* ;
 
-param : type WS+ IDENT ;
+param : type IDENT ;
 
 stat : 
   SKIP 
-| type WS+ IDENT ASSIGN assignRhs
+| type IDENT ASSIGN assignRhs
 | assignLhs ASSIGN assignRhs
-| READ WS+ assignLhs
-| FREE WS+ expr
-| RETURN WS+ expr
-| EXIT WS+ expr
-| PRINT WS+ expr
-| PRINTLN WS+ expr
-| IF WS+ expr WS+ THEN WS+ stat WS+ ELSE WS+ stat WS+ FI
-| WHILE WS+ expr WS+ DO WS+ stat WS+ DONE
-| BEGIN WS+ stat WS+ END
+| READ assignLhs 
+| FREE expr
+| RETURN expr
+| EXIT expr
+| PRINT expr
+| PRINTLN expr
+| IF expr THEN stat ELSE stat FI
+| WHILE expr DO  stat  DONE
+| BEGIN stat  END
 | stat SEMICOLON stat ;
+
 
 assignLhs :
   IDENT
@@ -43,13 +42,13 @@ assignRhs :
 | arrayLiter
 | NEWPAIR OPEN_PARENTHESES expr COMMA expr CLOSE_PARENTHESES
 | pairElem
-| CALL WS+ IDENT OPEN_PARENTHESES argList? CLOSE_PARENTHESES ;
+| CALL IDENT OPEN_PARENTHESES argList? CLOSE_PARENTHESES ;
 
 argList : expr (COMMA expr)* ;
 
 pairElem : 
-  FST WS+ expr
-| SND WS+ expr ;
+  FST expr
+| SND expr ;
 
 type :
   baseType
@@ -76,8 +75,8 @@ pairElemType :
 expr : 
   intLiter
 | boolLiter
-| charLiter
-| strLiter
+| CHAR_LTR
+| STRING_LTR
 | pairLiter
 | IDENT
 | arrayElem
@@ -97,13 +96,7 @@ intSign : PLUS | MINUS ;
 
 boolLiter : TRUE | FALSE ;
 
-charLiter : SINGLE_QUOTE character SINGLE_QUOTE ;
-
-strLiter : DOUBLE_QUOTE character* DOUBLE_QUOTE ;
-
-character : ASCIICHAR | ESCAPE_CHAR ESCAPED_CHARS ;
-
-arrayLiter : OPEN_SQ_PARENTHESES ( expr (COMMA expr)* )? CLOSE_SQ_PARENTHESES ;
+arrayLiter : OPEN_SQ_PARENTHESES ( expr (COMMA expr)* ) CLOSE_SQ_PARENTHESES ;
 
 pairLiter : NULL ;
 

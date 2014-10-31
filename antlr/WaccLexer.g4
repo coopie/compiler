@@ -1,5 +1,7 @@
 lexer grammar WaccLexer;
 
+COMMENT :'#' .*? '\n' -> skip;
+
 //operators
 PLUS : '+' ;
 MINUS : '-' ;
@@ -20,7 +22,7 @@ AND : '&&' ;
 OR : '||' ;
 
 //needs improvement
-IDENT : [_a-zA-Z][_a-zA-Z0-9]* ;//(‘_’|‘a’-‘z’|‘A’-‘Z’)(‘_’|‘a’-‘z’|‘A’-‘Z’|‘0’-‘9’)* ;
+
 
 SEMICOLON : ';' ;
 
@@ -56,6 +58,9 @@ WHILE : 'while' ;
 DO : 'do' ;
 DONE : 'done' ;
 
+
+
+
 //assign rhs
 NEWPAIR : 'newpair' ;
 CALL : 'call' ;
@@ -75,17 +80,16 @@ PAIR : 'pair' ;
 TRUE : 'true' ;
 FALSE : 'false' ;
 
-//char stuff
-SINGLE_QUOTE : '\'' ;
-DOUBLE_QUOTE : '"' ;
+IDENT : [_a-zA-Z][_a-zA-Z0-9]* ;//(‘_’|‘a’-‘z’|‘A’-‘Z’)(‘_’|‘a’-‘z’|‘A’-‘Z’|‘0’-‘9’)* ;
+
 NULL : 'null';
 
 //square brackets
 OPEN_SQ_PARENTHESES : '[' ;
 CLOSE_SQ_PARENTHESES : ']' ;
 
-COMMENT : '#' ~( '\r' | '\n' )* -> skip;
-ASCIICHAR : [^\\'"];
-ESCAPED_CHARS : '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\' ;
-ESCAPE_CHAR: '\\';
-WS : [ \n\t\r] ;
+STRING_LTR: '"' .*? '"';
+CHAR_LTR: '\'' .*? '\'';
+
+
+WS : [ \n\t\r] -> skip ;
