@@ -124,7 +124,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	}
 
 	@Override
-	public WaccAST visitStat(StatContext ctx) {
+	public StatAST visitStat(StatContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -150,7 +150,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	@Override
 	public WaccAST visitProgram(ProgramContext ctx) {
 		// TODO Auto-generated method stub
-		return null;
+		return new ProgramAST(ctx.func(), ctx.stat());
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	}
 
 	@Override
-	public WaccAST visitFunc(FuncContext ctx) {
+	public FuncAST visitFunc(FuncContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}

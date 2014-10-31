@@ -1,3 +1,6 @@
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -5,15 +8,16 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 
+import wacc.slack.AST.ASTBuilder;
 import antlr.WaccLexer;
 import antlr.WaccParser;
 
 
 public class ParsingTest {
 
+	ASTBuilder ast = new ASTBuilder();
+	
 	@Test
 	public void basicSkip() {
 		assertThat(parseProgram("begin skip end"), is("(program begin (stat skip) end <EOF>)"));
@@ -33,12 +37,20 @@ public class ParsingTest {
 	public void arrayElementWithMultiplcation() {
 		assertThat(parseExpr("a[1 + 9] + 7"), is("(expr (expr (arrayElem a [ (expr (expr (intLiter 1)) (binaryOper +) (expr (intLiter 9))) ])) (binaryOper +) (expr (intLiter 7)))"));
 	}
+	@Test
+	public void foo() {
+		WaccParser p = getParser("begin exit 7; print 7 end");
+		ParseTree tree = p.program();
+		tree.accept(ast);
+	}
 	
 	@Test
 	public void inlineDeclarationAndAssigment() {
 		assertThat(parseStatement("int[] a = [1,3424,4353]"), is("(stat (type (arrayType (baseType int) [ ])) a = (assignRhs (arrayLiter [ (expr (intLiter 1)) , (expr (intLiter 3424)) , (expr (intLiter 4353)) ])))"));
 		
 	}
+	
+
 	
 	private String parseProgram(String s) {
 			WaccParser p = getParser(s);
