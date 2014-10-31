@@ -1,4 +1,4 @@
-package wacc.slack;
+package wacc.slack.AST;
 
 public interface WaccAST {
 
