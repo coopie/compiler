@@ -29,7 +29,7 @@ stat :
 | IF expr THEN stat ELSE stat FI
 | WHILE expr DO  stat  DONE
 | BEGIN stat  END
-| stat SEMICOLON stat ;
+| stat SEMICOLON (stat SEMICOLON)* stat? ;
 
 
 assignLhs :

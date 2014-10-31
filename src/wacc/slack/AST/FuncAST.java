@@ -11,10 +11,10 @@ import wacc.slack.AST.types.Type;
 
 public class FuncAST implements WaccAST{
 
-	private final Type type;
+/*	private final Type type;
 	private final String ident;
 	private final List<ParamAST> paramList;
-	private final StatAST stat;
+	private final StatAST stat;*/
 	
 	public FuncAST(TypeContext type, TerminalNode ident,
 			ParamListContext paramList, StatContext stat) {

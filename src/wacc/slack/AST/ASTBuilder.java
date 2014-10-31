@@ -125,8 +125,8 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	@Override
 	public StatAST visitStat(StatContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return new StatAST(ctx);
 	}
 
 	@Override
