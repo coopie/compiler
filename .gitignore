@@ -30,3 +30,4 @@
 *.vrb
 *.nav
 *.toc
+/bin

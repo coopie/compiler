@@ -179,8 +179,8 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	@Override
 	public FuncAST visitFunc(FuncContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO Auto-generated method stub		
+		return new FuncAST(ctx.type(), ctx.IDENT(), ctx.paramList(), ctx.stat());
 	}
 
 	@Override
