@@ -1,11 +1,17 @@
 package wacc.slack.AST;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.AST.statements.ExitStatementAST;
+import wacc.slack.AST.statements.ReadStatementAST;
+import wacc.slack.AST.statements.SkipStatementAST;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;
 import antlr.WaccParser.ArrayLiterContext;
@@ -112,7 +118,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	}
 
 	@Override
-	public WaccAST visitExpr(ExprContext ctx) {
+	public ExprAST visitExpr(ExprContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -126,7 +132,24 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	@Override
 	public StatAST visitStat(StatContext ctx) {
 		
-		return new StatAST(ctx);
+		List<StatAST> stats = new LinkedList<StatAST>();
+	
+		if(ctx.stat().size() > 0) {
+			for(StatContext s : ctx.stat()) {
+				stats.add(visitStat(s));
+			}
+			return new StatAST(stats);
+		} else {
+			if(ctx.READ() != null) {
+				return new ReadStatementAST(visitExpr(ctx.expr()));
+			} else if (ctx.EXIT() != null) {
+				return new ExitStatementAST(visitExpr(ctx.expr()));
+			} else if (ctx.SKIP() != null) {
+				return new SkipStatementAST();
+			}
+			return null;
+		}
+
 	}
 
 	@Override
@@ -149,8 +172,12 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	@Override
 	public WaccAST visitProgram(ProgramContext ctx) {
-		// TODO Auto-generated method stub
-		return new ProgramAST(ctx.func(), ctx.stat());
+		List<FuncAST> func = new LinkedList<>();
+		
+		for(FuncContext f : ctx.func()) {
+			func.add(visitFunc(f));
+		}
+		return new ProgramAST(func, visitStat(ctx.stat()));
 	}
 
 	@Override
@@ -180,7 +207,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	@Override
 	public FuncAST visitFunc(FuncContext ctx) {
 		// TODO Auto-generated method stub		
-		return new FuncAST(ctx.type(), ctx.IDENT(), ctx.paramList(), ctx.stat());
+		return null;
 	}
 
 	@Override

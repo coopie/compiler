@@ -8,6 +8,7 @@ import antlr.WaccParser.ParamListContext;
 import antlr.WaccParser.StatContext;
 import antlr.WaccParser.TypeContext;
 import wacc.slack.AST.types.Type;
+import wacc.slack.AST.visitors.ASTVisitor;
 
 public class FuncAST implements WaccAST{
 
@@ -16,8 +17,16 @@ public class FuncAST implements WaccAST{
 	private final List<ParamAST> paramList;
 	private final StatAST stat;*/
 	
-	public FuncAST(TypeContext type, TerminalNode ident,
-			ParamListContext paramList, StatContext stat) {
-		
+	
+	@Override
+	public int getPosition() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
+
+	@Override
+	public void accept(ASTVisitor visitor) {
+		visitor.visit(this);
+	}
+	
 }

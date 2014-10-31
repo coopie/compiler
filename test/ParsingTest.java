@@ -16,8 +16,6 @@ import antlr.WaccParser;
 
 public class ParsingTest {
 
-	ASTBuilder ast = new ASTBuilder();
-	
 	@Test
 	public void basicSkip() {
 		assertThat(parseProgram("begin skip end"), is("(program begin (stat skip) end <EOF>)"));
@@ -36,12 +34,6 @@ public class ParsingTest {
 	@Test
 	public void arrayElementWithMultiplcation() {
 		assertThat(parseExpr("a[1 + 9] + 7"), is("(expr (expr (arrayElem a [ (expr (expr (intLiter 1)) (binaryOper +) (expr (intLiter 9))) ])) (binaryOper +) (expr (intLiter 7)))"));
-	}
-	@Test
-	public void foo() {
-		WaccParser p = getParser("begin exit 7; print 7 end");
-		ParseTree tree = p.program();
-		tree.accept(ast);
 	}
 	
 	@Test

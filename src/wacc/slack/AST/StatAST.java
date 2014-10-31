@@ -4,30 +4,43 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import wacc.slack.AST.visitors.ASTVisitor;
 import antlr.WaccParser.StatContext;
 
 public class StatAST implements WaccAST,Iterable<StatAST> {
 
-	private final List<StatAST> stats = new LinkedList<StatAST>();
+	private final List<StatAST> stats;
+
+	public StatAST() {
+		stats = new LinkedList<>();
+	}
 	
-	public StatAST(StatContext ctx) {
-		ASTBuilder ast = new ASTBuilder();
-		
-		//checks if there is a list of stats
-		if(ctx.stat() != null) {
-			for(StatContext s : ctx.stat()) {
-				stats.add(ast.visitStat(s));
-			}
-		}else {
-			stats.add(this);
+	public StatAST(List<StatAST> stats) {
+		this.stats = stats;
+	}
+	
+	protected void addStat(StatAST stat) {
+		if(stats.size() < 1) {
+			stats.add(stat);
+		} else {
+			throw new RuntimeException("only one stat allowed");
 		}
-		
-		//TODO: implement other stat stuff
 	}
 
 	@Override
 	public Iterator<StatAST> iterator() {
 		return stats.iterator();
+	}
+
+	@Override
+	public int getPosition() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void accept(ASTVisitor visitor) {
+		visitor.visit(this);
 	}
 
 }

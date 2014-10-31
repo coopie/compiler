@@ -1,24 +1,35 @@
 package wacc.slack.AST;
 
-import java.util.LinkedList;
 import java.util.List;
 
-import antlr.WaccParser.FuncContext;
-import antlr.WaccParser.StatContext;
+import wacc.slack.AST.visitors.ASTVisitor;
 
 public class ProgramAST implements WaccAST {
 	
-	private final List<FuncAST> func = new LinkedList<>();
+	private final List<FuncAST> func; 
 	private final StatAST stat;
 	
-	public ProgramAST(List<FuncContext> func2, StatContext stat2) {
-		ASTBuilder ast = new ASTBuilder();
-		for(FuncContext f : func2) {
-			func.add(ast.visitFunc(f));
-		}
-		
-		stat = ast.visitStat(stat2);
-		
+	public ProgramAST(List<FuncAST> func2, StatAST statAST) {
+		func = func2;
+		stat = statAST;
+	}
+
+	@Override
+	public int getPosition() {
+		return 0;
+	}
+
+	@Override
+	public void accept(ASTVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	public List<FuncAST> getFunctions() {
+		return func;
+	}
+
+	public StatAST getStatements() {
+		return stat;
 	}
 	
 
