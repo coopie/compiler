@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.AST.literals.BoolLiterAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
@@ -160,14 +161,17 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 			}
 			return null;
 		}
-
 	}
 
 	// Michael
 	@Override
 	public WaccAST visitBoolLiter(BoolLiterContext ctx) {
 		// TODO Auto-generated method stub
-		return null;
+		if (ctx.TRUE() != null) {
+			return new BoolLiterAST(true);
+		} else {
+			return new BoolLiterAST(false);
+		}
 	}
 
 	// Cale
@@ -225,15 +229,16 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Michael
 	@Override
-	public FuncAST visitFunc(FuncContext ctx) {
-		// TODO Auto-generated method stub		
-		return null;
+	public FuncAST visitFunc(FuncContext ctx) {	
+		StatAST stat = visitStat(ctx.stat());
+		String ident = ctx.IDENT().getText();
+
+		return new FuncAST(ident, stat);
 	}
 
 	// Michael
 	@Override
-	public WaccAST visitIntLiter(IntLiterContext ctx) {
-		// TODO Auto-generated method stub
+	public WaccAST visitIntLiter(IntLiterContext ctx) { 		
 		return null;
 	}
 
