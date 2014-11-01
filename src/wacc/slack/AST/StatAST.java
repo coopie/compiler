@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import wacc.slack.AST.visitors.ASTVisitor;
-import antlr.WaccParser.StatContext;
 
 public class StatAST implements WaccAST,Iterable<StatAST> {
 
@@ -34,7 +33,6 @@ public class StatAST implements WaccAST,Iterable<StatAST> {
 
 	@Override
 	public int getPosition() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

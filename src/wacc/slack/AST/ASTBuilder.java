@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.AST.literals.BoolLiterAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
@@ -129,6 +130,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
+//	public List<ParamAST> visitParamList(ParamListContext ctx) { //must return WaccAST or something extending it
 	public WaccAST visitParamList(ParamListContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
@@ -199,7 +201,11 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	@Override
 	public WaccAST visitBoolLiter(BoolLiterContext ctx) {
 		// TODO Auto-generated method stub
-		return null;
+		if (ctx.TRUE() != null) {
+			return new BoolLiterAST(true);
+		} else {
+			return new BoolLiterAST(false);
+		}
 	}
 
 	// Cale
@@ -276,15 +282,18 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Michael
 	@Override
-	public FuncAST visitFunc(FuncContext ctx) {
-		// TODO Auto-generated method stub		
-		return null;
+	public FuncAST visitFunc(FuncContext ctx) {	
+		StatAST stat = visitStat(ctx.stat());
+		String ident = ctx.IDENT().getText();
+		
+		List<ParamAST> paramList = null;//visitParamList(ctx.paramList());
+		
+		return new FuncAST(ident, paramList, stat);
 	}
 
 	// Michael
 	@Override
-	public WaccAST visitIntLiter(IntLiterContext ctx) {
-		// TODO Auto-generated method stub
+	public WaccAST visitIntLiter(IntLiterContext ctx) { 		
 		return null;
 	}
 
