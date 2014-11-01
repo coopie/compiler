@@ -130,8 +130,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-//	public List<ParamAST> visitParamList(ParamListContext ctx) { //must return WaccAST or something extending it
-	public WaccAST visitParamList(ParamListContext ctx) {
+	public ParamListAST visitParamList(ParamListContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -161,7 +160,6 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Timotej
 	@Override
 	public StatAST visitStat(StatContext ctx) {
-	//TODO: assign statements	
 		List<StatAST> stats = new LinkedList<StatAST>();
 	
 		if(ctx.stat().size() > 1 && ctx.IF() == null) {
@@ -200,7 +198,6 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Michael
 	@Override
 	public WaccAST visitBoolLiter(BoolLiterContext ctx) {
-		// TODO Auto-generated method stub
 		if (ctx.TRUE() != null) {
 			return new BoolLiterAST(true);
 		} else {
@@ -286,7 +283,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 		StatAST stat = visitStat(ctx.stat());
 		String ident = ctx.IDENT().getText();
 		
-		List<ParamAST> paramList = null;//visitParamList(ctx.paramList());
+		List<ParamAST> paramList = visitParamList(ctx.paramList()).getParamList();
 		
 		return new FuncAST(ident, paramList, stat);
 	}

@@ -3,14 +3,14 @@ package wacc.slack.AST.literals;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class BoolLiterAST implements WaccAST {
+public class IntLiterAST implements WaccAST {
 
-	private final boolean b;
+	private final int i;
 	
-	public BoolLiterAST(boolean b) {
-		this.b = b;
+	public IntLiterAST(int i) {
+		this.i = i;
 	}
-
+	
 	@Override
 	public int getPosition() {
 		return 0;
@@ -20,8 +20,8 @@ public class BoolLiterAST implements WaccAST {
 	public void accept(ASTVisitor visitor) {
 	}
 
-	public boolean getBool() {
-		return b;
+	public int getInt() {
+		return i;
 	}
 
 }
