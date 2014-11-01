@@ -10,8 +10,17 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import wacc.slack.AST.statements.ExitStatementAST;
+import wacc.slack.AST.statements.FreeStatementAST;
+import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.PrintStatementAST;
+import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
+import wacc.slack.AST.statements.ReturnStatementAST;
+import wacc.slack.AST.statements.ScopeAST;
 import wacc.slack.AST.statements.SkipStatementAST;
+import wacc.slack.AST.statements.WhileStatementAST;
+import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.Type;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;
 import antlr.WaccParser.ArrayLiterContext;
@@ -85,7 +94,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitArrayType(ArrayTypeContext ctx) {
+	public Type visitArrayType(ArrayTypeContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -99,14 +108,14 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitPairElem(PairElemContext ctx) {
+	public Assignable visitPairElem(PairElemContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	// Cale
 	@Override
-	public WaccAST visitArrayElem(ArrayElemContext ctx) {
+	public Assignable visitArrayElem(ArrayElemContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -134,18 +143,26 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Timotej
 	@Override
-	public WaccAST visitType(TypeContext ctx) {
-		// TODO Auto-generated method stub
+	public Type visitType(TypeContext ctx) {
+		if(ctx.baseType() != null) {
+			return visitBaseType(ctx.baseType());
+		} else if(ctx.pairType() != null) {
+			return visitPairType(ctx.pairType());
+		} else if(ctx.arrayType()!= null) {
+			return visitArrayType(ctx.arrayType());
+		} else {
+			assert false: "should not happen, one of the types should be recognized";
+		}
 		return null;
 	}
 
 	// Timotej
 	@Override
 	public StatAST visitStat(StatContext ctx) {
-		
+	//TODO: assign statements	
 		List<StatAST> stats = new LinkedList<StatAST>();
 	
-		if(ctx.stat().size() > 0) {
+		if(ctx.stat().size() > 1 && ctx.IF() == null) {
 			for(StatContext s : ctx.stat()) {
 				stats.add(visitStat(s));
 			}
@@ -157,10 +174,25 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 				return new ExitStatementAST(visitExpr(ctx.expr()));
 			} else if (ctx.SKIP() != null) {
 				return new SkipStatementAST();
+			} else if(ctx.FREE() != null) {
+				return new FreeStatementAST(visitExpr(ctx.expr()));
+			} else if(ctx.RETURN() != null) {
+				return new ReturnStatementAST(visitExpr(ctx.expr()));
+			} else if(ctx.PRINT() != null) {
+				return new PrintStatementAST(visitExpr(ctx.expr()));
+			} else if(ctx.PRINTLN() != null) {
+				return new PrintlnStatementAST(visitExpr(ctx.expr()));
+			} else if(ctx.IF() != null && ctx.THEN() != null && ctx.ELSE() != null && ctx.FI() != null) {
+				return new IfStatementAST(visitExpr(ctx.expr()),visitStat(ctx.stat(0)), visitStat(ctx.stat(1)));			
+			} else if(ctx.WHILE() != null && ctx.DO() != null && ctx.DONE() != null) {
+				return new WhileStatementAST(visitExpr(ctx.expr()),visitStat(ctx.stat(0)));
+			} else if(ctx.BEGIN() != null &&  ctx.END() != null) {
+				return new ScopeAST(visitStat(ctx.stat(0)));
+			} else {
+				assert false: "should not happen";
 			}
-			return null;
 		}
-
+		return null;
 	}
 
 	// Michael
@@ -179,8 +211,18 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Timotej
 	@Override
-	public WaccAST visitBaseType(BaseTypeContext ctx) {
-		// TODO Auto-generated method stub
+	public Type visitBaseType(BaseTypeContext ctx) {
+		if(ctx.BOOL() != null) {
+			return BaseType.T_bool;
+		} else if(ctx.INT() != null) {
+			return BaseType.T_int;
+		} else if(ctx.CHAR() != null) {
+			return BaseType.T_char;
+		} else if(ctx.STRING() != null) {
+			return BaseType.T_string;
+		} else {
+			assert false: "should not happen, one of the types should be recognized";
+		}
 		return null;
 	}
 
@@ -197,7 +239,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitPairType(PairTypeContext ctx) {
+	public Type visitPairType(PairTypeContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -211,8 +253,17 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Timotej
 	@Override
-	public WaccAST visitAssignLhs(AssignLhsContext ctx) {
+	public Assignable visitAssignLhs(AssignLhsContext ctx) {
 		// TODO Auto-generated method stub
+		if(ctx.IDENT() != null) {
+			return  null;
+		} else if(ctx.arrayElem() != null) {
+			return visitArrayElem(ctx.arrayElem());
+		} else if(ctx.pairElem() != null) {
+			return visitPairElem(ctx.pairElem());
+		} else {
+			assert false: "should not happen, one of the elems should be recognized";
+		}
 		return null;
 	}
 

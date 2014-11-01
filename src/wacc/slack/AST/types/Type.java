@@ -1,5 +1,7 @@
 package wacc.slack.AST.types;
 
-public interface Type {
+import wacc.slack.AST.WaccAST;
+
+public interface Type extends WaccAST {
 
 }

@@ -2,14 +2,13 @@ package wacc.slack.AST.statements;
 
 import wacc.slack.AST.ExprAST;
 
-public class ExitStatementAST extends ExprStatementAST {
-	public ExitStatementAST(ExprAST expr) {
+public class PrintlnStatementAST extends ExprStatementAST {
+	public PrintlnStatementAST(ExprAST expr) {
 		super(expr);
 	}
-
+	
 	@Override
 	protected String getName() {
-		return "exit";
+		return "println";
 	}
-
 }
