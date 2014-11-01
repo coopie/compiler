@@ -69,66 +69,77 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitAssignRhs(AssignRhsContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitArgList(ArgListContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitArrayType(ArrayTypeContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitParam(ParamContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitPairElem(PairElemContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitArrayElem(ArrayElemContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitBinaryOper(BinaryOperContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitParamList(ParamListContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Michael 
 	@Override
 	public ExprAST visitExpr(ExprContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Timotej
 	@Override
 	public WaccAST visitType(TypeContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Timotej
 	@Override
 	public StatAST visitStat(StatContext ctx) {
 		
@@ -152,24 +163,28 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	}
 
+	// Michael
 	@Override
 	public WaccAST visitBoolLiter(BoolLiterContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitUnaryOper(UnaryOperContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Timotej
 	@Override
 	public WaccAST visitBaseType(BaseTypeContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Timotej
 	@Override
 	public WaccAST visitProgram(ProgramContext ctx) {
 		List<FuncAST> func = new LinkedList<>();
@@ -180,42 +195,49 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 		return new ProgramAST(func, visitStat(ctx.stat()));
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitPairType(PairTypeContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitArrayLiter(ArrayLiterContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Timotej
 	@Override
 	public WaccAST visitAssignLhs(AssignLhsContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitPairLiter(PairLiterContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Michael
 	@Override
 	public FuncAST visitFunc(FuncContext ctx) {
 		// TODO Auto-generated method stub		
 		return null;
 	}
 
+	// Michael
 	@Override
 	public WaccAST visitIntLiter(IntLiterContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// Cale
 	@Override
 	public WaccAST visitPairElemType(PairElemTypeContext ctx) {
 		// TODO Auto-generated method stub
