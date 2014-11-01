@@ -121,7 +121,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitParamList(ParamListContext ctx) {
+	public List<ParamAST> visitParamList(ParamListContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -232,8 +232,10 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	public FuncAST visitFunc(FuncContext ctx) {	
 		StatAST stat = visitStat(ctx.stat());
 		String ident = ctx.IDENT().getText();
-
-		return new FuncAST(ident, stat);
+		
+		List<ParamAST> paramList = visitParamList(ctx.paramList());
+		
+		return new FuncAST(ident, paramList, stat);
 	}
 
 	// Michael
