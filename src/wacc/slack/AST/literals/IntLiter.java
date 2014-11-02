@@ -4,22 +4,12 @@ import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class IntLiterAST implements LiterAST {
+public class IntLiter implements Liter {
 
 	private final int i;
 	
-	public IntLiterAST(int i) {
+	public IntLiter(int i) {
 		this.i = i;
-	}
-	
-	@Override
-	public int getPosition() {
-		return 0;
-	}
-
-	@Override
-	public void accept(ASTVisitor visitor) {
-		visitor.visit(this);
 	}
 
 	public int getInt() {

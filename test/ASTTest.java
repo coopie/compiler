@@ -34,7 +34,7 @@ public class ASTTest {
 			WaccParser parser = new WaccParser(tokens);
 			ParseTree tree = parser.program();
 			
-			return tree.accept(new ASTBuilder());
+			return (WaccAST)tree.accept(new ASTBuilder());
 			
 			
 		} catch(IOException i) {

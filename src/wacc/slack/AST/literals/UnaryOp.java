@@ -1,14 +1,11 @@
 package wacc.slack.AST.literals;
 
-import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class CharLiterAST implements LiterAST {
-
-	public CharLiterAST(String text) {
-		// TODO Auto-generated constructor stub
-	}
+public enum UnaryOp implements WaccAST {
+	NOT, MINUS, LEN, ORD, CHR ;
 
 	@Override
 	public int getPosition() {
@@ -21,10 +18,10 @@ public class CharLiterAST implements LiterAST {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
+	
 	public Type getType() {
-		return BaseType.T_char;
+		// TODO Auto-generated method stub
+		return null;
 	}
-
+	
 }

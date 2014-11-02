@@ -1,27 +1,21 @@
 package wacc.slack.AST.visitors;
 
-import wacc.slack.AST.ArgListAST;
+import wacc.slack.AST.ArgList;
 import wacc.slack.AST.ExprAST;
 import wacc.slack.AST.FuncAST;
-import wacc.slack.AST.ParamAST;
+import wacc.slack.AST.Param;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.StatAST;
-import wacc.slack.AST.literals.ArrayLiterAST;
-import wacc.slack.AST.literals.BinaryOpAST;
-import wacc.slack.AST.literals.BoolLiterAST;
-import wacc.slack.AST.literals.IntLiterAST;
-import wacc.slack.AST.literals.PairLiterAST;
+import wacc.slack.AST.literals.ArrayLiter;
+import wacc.slack.AST.literals.BinaryOp;
+import wacc.slack.AST.literals.BoolLiter;
+import wacc.slack.AST.literals.IntLiter;
+import wacc.slack.AST.literals.PairLiter;
 
 public interface ASTVisitor {
 	void visit(ProgramAST program);
 	void visit(StatAST stat);
 	void visit(FuncAST func);
 	void visit(ExprAST expr);
-	void visit(BoolLiterAST boolLiter);
-	void visit(IntLiterAST intLiter);
-	void visit(PairLiterAST pairLiter);
-	void visit(ParamAST paramAST);
-	void visit(ArrayLiterAST arrayLiterAST);
-	void visit(ArgListAST argListAST);
-	void visit(BinaryOpAST binaryOpAST);
+
 }

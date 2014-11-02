@@ -1,24 +1,24 @@
 package wacc.slack.AST;
 
-import wacc.slack.AST.literals.BinaryOpAST;
-import wacc.slack.AST.literals.LiterAST;
-import wacc.slack.AST.literals.UnaryOpAST;
+import wacc.slack.AST.literals.BinaryOp;
+import wacc.slack.AST.literals.Liter;
+import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class ExprAST implements WaccAST{
 
-	private final LiterAST literAST;
+	private final Liter literAST;
 	private final ExprAST expr;
 	private final Type type;
 	
-	public ExprAST(LiterAST literAST) {
+	public ExprAST(Liter literAST) {
 		this.literAST = literAST;
 		this.expr = null;
 		this.type = literAST.getType();
 	}
 
-	public ExprAST(ExprAST expr, UnaryOpAST unaryOp) {
+	public ExprAST(ExprAST expr, UnaryOp unaryOp) {
 		this.literAST = null;
 		this.expr = null;
 		
@@ -31,7 +31,7 @@ public class ExprAST implements WaccAST{
 	}
 	
 	public ExprAST(ExprAST expr, ExprAST expr2,
-			BinaryOpAST binaryOp) {
+			BinaryOp binaryOp) {
 		this.literAST = null;
 		this.expr = null;
 		
@@ -59,7 +59,7 @@ public class ExprAST implements WaccAST{
 		visitor.visit(this);
 	}
 
-	public LiterAST getLiterAST() {
+	public Liter getLiterAST() {
 		return literAST;
 	}
 

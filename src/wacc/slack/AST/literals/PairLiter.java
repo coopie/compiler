@@ -4,17 +4,8 @@ import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class PairLiterAST implements LiterAST {
-	
-	@Override
-	public int getPosition() {
-		return 0;
-	}
+public class PairLiter implements Liter {
 
-	@Override
-	public void accept(ASTVisitor visitor) {
-		visitor.visit(this);
-	}
 
 	@Override
 	public Type getType() {

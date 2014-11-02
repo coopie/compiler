@@ -9,15 +9,15 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import wacc.slack.AST.literals.ArrayLiterAST;
-import wacc.slack.AST.literals.BinaryOpAST;
-import wacc.slack.AST.literals.BoolLiterAST;
-import wacc.slack.AST.literals.CharLiterAST;
-import wacc.slack.AST.literals.IntLiterAST;
-import wacc.slack.AST.literals.LiterAST;
-import wacc.slack.AST.literals.PairLiterAST;
-import wacc.slack.AST.literals.StringLiterAST;
-import wacc.slack.AST.literals.UnaryOpAST;
+import wacc.slack.AST.literals.ArrayLiter;
+import wacc.slack.AST.literals.BinaryOp;
+import wacc.slack.AST.literals.BoolLiter;
+import wacc.slack.AST.literals.CharLiter;
+import wacc.slack.AST.literals.IntLiter;
+import wacc.slack.AST.literals.Liter;
+import wacc.slack.AST.literals.PairLiter;
+import wacc.slack.AST.literals.StringLiter;
+import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
@@ -25,7 +25,7 @@ import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
-import wacc.slack.AST.statements.ScopeAST;
+import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
@@ -55,82 +55,82 @@ import antlr.WaccParser.TypeContext;
 import antlr.WaccParser.UnaryOperContext;
 import antlr.WaccParserVisitor;
 
-public class ASTBuilder implements WaccParserVisitor<WaccAST> {
+public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
-	public WaccAST visit(@NotNull ParseTree arg0) {
+	public ParseTreeReturnable visit(@NotNull ParseTree arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public WaccAST visitChildren(@NotNull RuleNode arg0) {
+	public ParseTreeReturnable visitChildren(@NotNull RuleNode arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public WaccAST visitErrorNode(@NotNull ErrorNode arg0) {
+	public ParseTreeReturnable visitErrorNode(@NotNull ErrorNode arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public WaccAST visitTerminal(@NotNull TerminalNode arg0) {
+	public ParseTreeReturnable visitTerminal(@NotNull TerminalNode arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	// Michael
 	@Override
-	public IntLiterAST visitIntSign(IntSignContext ctx) {
+	public IntLiter visitIntSign(IntSignContext ctx) {
 		if (ctx.MINUS() != null) {
-			return new IntLiterAST(-1);
+			return new IntLiter(-1);
 		} else {
-			return new IntLiterAST(1);
+			return new IntLiter(1);
 		}
 	}
 
 	// Cale
 	@Override
-	public WaccAST visitAssignRhs(AssignRhsContext ctx) {
+	public ParseTreeReturnable visitAssignRhs(AssignRhsContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	// Cale
 	@Override
-	public ArgListAST visitArgList(ArgListContext ctx) {
+	public ArgList visitArgList(ArgListContext ctx) {
 		List<ExprAST> exprList = new LinkedList<>();
-		
+
 		for (ExprContext e : ctx.expr()) {
 			exprList.add(visitExpr(e));
 		}
-		
-		return new ArgListAST(exprList);
+
+		return new ArgList(exprList);
 	}
 
 	// Cale
 	@Override
 	public Type visitArrayType(ArrayTypeContext ctx) {
-		if(ctx.baseType() != null) {
+		if (ctx.baseType() != null) {
 			return visitBaseType(ctx.baseType());
-		} else if(ctx.pairType() != null) {
+		} else if (ctx.pairType() != null) {
 			return visitPairType(ctx.pairType());
-		} else if(ctx.arrayType()!= null) {
+		} else if (ctx.arrayType() != null) {
 			return visitArrayType(ctx.arrayType());
 		} else {
-			assert false: "should not happen, one of the types should be recognized";
+			assert false : "should not happen, one of the types should be recognized";
 		}
 		return null;
 	}
 
 	// Cale
 	@Override
-	public ParamAST visitParam(ParamContext ctx) {
+	public Param visitParam(ParamContext ctx) {
 		String ident = ctx.IDENT().getText();
 		Type type = visitType(ctx.type());
-		return new ParamAST(ident, type);
+		return new Param(ident, type);
 	}
 
 	// Cale
@@ -149,47 +149,47 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Michael
 	@Override
-	public BinaryOpAST visitBinaryOper(BinaryOperContext ctx) {
-		if(ctx.MUL() != null) {
-			return BinaryOpAST.MUL;
+	public BinaryOp visitBinaryOper(BinaryOperContext ctx) {
+		if (ctx.MUL() != null) {
+			return BinaryOp.MUL;
 		} else if (ctx.DIV() != null) {
-			return BinaryOpAST.DIV;
+			return BinaryOp.DIV;
 		} else if (ctx.MOD() != null) {
-			return BinaryOpAST.MOD; 
+			return BinaryOp.MOD;
 		} else if (ctx.PLUS() != null) {
-			return BinaryOpAST.PLUS;
+			return BinaryOp.PLUS;
 		} else if (ctx.MINUS() != null) {
-			return BinaryOpAST.MINUS;
+			return BinaryOp.MINUS;
 		} else if (ctx.GT() != null) {
-			return BinaryOpAST.GT;
+			return BinaryOp.GT;
 		} else if (ctx.GTE() != null) {
-			return BinaryOpAST.GTE;
+			return BinaryOp.GTE;
 		} else if (ctx.LT() != null) {
-			return BinaryOpAST.LT;
+			return BinaryOp.LT;
 		} else if (ctx.LTE() != null) {
-			return BinaryOpAST.LTE;
+			return BinaryOp.LTE;
 		} else if (ctx.EQ() != null) {
-			return BinaryOpAST.EQ;
+			return BinaryOp.EQ;
 		} else if (ctx.NEQ() != null) {
-			return BinaryOpAST.NEQ;
+			return BinaryOp.NEQ;
 		} else if (ctx.AND() != null) {
-			return BinaryOpAST.AND;
+			return BinaryOp.AND;
 		} else if (ctx.OR() != null) {
-			return BinaryOpAST.OR; 
+			return BinaryOp.OR;
 		} else {
-			assert false: "should not happen, one of the operators should be recognized";
+			assert false : "should not happen, one of the operators should be recognized";
 		}
 		return null;
 	}
 
 	// Cale
 	@Override
-	public ParamListAST visitParamList(ParamListContext ctx) {
+	public ParamList visitParamList(ParamListContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	// Michael 
+	// Michael
 	@Override
 	public ExprAST visitExpr(ExprContext ctx) {
 		if (ctx.intLiter() != null) {
@@ -197,9 +197,9 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 		} else if (ctx.boolLiter() != null) {
 			return new ExprAST(visitBoolLiter(ctx.boolLiter()));
 		} else if (ctx.CHAR_LTR() != null) {
-			return new ExprAST(new CharLiterAST(ctx.CHAR_LTR().getText()));
+			return new ExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
 		} else if (ctx.STRING_LTR() != null) {
-			return new ExprAST(new StringLiterAST(ctx.STRING_LTR().getText()));
+			return new ExprAST(new StringLiter(ctx.STRING_LTR().getText()));
 		} else if (ctx.pairLiter() != null) {
 			return new ExprAST(visitPairLiter(ctx.pairLiter()));
 		} else if (ctx.IDENT() != null) {
@@ -211,10 +211,11 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 			// return new ExprAST(visitArrayElem(ctx.arrayElem()));
 			return null;
 		} else if (ctx.unaryOper() != null) {
-			return new ExprAST(visitExpr(ctx.expr(0)), visitUnaryOper(ctx.unaryOper()));
+			return new ExprAST(visitExpr(ctx.expr(0)),
+					visitUnaryOper(ctx.unaryOper()));
 		} else if (ctx.binaryOper() != null) {
 			return new ExprAST(visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)),
-							   visitBinaryOper(ctx.binaryOper()));
+					visitBinaryOper(ctx.binaryOper()));
 		} else {
 			return new ExprAST(visitExpr(ctx.expr(0)));
 		}
@@ -223,14 +224,14 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Timotej
 	@Override
 	public Type visitType(TypeContext ctx) {
-		if(ctx.baseType() != null) {
+		if (ctx.baseType() != null) {
 			return visitBaseType(ctx.baseType());
-		} else if(ctx.pairType() != null) {
+		} else if (ctx.pairType() != null) {
 			return visitPairType(ctx.pairType());
-		} else if(ctx.arrayType()!= null) {
+		} else if (ctx.arrayType() != null) {
 			return visitArrayType(ctx.arrayType());
 		} else {
-			assert false: "should not happen, one of the types should be recognized";
+			assert false : "should not happen, one of the types should be recognized";
 		}
 		return null;
 	}
@@ -239,35 +240,39 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	@Override
 	public StatAST visitStat(StatContext ctx) {
 		List<StatAST> stats = new LinkedList<StatAST>();
-	
-		if(ctx.stat().size() > 1 && ctx.IF() == null) {
-			for(StatContext s : ctx.stat()) {
+
+		if (ctx.stat().size() > 1 && ctx.IF() == null) {
+			for (StatContext s : ctx.stat()) {
 				stats.add(visitStat(s));
 			}
 			return new StatAST(stats);
 		} else {
-			if(ctx.READ() != null) {
+			if (ctx.READ() != null) {
 				return new ReadStatementAST(visitExpr(ctx.expr()));
 			} else if (ctx.EXIT() != null) {
 				return new ExitStatementAST(visitExpr(ctx.expr()));
 			} else if (ctx.SKIP() != null) {
 				return new SkipStatementAST();
-			} else if(ctx.FREE() != null) {
+			} else if (ctx.FREE() != null) {
 				return new FreeStatementAST(visitExpr(ctx.expr()));
-			} else if(ctx.RETURN() != null) {
+			} else if (ctx.RETURN() != null) {
 				return new ReturnStatementAST(visitExpr(ctx.expr()));
-			} else if(ctx.PRINT() != null) {
+			} else if (ctx.PRINT() != null) {
 				return new PrintStatementAST(visitExpr(ctx.expr()));
-			} else if(ctx.PRINTLN() != null) {
+			} else if (ctx.PRINTLN() != null) {
 				return new PrintlnStatementAST(visitExpr(ctx.expr()));
-			} else if(ctx.IF() != null && ctx.THEN() != null && ctx.ELSE() != null && ctx.FI() != null) {
-				return new IfStatementAST(visitExpr(ctx.expr()),visitStat(ctx.stat(0)), visitStat(ctx.stat(1)));			
-			} else if(ctx.WHILE() != null && ctx.DO() != null && ctx.DONE() != null) {
-				return new WhileStatementAST(visitExpr(ctx.expr()),visitStat(ctx.stat(0)));
-			} else if(ctx.BEGIN() != null &&  ctx.END() != null) {
-				return new ScopeAST(visitStat(ctx.stat(0)));
+			} else if (ctx.IF() != null && ctx.THEN() != null
+					&& ctx.ELSE() != null && ctx.FI() != null) {
+				return new IfStatementAST(visitExpr(ctx.expr()),
+						visitStat(ctx.stat(0)), visitStat(ctx.stat(1)));
+			} else if (ctx.WHILE() != null && ctx.DO() != null
+					&& ctx.DONE() != null) {
+				return new WhileStatementAST(visitExpr(ctx.expr()),
+						visitStat(ctx.stat(0)));
+			} else if (ctx.BEGIN() != null && ctx.END() != null) {
+				return new BeginEndAST(visitStat(ctx.stat(0)));
 			} else {
-				assert false: "should not happen";
+				assert false : "should not happen";
 			}
 		}
 		return null;
@@ -275,17 +280,17 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Michael
 	@Override
-	public LiterAST visitBoolLiter(BoolLiterContext ctx) {
+	public Liter visitBoolLiter(BoolLiterContext ctx) {
 		if (ctx.TRUE() != null) {
-			return new BoolLiterAST(true);
+			return new BoolLiter(true);
 		} else {
-			return new BoolLiterAST(false);
+			return new BoolLiter(false);
 		}
 	}
 
 	// Cale
 	@Override
-	public UnaryOpAST visitUnaryOper(UnaryOperContext ctx) {
+	public UnaryOp visitUnaryOper(UnaryOperContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -293,26 +298,26 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Timotej
 	@Override
 	public Type visitBaseType(BaseTypeContext ctx) {
-		if(ctx.BOOL() != null) {
+		if (ctx.BOOL() != null) {
 			return BaseType.T_bool;
-		} else if(ctx.INT() != null) {
+		} else if (ctx.INT() != null) {
 			return BaseType.T_int;
-		} else if(ctx.CHAR() != null) {
+		} else if (ctx.CHAR() != null) {
 			return BaseType.T_char;
-		} else if(ctx.STRING() != null) {
+		} else if (ctx.STRING() != null) {
 			return BaseType.T_string;
 		} else {
-			assert false: "should not happen, one of the types should be recognized";
+			assert false : "should not happen, one of the types should be recognized";
 		}
 		return null;
 	}
 
 	// Timotej
 	@Override
-	public WaccAST visitProgram(ProgramContext ctx) {
+	public ParseTreeReturnable visitProgram(ProgramContext ctx) {
 		List<FuncAST> func = new LinkedList<>();
-		
-		for(FuncContext f : ctx.func()) {
+
+		for (FuncContext f : ctx.func()) {
 			func.add(visitFunc(f));
 		}
 		return new ProgramAST(func, visitStat(ctx.stat()));
@@ -327,59 +332,59 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public ArrayLiterAST visitArrayLiter(ArrayLiterContext ctx) {
+	public ArrayLiter visitArrayLiter(ArrayLiterContext ctx) {
 		List<ExprAST> exprList = new LinkedList<>();
-		
+
 		for (ExprContext e : ctx.expr()) {
 			exprList.add(visitExpr(e));
 		}
-		
-		return new ArrayLiterAST(exprList);
+
+		return new ArrayLiter(exprList);
 	}
 
 	// Timotej
 	@Override
 	public Assignable visitAssignLhs(AssignLhsContext ctx) {
-		if(ctx.IDENT() != null) {
-			return  null;
-		} else if(ctx.arrayElem() != null) {
+		if (ctx.IDENT() != null) {
+			return null;
+		} else if (ctx.arrayElem() != null) {
 			return visitArrayElem(ctx.arrayElem());
-		} else if(ctx.pairElem() != null) {
+		} else if (ctx.pairElem() != null) {
 			return visitPairElem(ctx.pairElem());
 		} else {
-			assert false: "should not happen, one of the elems should be recognized";
+			assert false : "should not happen, one of the elems should be recognized";
 		}
 		return null;
 	}
 
 	// Cale
 	@Override
-	public LiterAST visitPairLiter(PairLiterContext ctx) {
-		return new PairLiterAST();
+	public Liter visitPairLiter(PairLiterContext ctx) {
+		return new PairLiter();
 	}
 
 	// Michael
 	@Override
-	public FuncAST visitFunc(FuncContext ctx) {	
+	public FuncAST visitFunc(FuncContext ctx) {
 		StatAST stat = visitStat(ctx.stat());
 		String ident = ctx.IDENT().getText();
-		
-		List<ParamAST> paramList = visitParamList(ctx.paramList()).getParamList();
-		
+
+		List<Param> paramList = visitParamList(ctx.paramList()).getParamList();
+
 		return new FuncAST(ident, paramList, stat);
 	}
 
 	// Michael
 	@Override
-	public LiterAST visitIntLiter(IntLiterContext ctx) {
-		IntLiterAST sign = visitIntSign(ctx.intSign());
+	public Liter visitIntLiter(IntLiterContext ctx) {
+		IntLiter sign = visitIntSign(ctx.intSign());
 		int intLiter = Integer.parseInt(ctx.INTEGER().getText());
-		return new IntLiterAST(intLiter * sign.getInt());
+		return new IntLiter(intLiter * sign.getInt());
 	}
 
 	// Cale
 	@Override
-	public WaccAST visitPairElemType(PairElemTypeContext ctx) {
+	public ParseTreeReturnable visitPairElemType(PairElemTypeContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}

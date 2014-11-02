@@ -1,5 +1,37 @@
-TODO: write your compiler in this directory.
+WACC COMPILER NOTES
 
-Important! - the antlr directory in this directory will be overwritten by the 
-             antlrBuild script. We heavily suggest you do not write any of your 
-             code within the antlr directory. 
+AST:
+The components of the AST are either one of the tow classes (implements WaccAST):
+- Nodes of the AST :
+-- Expr
+-- All classes derived from Stat
+-- Func
+-- Program
+--
+ 
+- Objects that are not nodes implements ParseTreeReturnable : 
+-- Arglist
+-- Param
+-- ParamList
+-- Literals (contained within an Expr node)
+-- Ops (same as above)
+-- Types
+-- 
+
+
+
+Naming conventions:
+- Nodes:
+-- Must have a suffix AST.
+- Not Nodes:
+-- Do not.
+
+
+
+
+Error Handling:
+This is done by creating an ErrorRecord Object,(implentation tbd)
+
+
+Interfaces
+Assignable - For identifiers, pair-elems, array-elems (able to be found in the symbol table)

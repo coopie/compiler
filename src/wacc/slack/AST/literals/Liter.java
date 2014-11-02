@@ -1,9 +1,10 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.AST.ParseTreeReturnable;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.types.Type;
 
-public interface LiterAST extends WaccAST {
+public interface Liter extends ParseTreeReturnable {
 
 	public Type getType();
 }

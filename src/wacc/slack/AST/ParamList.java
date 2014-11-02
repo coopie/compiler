@@ -4,9 +4,9 @@ import java.util.List;
 
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class ParamListAST implements WaccAST {
+public class ParamList implements WaccAST {
 
-	private List<ParamAST> paramList;
+	private List<Param> paramList;
 	
 	@Override
 	public int getPosition() {
@@ -19,7 +19,7 @@ public class ParamListAST implements WaccAST {
 		// TODO Auto-generated method stub
 	}
 
-	public List<ParamAST> getParamList() {
+	public List<Param> getParamList() {
 		return paramList;
 	}
 }
