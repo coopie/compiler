@@ -2,6 +2,7 @@ package wacc.slack.AST.statements;
 
 import wacc.slack.AST.ExprAST;
 import wacc.slack.AST.StatAST;
+import wacc.slack.AST.visitors.ASTVisitor;
 
 
 public abstract class ExprStatementAST extends StatAST {
@@ -18,5 +19,10 @@ public abstract class ExprStatementAST extends StatAST {
 	@Override
 	public String toString() {
 		return getName() + expr.toString();
+	}
+	
+	@Override 
+	public void accept(ASTVisitor v) {
+		v.visit(this);
 	}
 }

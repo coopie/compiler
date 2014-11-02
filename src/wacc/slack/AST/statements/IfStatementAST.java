@@ -2,6 +2,7 @@ package wacc.slack.AST.statements;
 
 import wacc.slack.AST.ExprAST;
 import wacc.slack.AST.StatAST;
+import wacc.slack.AST.visitors.ASTVisitor;
 
 public class IfStatementAST extends StatAST {
 
@@ -16,5 +17,8 @@ public class IfStatementAST extends StatAST {
 				this.trueStats = trueStats;
 				this.falseStats = falseStats;
 	}
-
+	@Override 
+	public void accept(ASTVisitor v) {
+		v.visit(this);
+	}
 }
