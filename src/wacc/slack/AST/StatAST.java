@@ -38,7 +38,9 @@ public class StatAST implements WaccAST,Iterable<StatAST> {
 
 	@Override
 	public void accept(ASTVisitor visitor) {
-		visitor.visit(this);
+		for(StatAST s : this) {
+			visitor.visit(s);
+		}
 	}
 
 }
