@@ -9,11 +9,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.AST.literals.BinaryOpAST;
 import wacc.slack.AST.literals.BoolLiterAST;
 import wacc.slack.AST.literals.CharLiterAST;
 import wacc.slack.AST.literals.IntLiterAST;
 import wacc.slack.AST.literals.LiterAST;
 import wacc.slack.AST.literals.StringLiterAST;
+import wacc.slack.AST.literals.UnaryOpAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
@@ -131,7 +133,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitBinaryOper(BinaryOperContext ctx) {
+	public BinaryOpAST visitBinaryOper(BinaryOperContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -239,7 +241,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitUnaryOper(UnaryOperContext ctx) {
+	public UnaryOpAST visitUnaryOper(UnaryOperContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
