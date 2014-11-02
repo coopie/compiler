@@ -100,9 +100,14 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitArgList(ArgListContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+	public ArgListAST visitArgList(ArgListContext ctx) {
+		List<ExprAST> exprList = new LinkedList<>();
+		
+		for (ExprContext e : ctx.expr()) {
+			exprList.add(visitExpr(e));
+		}
+		
+		return new ArgListAST(exprList);
 	}
 
 	// Cale

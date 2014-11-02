@@ -1,5 +1,6 @@
 package wacc.slack.AST.visitors;
 
+import wacc.slack.AST.ArgListAST;
 import wacc.slack.AST.ExprAST;
 import wacc.slack.AST.FuncAST;
 import wacc.slack.AST.ParamAST;
@@ -20,4 +21,5 @@ public interface ASTVisitor {
 	void visit(PairLiterAST pairLiter);
 	void visit(ParamAST paramAST);
 	void visit(ArrayLiterAST arrayLiterAST);
+	void visit(ArgListAST argListAST);
 }
