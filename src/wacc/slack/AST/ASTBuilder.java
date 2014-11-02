@@ -10,7 +10,10 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import wacc.slack.AST.literals.BoolLiterAST;
+import wacc.slack.AST.literals.CharLiterAST;
 import wacc.slack.AST.literals.IntLiterAST;
+import wacc.slack.AST.literals.LiterAST;
+import wacc.slack.AST.literals.StringLiterAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
@@ -143,8 +146,32 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Michael 
 	@Override
 	public ExprAST visitExpr(ExprContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		if (ctx.intLiter() != null) {
+			return new ExprAST(visitIntLiter(ctx.intLiter()));
+		} else if (ctx.boolLiter() != null) {
+			return new ExprAST(visitBoolLiter(ctx.boolLiter()));
+		} else if (ctx.CHAR_LTR() != null) {
+			return new ExprAST(new CharLiterAST(ctx.CHAR_LTR().getText()));
+		} else if (ctx.STRING_LTR() != null) {
+			return new ExprAST(new StringLiterAST(ctx.STRING_LTR().getText()));
+		} else if (ctx.pairLiter() != null) {
+			return new ExprAST(visitPairLiter(ctx.pairLiter()));
+		} else if (ctx.IDENT() != null) {
+			return null;
+		} else if (ctx.arrayElem() != null) {
+			// Need to fix this
+			// visitArrayElem returns Assignable
+			// need to return LiterAST
+			// return new ExprAST(visitArrayElem(ctx.arrayElem()));
+			return null;
+		} else if (ctx.unaryOper() != null) {
+			return new ExprAST(visitExpr(ctx.expr(0)), visitUnaryOper(ctx.unaryOper()));
+		} else if (ctx.binaryOper() != null) {
+			return new ExprAST(visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)),
+							   visitBinaryOper(ctx.binaryOper()));
+		} else {
+			return new ExprAST(visitExpr(ctx.expr(0)));
+		}
 	}
 
 	// Timotej
@@ -202,7 +229,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Michael
 	@Override
-	public WaccAST visitBoolLiter(BoolLiterContext ctx) {
+	public LiterAST visitBoolLiter(BoolLiterContext ctx) {
 		if (ctx.TRUE() != null) {
 			return new BoolLiterAST(true);
 		} else {
@@ -262,7 +289,6 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Timotej
 	@Override
 	public Assignable visitAssignLhs(AssignLhsContext ctx) {
-		// TODO Auto-generated method stub
 		if(ctx.IDENT() != null) {
 			return  null;
 		} else if(ctx.arrayElem() != null) {
@@ -277,7 +303,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitPairLiter(PairLiterContext ctx) {
+	public LiterAST visitPairLiter(PairLiterContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -295,7 +321,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Michael
 	@Override
-	public WaccAST visitIntLiter(IntLiterContext ctx) {
+	public LiterAST visitIntLiter(IntLiterContext ctx) {
 		IntLiterAST sign = visitIntSign(ctx.intSign());
 		int intLiter = Integer.parseInt(ctx.INTEGER().getText());
 		return new IntLiterAST(intLiter * sign.getInt());

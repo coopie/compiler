@@ -1,9 +1,8 @@
 package wacc.slack.AST.literals;
 
-import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class BoolLiterAST implements WaccAST {
+public class BoolLiterAST implements LiterAST {
 
 	private final boolean b;
 	
@@ -18,6 +17,7 @@ public class BoolLiterAST implements WaccAST {
 
 	@Override
 	public void accept(ASTVisitor visitor) {
+		visitor.visit(this);
 	}
 
 	public boolean getBool() {
