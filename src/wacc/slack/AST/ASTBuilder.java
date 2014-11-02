@@ -131,7 +131,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 		return null;
 	}
 
-	// Cale
+	// Michael
 	@Override
 	public BinaryOpAST visitBinaryOper(BinaryOperContext ctx) {
 		// TODO Auto-generated method stub
