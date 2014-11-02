@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.AST.literals.ArrayLiterAST;
 import wacc.slack.AST.literals.BinaryOpAST;
 import wacc.slack.AST.literals.BoolLiterAST;
 import wacc.slack.AST.literals.CharLiterAST;
@@ -285,9 +286,14 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitArrayLiter(ArrayLiterContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayLiterAST visitArrayLiter(ArrayLiterContext ctx) {
+		List<ExprAST> exprList = new LinkedList<>();
+		
+		for (ExprContext e : ctx.expr()) {
+			exprList.add(visitExpr(e));
+		}
+		
+		return new ArrayLiterAST(exprList);
 	}
 
 	// Timotej
