@@ -9,18 +9,15 @@ public enum BinaryOpAST implements WaccAST {
 
 	@Override
 	public int getPosition() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public void accept(ASTVisitor visitor) {
-		// TODO Auto-generated method stub
-		
+		visitor.visit(this);
 	}
 
 	public Type getType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

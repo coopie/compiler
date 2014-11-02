@@ -7,6 +7,7 @@ import wacc.slack.AST.ParamAST;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.StatAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
+import wacc.slack.AST.literals.BinaryOpAST;
 import wacc.slack.AST.literals.BoolLiterAST;
 import wacc.slack.AST.literals.IntLiterAST;
 import wacc.slack.AST.literals.PairLiterAST;
@@ -22,4 +23,5 @@ public interface ASTVisitor {
 	void visit(ParamAST paramAST);
 	void visit(ArrayLiterAST arrayLiterAST);
 	void visit(ArgListAST argListAST);
+	void visit(BinaryOpAST binaryOpAST);
 }

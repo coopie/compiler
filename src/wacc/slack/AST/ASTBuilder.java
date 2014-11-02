@@ -113,7 +113,15 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Cale
 	@Override
 	public Type visitArrayType(ArrayTypeContext ctx) {
-		// TODO Auto-generated method stub
+		if(ctx.baseType() != null) {
+			return visitBaseType(ctx.baseType());
+		} else if(ctx.pairType() != null) {
+			return visitPairType(ctx.pairType());
+		} else if(ctx.arrayType()!= null) {
+			return visitArrayType(ctx.arrayType());
+		} else {
+			assert false: "should not happen, one of the types should be recognized";
+		}
 		return null;
 	}
 
@@ -142,7 +150,35 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Michael
 	@Override
 	public BinaryOpAST visitBinaryOper(BinaryOperContext ctx) {
-		// TODO Auto-generated method stub
+		if(ctx.MUL() != null) {
+			return BinaryOpAST.MUL;
+		} else if (ctx.DIV() != null) {
+			return BinaryOpAST.DIV;
+		} else if (ctx.MOD() != null) {
+			return BinaryOpAST.MOD; 
+		} else if (ctx.PLUS() != null) {
+			return BinaryOpAST.PLUS;
+		} else if (ctx.MINUS() != null) {
+			return BinaryOpAST.MINUS;
+		} else if (ctx.GT() != null) {
+			return BinaryOpAST.GT;
+		} else if (ctx.GTE() != null) {
+			return BinaryOpAST.GTE;
+		} else if (ctx.LT() != null) {
+			return BinaryOpAST.LT;
+		} else if (ctx.LTE() != null) {
+			return BinaryOpAST.LTE;
+		} else if (ctx.EQ() != null) {
+			return BinaryOpAST.EQ;
+		} else if (ctx.NEQ() != null) {
+			return BinaryOpAST.NEQ;
+		} else if (ctx.AND() != null) {
+			return BinaryOpAST.AND;
+		} else if (ctx.OR() != null) {
+			return BinaryOpAST.OR; 
+		} else {
+			assert false: "should not happen, one of the operators should be recognized";
+		}
 		return null;
 	}
 
