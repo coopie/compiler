@@ -1,5 +1,7 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class CharLiterAST implements LiterAST {
@@ -18,6 +20,11 @@ public class CharLiterAST implements LiterAST {
 	public void accept(ASTVisitor visitor) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Type getType() {
+		return BaseType.T_char;
 	}
 
 }

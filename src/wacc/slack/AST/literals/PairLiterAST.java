@@ -1,5 +1,7 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class PairLiterAST implements LiterAST {
@@ -13,7 +15,12 @@ public class PairLiterAST implements LiterAST {
 	@Override
 	public void accept(ASTVisitor visitor) {
 		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public Type getType() {
+		// Will need to change this depending on the contents of the pair
+		return BaseType.T_pair;
 	}
 
 }
