@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import wacc.slack.AST.literals.BoolLiterAST;
+import wacc.slack.AST.literals.IntLiterAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
@@ -73,10 +74,14 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 		return null;
 	}
 
+	// Michael
 	@Override
-	public WaccAST visitIntSign(IntSignContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+	public IntLiterAST visitIntSign(IntSignContext ctx) {
+		if (ctx.MINUS() != null) {
+			return new IntLiterAST(-1);
+		} else {
+			return new IntLiterAST(1);
+		}
 	}
 
 	// Cale
@@ -290,8 +295,10 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Michael
 	@Override
-	public WaccAST visitIntLiter(IntLiterContext ctx) { 		
-		return null;
+	public WaccAST visitIntLiter(IntLiterContext ctx) {
+		IntLiterAST sign = visitIntSign(ctx.intSign());
+		int intLiter = Integer.parseInt(ctx.INTEGER().getText());
+		return new IntLiterAST(intLiter * sign.getInt());
 	}
 
 	// Cale
