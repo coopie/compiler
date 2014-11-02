@@ -1,5 +1,7 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class IntLiterAST implements LiterAST {
@@ -22,6 +24,11 @@ public class IntLiterAST implements LiterAST {
 
 	public int getInt() {
 		return i;
+	}
+
+	@Override
+	public Type getType() {
+		return BaseType.T_int;
 	}
 
 }

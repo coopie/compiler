@@ -15,15 +15,13 @@ public class ExprAST implements WaccAST{
 	public ExprAST(LiterAST literAST) {
 		this.literAST = literAST;
 		this.expr = null;
-		this.type = getTypeOfLiterAST(literAST);
+		this.type = literAST.getType();
 	}
 
 	public ExprAST(ExprAST expr, UnaryOpAST unaryOp) {
-		// TODO Auto-generated constructor stub
 		this.literAST = null;
 		this.expr = null;
 		
-		// Need to test this
 		if (expr.getType() == unaryOp.getType()) {
 			this.type = expr.getType();
 		} else {
@@ -34,11 +32,9 @@ public class ExprAST implements WaccAST{
 	
 	public ExprAST(ExprAST expr, ExprAST expr2,
 			BinaryOpAST binaryOp) {
-		// TODO Auto-generated constructor stub
 		this.literAST = null;
 		this.expr = null;
 		
-		// Need to test this
 		if (expr.getType() == expr2.getType() && expr.getType() == binaryOp.getType()) {
 			this.type = expr.getType();
 		} else {
@@ -51,10 +47,6 @@ public class ExprAST implements WaccAST{
 		this.literAST = null;
 		this.expr = expr;
 		this.type = expr.type;
-	}
-	
-	private Type getTypeOfLiterAST(LiterAST literAST) {
-		return null;
 	}
 	
 	@Override
