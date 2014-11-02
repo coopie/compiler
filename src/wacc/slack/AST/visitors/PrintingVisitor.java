@@ -2,10 +2,12 @@ package wacc.slack.AST.visitors;
 
 import wacc.slack.AST.ExprAST;
 import wacc.slack.AST.FuncAST;
+import wacc.slack.AST.ParamAST;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.StatAST;
 import wacc.slack.AST.literals.BoolLiterAST;
 import wacc.slack.AST.literals.IntLiterAST;
+import wacc.slack.AST.literals.PairLiterAST;
 
 public class PrintingVisitor implements ASTVisitor {
 
@@ -50,7 +52,20 @@ public class PrintingVisitor implements ASTVisitor {
 	}
 	
 	@Override
+	public void visit(PairLiterAST pairLiter) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void visit(ParamAST paramAST) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
 	public String toString() {
 		return output;
 	}
+
 }
