@@ -14,6 +14,7 @@ import wacc.slack.AST.literals.BoolLiterAST;
 import wacc.slack.AST.literals.CharLiterAST;
 import wacc.slack.AST.literals.IntLiterAST;
 import wacc.slack.AST.literals.LiterAST;
+import wacc.slack.AST.literals.PairLiterAST;
 import wacc.slack.AST.literals.StringLiterAST;
 import wacc.slack.AST.literals.UnaryOpAST;
 import wacc.slack.AST.statements.ExitStatementAST;
@@ -112,9 +113,10 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 
 	// Cale
 	@Override
-	public WaccAST visitParam(ParamContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+	public ParamAST visitParam(ParamContext ctx) {
+		String ident = ctx.IDENT().getText();
+		Type type = visitType(ctx.type());
+		return new ParamAST(ident, type);
 	}
 
 	// Cale
@@ -306,8 +308,7 @@ public class ASTBuilder implements WaccParserVisitor<WaccAST> {
 	// Cale
 	@Override
 	public LiterAST visitPairLiter(PairLiterContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PairLiterAST();
 	}
 
 	// Michael
