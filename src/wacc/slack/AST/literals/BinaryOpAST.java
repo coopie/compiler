@@ -1,6 +1,7 @@
 package wacc.slack.AST.literals;
 
 import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public enum BinaryOpAST implements WaccAST {
@@ -18,4 +19,9 @@ public enum BinaryOpAST implements WaccAST {
 		
 	}
 
+	public Type getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }
