@@ -11,16 +11,23 @@ public class UnaryExprAST implements ExprAST {
 
 	private final UnaryOp unaryOp;
 	private final ExprAST expr;
+	private final int linePos, charPos;
 	
-	public UnaryExprAST(UnaryOp unaryOp, ExprAST expr) {
+	public UnaryExprAST(UnaryOp unaryOp, ExprAST expr, int linePos, int charPos) {
 		this.unaryOp = unaryOp;
 		this.expr = expr;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 	
 	@Override
-	public int getPosition() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	@Override
@@ -46,7 +53,7 @@ public class UnaryExprAST implements ExprAST {
 
 				@Override
 				public int getLineNumber() {
-					return getPosition();
+					return getLine();
 				} 
 			});
 		}

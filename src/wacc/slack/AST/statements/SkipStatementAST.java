@@ -5,6 +5,9 @@ import wacc.slack.AST.visitors.ASTVisitor;
 
 public class SkipStatementAST extends StatAST {
 
+	public SkipStatementAST(int linePos, int charPos) {
+		super(linePos, charPos);
+	}
 	@Override
 	public String toString() {
 		return "skip";

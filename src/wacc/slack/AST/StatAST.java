@@ -9,13 +9,18 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public class StatAST implements WaccAST, Iterable<StatAST> {
 
 	private final List<StatAST> stats;
+	private final int linePos, charPos;
 
-	public StatAST() {
+	public StatAST(int linePos, int charPos) {
 		stats = new LinkedList<>();
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 	
-	public StatAST(List<StatAST> stats) {
+	public StatAST(List<StatAST> stats, int linePos, int charPos) {
 		this.stats = stats;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 	
 	protected void addStat(StatAST stat) {
@@ -32,8 +37,13 @@ public class StatAST implements WaccAST, Iterable<StatAST> {
 	}
 
 	@Override
-	public int getPosition() {
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	@Override

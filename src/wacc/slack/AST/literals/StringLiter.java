@@ -20,6 +20,16 @@ public class StringLiter implements Liter {
 		return null;
 	}
 	
-	
+	@Override
+	public int getLine() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getCharColumn() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }

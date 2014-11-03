@@ -8,7 +8,8 @@ public abstract class ExprStatementAST extends StatAST {
 
 	protected final ExprAST expr;
 
-	public ExprStatementAST(ExprAST exprAST) {
+	public ExprStatementAST(ExprAST exprAST, int linePos, int charPos) {
+		super(linePos, charPos);
 		addStat(this);
 		this.expr = exprAST;
 	}

@@ -6,16 +6,16 @@ import wacc.slack.AST.visitors.ASTVisitor;
 
 public class IfStatementAST extends StatAST {
 
-	private final StatAST falseStats;
+	private final StatAST falseStats, trueStats;
 	private final ExprAST cond;
-	private final StatAST trueStats;
 
 	public IfStatementAST(ExprAST exprAST, StatAST trueStats,
-			StatAST falseStats) {
-				addStat(this);
-				this.cond = exprAST;
-				this.trueStats = trueStats;
-				this.falseStats = falseStats;
+			StatAST falseStats, int linePos, int charPos) {
+		super(linePos, charPos);
+		addStat(this);
+		this.cond = exprAST;
+		this.trueStats = trueStats;
+		this.falseStats = falseStats;
 	}
 	@Override 
 	public void accept(ASTVisitor v) {

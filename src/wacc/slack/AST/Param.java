@@ -4,15 +4,28 @@ import wacc.slack.AST.types.Type;
 
 public class Param implements ParseTreeReturnable {
 	
-	private String ident;
-	private Type type;
+	private final String ident;
+	private final Type type;
+	private final int linePos, charPos;
 	
-	public Param(String ident, Type type) {
+	public Param(String ident, Type type, int linePos, int charPos) {
 		this.ident = ident;
 		this.type = type;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 
- String getIdent() {
+	@Override
+	public int getLine() {
+		return linePos;
+	}
+
+	@Override
+	public int getCharColumn() {
+		return charPos;
+	}
+	
+	public String getIdent() {
 		return ident;
 	}
 	

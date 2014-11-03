@@ -2,10 +2,10 @@ package wacc.slack.AST.types;
 
 public class PairType implements Type {
 
-	Type fst;
-	Type snd;
+	private final Type fst, snd;
+	private final int linePos, charPos;
 	
-	public PairType(Type fst, Type snd) {
+	public PairType(Type fst, Type snd, int linePos, int charPos) {
 		if (fst instanceof PairType) {
 			this.fst = BaseType.T_pair;
 		} else {
@@ -17,11 +17,32 @@ public class PairType implements Type {
 		} else {
 			this.snd = snd;
 		}
+		
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 
+	@Override
+	public int getLine() {
+		return linePos;
+	}
+
+	@Override
+	public int getCharColumn() {
+		return charPos;
+	}
+	
 	public boolean equals(Type t) {
 		return t instanceof PairType &&
 				fst.equals(((PairType) t).fst) &&
 				snd.equals(((PairType) t).snd);
+	}
+	
+	public Type getFst() {
+		return fst;
+	}
+	
+	public Type getSnd() {
+		return snd;
 	}
 }

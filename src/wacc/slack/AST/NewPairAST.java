@@ -5,18 +5,24 @@ import wacc.slack.AST.visitors.ASTVisitor;
 
 public class NewPairAST implements AssignRHS {
 	
-	private final ExprAST exprL;
-	private final ExprAST exprR;
+	private final ExprAST exprL, exprR;
+	private final int linePos, charPos;
 
-	public NewPairAST(ExprAST expr1, ExprAST expr2) {
+	public NewPairAST(ExprAST expr1, ExprAST expr2, int linePos, int charPos) {
 		this.exprL = expr1;
 		this.exprR = expr2;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 
 	@Override
-	public int getPosition() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	@Override

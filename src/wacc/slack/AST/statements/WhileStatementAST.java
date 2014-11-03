@@ -9,7 +9,8 @@ public class WhileStatementAST extends StatAST {
 	private final ExprAST cond;
 	private final StatAST body;
 
-	public WhileStatementAST(ExprAST exprAST, StatAST body) {
+	public WhileStatementAST(ExprAST exprAST, StatAST body, int linePos, int charPos) {
+		super(linePos, charPos);
 		addStat(this);
 		this.cond = exprAST;
 		this.body = body;

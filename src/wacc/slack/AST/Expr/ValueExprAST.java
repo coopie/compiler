@@ -7,15 +7,22 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public class ValueExprAST implements ExprAST {
 
 	private final Liter liter;
+	private final int linePos, charPos;
 	
-	public ValueExprAST(Liter l) {
+	public ValueExprAST(Liter l, int linePos, int charPos) {
 		this.liter = l ;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 	
 	@Override
-	public int getPosition() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	public String getValue() {
@@ -36,9 +43,8 @@ public class ValueExprAST implements ExprAST {
 	public void accept(ASTVisitor visitor) {
 		visitor.visit(this);	
 	}
-	
-	public void checkTypes() {
-		// Values never have type errors
 
+	@Override
+	public void checkTypes() {
 	}
 }

@@ -9,16 +9,24 @@ public class FuncAST implements WaccAST{
 	private final String ident;
 	private final StatAST stat;
 	private final List<Param> paramList;
+	private final int linePos, charPos;
 
-	public FuncAST(String ident, List<Param> paramList2, StatAST stat) {
+	public FuncAST(String ident, List<Param> paramList2, StatAST stat, int linePos, int charPos) {
 		this.ident = ident;
 		this.paramList = paramList2;
 		this.stat = stat;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 
 	@Override
-	public int getPosition() {
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 	
 	@Override
