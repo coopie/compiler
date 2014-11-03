@@ -35,7 +35,7 @@ public enum BinaryOp implements Liter {
 		case OR:
 			return BaseType.T_bool;
 		default :
-			return null;
+			throw new RuntimeException("not supported BiaryOP");
 		}
 	}
 
