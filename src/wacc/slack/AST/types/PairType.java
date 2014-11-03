@@ -1,7 +1,5 @@
 package wacc.slack.AST.types;
 
-import wacc.slack.AST.visitors.ASTVisitor;
-
 public class PairType implements Type {
 
 	Type fst;
