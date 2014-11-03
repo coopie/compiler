@@ -20,6 +20,23 @@ public class FuncAST implements WaccAST{
 	public int getPosition() {
 		return 0;
 	}
+	
+	@Override
+	public String toString() {
+		String output = ident + "(";
+		if(paramList != null) {
+			for(Param p : paramList) {
+				output = p.toString() + ", ";
+			}
+			if(output.endsWith(", ")) {
+				output.substring(0, output.length() - 3);
+			}
+		}
+		output += "):\n";
+		output += stat;
+		
+		return output;
+	}
 
 	@Override
 	public void accept(ASTVisitor visitor) {

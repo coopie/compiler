@@ -2,7 +2,6 @@ package wacc.slack.AST.literals;
 
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
-import wacc.slack.AST.visitors.ASTVisitor;
 
 public class IntLiter implements Liter {
 
@@ -24,6 +23,12 @@ public class IntLiter implements Liter {
 	@Override
 	public String toString() {
 		return "" + i;
+	}
+
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return Integer.toString(i);
 	}
 
 }

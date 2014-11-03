@@ -5,25 +5,25 @@ import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.StatAST;
 import wacc.slack.AST.Expr.ExprAST;
 
+
 public class PrintingVisitor implements ASTVisitor {
 
 	private String output = "";
 
 	@Override
 	public void visit(ProgramAST program) {
-		output += "start:\n";
+		output += "start:";
 		for(FuncAST f : program.getFunctions()) {
-			output += "\t";
-			visit(f);
+			f.accept(this);
 		}
-		output += "\t";
-		visit(program.getStatements());
-		output +="end";
+		program.getStatements().accept(this);
+
+		output +="\nend";
 	}
 
 	@Override
 	public void visit(StatAST stat) {
-		output += stat + "\n";
+		output += "\n\t" + stat;
 
 	}
 
@@ -34,7 +34,7 @@ public class PrintingVisitor implements ASTVisitor {
 	
 	@Override
 	public void visit(ExprAST expr) {
-		// TODO Auto-generated method stub
+		output += " " + expr.toString();
 	}
 	
 	@Override
