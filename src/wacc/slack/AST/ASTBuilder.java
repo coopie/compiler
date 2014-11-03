@@ -368,8 +368,12 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public FuncAST visitFunc(FuncContext ctx) {
 		StatAST stat = visitStat(ctx.stat());
 		String ident = ctx.IDENT().getText();
-
-		List<Param> paramList = visitParamList(ctx.paramList()).getParamList();
+		
+		List<Param> paramList = null;
+		
+		if(ctx.paramList() != null) {
+			paramList = visitParamList(ctx.paramList()).getParamList();
+		}
 
 		return new FuncAST(ident, paramList, stat);
 	}
@@ -377,7 +381,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Michael
 	@Override
 	public Liter visitIntLiter(IntLiterContext ctx) {
-		IntLiter sign = visitIntSign(ctx.intSign());
+		IntLiter sign = new IntLiter(1);
+		if(ctx.intSign() != null) {
+			sign = visitIntSign(ctx.intSign());
+		}
 		int intLiter = Integer.parseInt(ctx.INTEGER().getText());
 		return new IntLiter(intLiter * sign.getInt());
 	}

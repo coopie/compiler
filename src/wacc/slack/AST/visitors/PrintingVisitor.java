@@ -8,7 +8,6 @@ import wacc.slack.AST.StatAST;
 import wacc.slack.AST.literals.BoolLiter;
 import wacc.slack.AST.literals.IntLiter;
 import wacc.slack.AST.literals.PairLiter;
-import wacc.slack.AST.statements.ExitStatementAST;
 
 public class PrintingVisitor implements ASTVisitor {
 
@@ -34,7 +33,7 @@ public class PrintingVisitor implements ASTVisitor {
 
 	@Override
 	public void visit(FuncAST func) {
-		// TODO Auto-generated method stub
+		output += func.toString();
 	}
 	
 	@Override
