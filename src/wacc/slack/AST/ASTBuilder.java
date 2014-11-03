@@ -306,7 +306,19 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public UnaryOp visitUnaryOper(UnaryOperContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.NOT() != null) {
+			return UnaryOp.NOT;
+		} else if (ctx.MINUS() != null) {
+			return UnaryOp.MINUS;
+		} else if (ctx.LEN() != null) {
+			return UnaryOp.LEN;
+		} else if (ctx.ORD() != null) {
+			return UnaryOp.ORD;
+		} else if (ctx.CHR() != null) {
+			return UnaryOp.CHR;
+		} else {
+			assert false: "should not happen, one of the operators should be recognized";
+		}
 		return null;
 	}
 
