@@ -18,12 +18,17 @@ public class ASTTest {
 
 	@Test
 	public void simpleSkipAST() {
-		WaccAST ast = getAST("begin skip end");
+		simpleTestAssert("begin skip end", "start:\n\tskip\nend");
+	}
+	
+	
+	private void simpleTestAssert(String in, String expectedOut) {
+		WaccAST ast = getAST(in);
 		PrintingVisitor p = new PrintingVisitor();
 		ast.accept(p);
 		
 		System.out.println(p);
-		assertEquals("start:\n\tskip\nend",p.toString());
+		assertEquals(expectedOut, p.toString());
 	}
 	
 	private WaccAST getAST(String s) {

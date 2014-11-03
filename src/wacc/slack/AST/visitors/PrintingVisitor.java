@@ -8,6 +8,7 @@ import wacc.slack.AST.StatAST;
 import wacc.slack.AST.literals.BoolLiter;
 import wacc.slack.AST.literals.IntLiter;
 import wacc.slack.AST.literals.PairLiter;
+import wacc.slack.AST.statements.ExitStatementAST;
 
 public class PrintingVisitor implements ASTVisitor {
 
