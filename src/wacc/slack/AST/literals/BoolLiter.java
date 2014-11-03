@@ -20,4 +20,8 @@ public class BoolLiter implements Liter {
 		return BaseType.T_bool;
 	}
 
+	@Override
+	public String getValue() {
+		return Boolean.toString(b);
+	}
 }

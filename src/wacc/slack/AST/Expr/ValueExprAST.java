@@ -8,8 +8,8 @@ public class ValueExprAST implements ExprAST {
 
 	private final Liter liter;
 	
-	public ValueExprAST(Liter liter) {
-		this.liter = liter;
+	public ValueExprAST(Liter l) {
+		this.liter = l ;
 	}
 	
 	@Override
@@ -18,9 +18,8 @@ public class ValueExprAST implements ExprAST {
 		return 0;
 	}
 
-	@Override
-	public void accept(ASTVisitor visitor) {
-		visitor.visit(this);
+	public String getValue() {
+		return liter.getValue();
 	}
 	
 	@Override
@@ -29,7 +28,18 @@ public class ValueExprAST implements ExprAST {
 	}
 	
 	@Override
+<<<<<<< HEAD
+	public String toString() {
+		return getValue();
+	}
+
+	@Override
+	public void accept(ASTVisitor visitor) {
+		visitor.visit(this);
+		
+=======
 	public void checkTypes() {
 		// Values never have type errors
+>>>>>>> origin/master
 	}
 }

@@ -10,4 +10,11 @@ public class PairLiter implements Liter {
 	public Type getType() {
 		return BaseType.T_pair;
 	}
+
+
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

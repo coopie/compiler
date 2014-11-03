@@ -14,4 +14,12 @@ public class StringLiter implements Liter {
 		return BaseType.T_string;
 	}
 
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+
 }
