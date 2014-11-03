@@ -2,7 +2,6 @@ package wacc.slack.AST.literals;
 
 import java.util.List;
 
-import wacc.slack.AST.OLD__ExprAST;
 import wacc.slack.AST.ParseTreeReturnable;
 import wacc.slack.AST.Expr.ExprAST;
 

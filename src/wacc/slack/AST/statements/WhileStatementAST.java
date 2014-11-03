@@ -18,4 +18,12 @@ public class WhileStatementAST extends StatAST {
 	public void accept(ASTVisitor v) {
 		v.visit(this);
 	}
+	
+	public ExprAST getCond() {
+		return cond;
+	}
+	
+	public StatAST getBody() {
+		return body;
+	}
 }

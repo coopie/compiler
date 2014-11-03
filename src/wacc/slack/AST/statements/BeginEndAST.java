@@ -11,5 +11,9 @@ public class BeginEndAST extends StatAST {
 	public BeginEndAST(StatAST body) {
 		this.body = body;
 	}
+	
+	public StatAST getBody() {
+		return body;
+	}
 
 }
