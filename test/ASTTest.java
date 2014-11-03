@@ -22,9 +22,14 @@ public class ASTTest {
 	}
 	
 	@Test
-
-	public void skipExitAST() {
-		simpleTestAssert("begin skip; exit 7 end", "start:\n\tskip\nend");
+	public void simpleFreeAST() {
+		simpleTestAssert("begin free 6 end", "start:\n\tfree 6\nend");
+	}
+	
+	
+	@Test
+	public void multiSkipExitAST() {
+		simpleTestAssert("begin skip; skip; skip; skip;exit 7 end", "start:\n\tskip\n\tskip\n\tskip\n\tskip\n\texit 7\nend");
 	}
 
 	public void simpleFunctionDeclarationAST() {
