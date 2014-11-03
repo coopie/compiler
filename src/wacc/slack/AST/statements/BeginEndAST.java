@@ -8,7 +8,9 @@ public class BeginEndAST extends StatAST {
 
 	private final StatAST body;
 
-	public BeginEndAST(StatAST body) {
+	public BeginEndAST(StatAST body, int linePos, int charPos) {
+		super(linePos, charPos);
+		addStat(this);
 		this.body = body;
 	}
 	

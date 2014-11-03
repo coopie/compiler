@@ -12,21 +12,30 @@ public class ArrayElem implements Assignable, Liter {
 
 	private final String ident;
 	private final ExprAST expr;
+	private final int linePos, charPos;
 	
-	public ArrayElem(String ident, ExprAST expr) {
+	public ArrayElem(String ident, ExprAST expr, int linePos, int charPos) {
 		this.ident = ident;
 		this.expr = expr;
+		this.linePos = linePos;
+		this.charPos = charPos;
 
 		checkType();
 	}
 
 	@Override
-	public int getPosition() {
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 	
 	@Override
 	public void accept(ASTVisitor visitor) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -36,7 +45,7 @@ public class ArrayElem implements Assignable, Liter {
 
 	@Override
 	public Type getType() {
-		// NEEDS TO BE IMPLEMENTED ONCE IDENT IS CREATED
+		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -52,10 +61,16 @@ public class ArrayElem implements Assignable, Liter {
 
 				@Override
 				public int getLineNumber() {
-					return getPosition();
+					return getLine();
 				} 
 			});
 		}
+	}
+	
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	public String getIdent() {
@@ -64,11 +79,5 @@ public class ArrayElem implements Assignable, Liter {
 	
 	public ExprAST getExpr() {
 		return expr;
-	}
-
-	@Override
-	public String getValue() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

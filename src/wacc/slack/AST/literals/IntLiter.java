@@ -5,14 +5,12 @@ import wacc.slack.AST.types.Type;
 
 public class IntLiter implements Liter {
 
-	private final int i;
+	private final int i, linePos, charPos;
 	
-	public IntLiter(int i) {
+	public IntLiter(int i, int linePos, int charPos) {
 		this.i = i;
-	}
-
-	public int getInt() {
-		return i;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 
 	@Override
@@ -27,8 +25,21 @@ public class IntLiter implements Liter {
 
 	@Override
 	public String getValue() {
-		// TODO Auto-generated method stub
 		return Integer.toString(i);
+	}
+	
+	@Override
+	public int getLine() {
+		return linePos;
+	}
+
+	@Override
+	public int getCharColumn() {
+		return charPos;
+	}
+	
+	public int getInt() {
+		return i;
 	}
 
 }

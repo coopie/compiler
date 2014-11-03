@@ -1,6 +1,5 @@
 package wacc.slack.AST.Expr;
 
-import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
 import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.BaseType;
@@ -11,19 +10,26 @@ public class UnaryExprAST implements ExprAST {
 
 	private final UnaryOp unaryOp;
 	private final ExprAST expr;
+	private final int linePos, charPos;
 	private final boolean correctSubExpresions;
-	private ErrorRecords error  = ErrorRecords.getInstance();
+	private final ErrorRecords error = ErrorRecords.getInstance();
 	
-	public UnaryExprAST(UnaryOp unaryOp, ExprAST expr) {
+	public UnaryExprAST(UnaryOp unaryOp, ExprAST expr, int linePos, int charPos) {
 		this.unaryOp = unaryOp;
 		this.expr = expr;
+		this.linePos = linePos;
+		this.charPos = charPos;
 		correctSubExpresions = checkTypes();
 	}
 	
 	@Override
-	public int getPosition() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	@Override
@@ -47,6 +53,10 @@ public class UnaryExprAST implements ExprAST {
 			default: throw new RuntimeException("not suppoerted UnaryOP");
 		}
 	}
+	
+	public boolean isCorrectSubExpresions() {
+		return correctSubExpresions;
+	}
 
 	public UnaryOp getUnaryOp() {
 		return unaryOp;
@@ -54,5 +64,9 @@ public class UnaryExprAST implements ExprAST {
 
 	public ExprAST getExpr() {
 		return expr;
+	}
+
+	public ErrorRecords getError() {
+		return error;
 	}
 }

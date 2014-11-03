@@ -10,18 +10,29 @@ public class BinaryExprAST implements ExprAST {
 	private final BinaryOp binaryOp;
 	private final ExprAST exprL, exprR;
 	private final boolean typesCheck;
+	private final int linePos, charPos;
+
 	
-	public BinaryExprAST(BinaryOp binaryOp, ExprAST exprL, ExprAST exprR) {
+	public BinaryExprAST(BinaryOp binaryOp, ExprAST exprL, ExprAST exprR, int linePos, int charPos) {
 		this.binaryOp = binaryOp;
 		this.exprL = exprL;
 		this.exprR = exprR;
+
 		this.typesCheck = checkTypes();
+		
+		this.linePos = linePos;
+		this.charPos = charPos;
+
 	}
 	
 	@Override
-	public int getPosition() {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	@Override
@@ -36,7 +47,6 @@ public class BinaryExprAST implements ExprAST {
 		return binaryOp.getType();
 	}
 	
-
 	private boolean checkTypes() {
 		switch (binaryOp) {
 		case MUL:

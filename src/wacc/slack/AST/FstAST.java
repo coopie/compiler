@@ -9,20 +9,29 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public class FstAST implements Assignable {
 	
 	private final ExprAST expr;
+	private final int linePos, charPos;
 	
-	public FstAST(ExprAST expr) {
+	public FstAST(ExprAST expr, int linePos, int charPos) {
 		this.expr = expr;
+		this.linePos = linePos;
+		this.charPos = charPos;
 		
 		checkType();
 	}
 	
 	@Override
-	public int getPosition() {
-		return 0;
+	public int getLine() {
+		return linePos;
 	}
 
 	@Override
+	public int getCharColumn() {
+		return charPos;
+	}
+	
+	@Override
 	public void accept(ASTVisitor visitor) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -42,7 +51,7 @@ public class FstAST implements Assignable {
 
 				@Override
 				public int getLineNumber() {
-					return getPosition();
+					return getLine();
 				} 
 			});
 		}
@@ -51,5 +60,4 @@ public class FstAST implements Assignable {
 	public ExprAST getExpr() {
 		return expr;
 	}
-
 }

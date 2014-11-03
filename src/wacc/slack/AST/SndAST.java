@@ -9,20 +9,29 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public class SndAST implements Assignable {
 	
 	private final ExprAST expr;
+	private final int linePos, charPos;
 	
-	public SndAST(ExprAST expr) {
+	public SndAST(ExprAST expr, int linePos, int charPos) {
 		this.expr = expr;
+		this.linePos = linePos;
+		this.charPos = charPos;
 		
 		checkType();
 	}
 
 	@Override
-	public int getPosition() {
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	@Override
 	public void accept(ASTVisitor visitor) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -42,7 +51,7 @@ public class SndAST implements Assignable {
 
 				@Override
 				public int getLineNumber() {
-					return getPosition();
+					return getLine();
 				} 
 			});
 		}

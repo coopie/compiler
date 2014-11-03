@@ -8,15 +8,23 @@ public class ProgramAST implements WaccAST {
 	
 	private final List<FuncAST> func; 
 	private final StatAST stat;
+	private final int linePos, charPos;
 	
-	public ProgramAST(List<FuncAST> func2, StatAST statAST) {
-		func = func2;
-		stat = statAST;
+	public ProgramAST(List<FuncAST> func, StatAST stat, int linePos, int charPos) {
+		this.func = func;
+		this.stat = stat;
+		this.linePos = linePos;
+		this.charPos = charPos;
 	}
 
 	@Override
-	public int getPosition() {
-		return 0;
+	public int getLine() {
+		return linePos;
+	}
+	
+	@Override
+	public int getCharColumn() {
+		return charPos;
 	}
 
 	@Override
@@ -31,6 +39,4 @@ public class ProgramAST implements WaccAST {
 	public StatAST getStatements() {
 		return stat;
 	}
-	
-
 }
