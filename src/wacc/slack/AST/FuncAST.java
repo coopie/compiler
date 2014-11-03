@@ -36,8 +36,8 @@ public class FuncAST implements WaccAST{
 			}
 		}
 		output += "):\n";
-		output += stat;
-		
+		output += stat + "\n";
+		output += "end";
 		return output;
 	}
 

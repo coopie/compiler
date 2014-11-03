@@ -20,11 +20,6 @@ public class ASTTest {
 	public void simpleSkipAST() {
 		simpleTestAssert("begin skip end", "start:\n\tskip\nend");
 	}
-	
-	@Test
-	public void skipExitAST() {
-		simpleTestAssert("begin skip; exit 7 end", "start:\n\texit 7\nend");
-	}
 
 	@Test
 	public void simpleFreeAST() {
@@ -39,7 +34,7 @@ public class ASTTest {
 	@Test
 	public void simpleFunctionDeclarationAST() {
 		simpleTestAssert("begin int foo() is return 1 end skip end",
-				         "start:\nint foo():\nreturn 1\nend\nskip\nend");
+				         "start:\nint foo():\nreturn 1\nend\n\tskip\nend");
 	}
 	
 	private void simpleTestAssert(String in, String expectedOut) {
