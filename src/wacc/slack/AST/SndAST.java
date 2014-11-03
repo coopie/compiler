@@ -1,6 +1,9 @@
 package wacc.slack.AST;
 
+import wacc.slack.ErrorRecord;
+import wacc.slack.ErrorRecords;
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class SndAST implements Assignable {
@@ -9,6 +12,8 @@ public class SndAST implements Assignable {
 	
 	public SndAST(ExprAST expr) {
 		this.expr = expr;
+		
+		checkType();
 	}
 
 	@Override
@@ -25,8 +30,25 @@ public class SndAST implements Assignable {
 		return "snd";
 	}
 	
+	@Override
+	public void checkType() {
+		if (expr instanceof PairType) {
+			ErrorRecords.getInstance().record(new ErrorRecord() {
+
+				@Override
+				public String getMessage() {
+					return "Expected types do not check.";
+				}
+
+				@Override
+				public int getLineNumber() {
+					return getPosition();
+				} 
+			});
+		}
+	}
+	
 	public ExprAST getExpr() {
 		return expr;
 	}
-
 }

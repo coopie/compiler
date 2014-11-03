@@ -86,7 +86,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Michael
 	@Override
 	public IntLiter visitIntSign(IntSignContext ctx) {
 		if (ctx.MINUS() != null) {
@@ -96,9 +95,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		}
 	}
 
-	// Cale
 	@Override
-	public ParseTreeReturnable visitAssignRhs(AssignRhsContext ctx) {
+	public AssignRHS visitAssignRhs(AssignRhsContext ctx) {
 		if (ctx.expr() != null) {
 			return visitExpr(ctx.expr(0));
 		} else if (ctx.arrayLiter() != null) {
@@ -119,7 +117,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Cale
 	@Override
 	public ArgList visitArgList(ArgListContext ctx) {
 		List<ExprAST> exprList = new LinkedList<>();
@@ -131,7 +128,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new ArgList(exprList);
 	}
 
-	// Cale
 	@Override
 	public Type visitArrayType(ArrayTypeContext ctx) {
 		if (ctx.baseType() != null) {
@@ -146,7 +142,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Cale
 	@Override
 	public Param visitParam(ParamContext ctx) {
 		String ident = ctx.IDENT().getText();
@@ -154,7 +149,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new Param(ident, type);
 	}
 
-	// Cale
 	@Override
 	public Assignable visitPairElem(PairElemContext ctx) {
 		if (ctx.FST() != null) {
@@ -167,7 +161,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Cale
 	@Override
 	public ArrayElem visitArrayElem(ArrayElemContext ctx) {
 		String ident = ctx.IDENT().getText();
@@ -175,7 +168,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new ArrayElem(ident, expr);
 	}
 
-	// Michael
 	@Override
 	public BinaryOp visitBinaryOper(BinaryOperContext ctx) {
 		if (ctx.MUL() != null) {
@@ -210,7 +202,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Cale
 	@Override
 	public ParamList visitParamList(ParamListContext ctx) {
 		List<Param> paramList = new LinkedList<>();
@@ -222,47 +213,32 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new ParamList(paramList);
 	}
 
-	// Michael
 	@Override
 	public ExprAST visitExpr(ExprContext ctx) {
 		if (ctx.intLiter() != null) {
 			return new ValueExprAST(visitIntLiter(ctx.intLiter()));
-			//return new ExprAST(visitIntLiter(ctx.intLiter()));
 		} else if (ctx.boolLiter() != null) {
 			return new ValueExprAST(visitBoolLiter(ctx.boolLiter()));
-			//return new ExprAST(visitBoolLiter(ctx.boolLiter()));
 		} else if (ctx.CHAR_LTR() != null) {
 			return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
-			//return new ExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
 		} else if (ctx.STRING_LTR() != null) {
 			return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText()));
-			//return new ExprAST(new StringLiter(ctx.STRING_LTR().getText()));
 		} else if (ctx.pairLiter() != null) {
 			return new ValueExprAST(visitPairLiter(ctx.pairLiter()));
-			//return new ExprAST(visitPairLiter(ctx.pairLiter()));
 		} else if (ctx.IDENT() != null) {
+			// NEEDS TO BE IMPLEMENTED ONCE IDENT IS CREATED
 			return null;
 		} else if (ctx.arrayElem() != null) {
-			// Need to fix this
-			// visitArrayElem returns Assignable
-			// need to return LiterAST
-			// return new ExprAST(visitArrayElem(ctx.arrayElem()));
-			return null;
+			return new ValueExprAST(visitArrayElem(ctx.arrayElem()));
 		} else if (ctx.unaryOper() != null) {
 			return new UnaryExprAST(visitUnaryOper(ctx.unaryOper()), visitExpr(ctx.expr(0)));
-			//return new ExprAST(visitExpr(ctx.expr(0)),
-			//		visitUnaryOper(ctx.unaryOper()));
 		} else if (ctx.binaryOper() != null) {
 			return new BinaryExprAST(visitBinaryOper(ctx.binaryOper()), visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)));
-			//return new ExprAST(visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)),
-			//		visitBinaryOper(ctx.binaryOper()));
 		} else {
 			return visitExpr(ctx.expr(0));
-			//return new ExprAST(visitExpr(ctx.expr(0)));
 		}
 	}
 
-	// Timotej
 	@Override
 	public Type visitType(TypeContext ctx) {
 		if (ctx.baseType() != null) {
@@ -277,7 +253,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Timotej
 	@Override
 	public StatAST visitStat(StatContext ctx) {
 		List<StatAST> stats = new LinkedList<StatAST>();
@@ -319,7 +294,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Michael
 	@Override
 	public Liter visitBoolLiter(BoolLiterContext ctx) {
 		if (ctx.TRUE() != null) {
@@ -329,7 +303,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		}
 	}
 
-	// Cale
 	@Override
 	public UnaryOp visitUnaryOper(UnaryOperContext ctx) {
 		if (ctx.NOT() != null) {
@@ -348,7 +321,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Timotej
 	@Override
 	public Type visitBaseType(BaseTypeContext ctx) {
 		if (ctx.BOOL() != null) {
@@ -365,7 +337,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Timotej
 	@Override
 	public ParseTreeReturnable visitProgram(ProgramContext ctx) {
 		List<FuncAST> func = new LinkedList<>();
@@ -376,7 +347,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new ProgramAST(func, visitStat(ctx.stat()));
 	}
 
-	// Cale
 	@Override
 	public PairType visitPairType(PairTypeContext ctx) {
 		if (ctx.PAIR() != null) {
@@ -389,7 +359,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Cale
 	@Override
 	public ArrayLiter visitArrayLiter(ArrayLiterContext ctx) {
 		List<ExprAST> exprList = new LinkedList<>();
@@ -401,7 +370,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new ArrayLiter(exprList);
 	}
 
-	// Timotej
 	@Override
 	public Assignable visitAssignLhs(AssignLhsContext ctx) {
 		if (ctx.IDENT() != null) {
@@ -416,13 +384,11 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return null;
 	}
 
-	// Cale
 	@Override
 	public Liter visitPairLiter(PairLiterContext ctx) {
 		return new PairLiter();
 	}
 
-	// Michael
 	@Override
 	public FuncAST visitFunc(FuncContext ctx) {
 		List<Param> paramList = null;
@@ -437,7 +403,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 				visitStat(ctx.stat()));
 	}
 
-	// Michael
 	@Override
 	public Liter visitIntLiter(IntLiterContext ctx) {
 		IntLiter sign = new IntLiter(1);
@@ -448,7 +413,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new IntLiter(intLiter * sign.getInt());
 	}
 
-	// Cale
 	@Override
 	public Type visitPairElemType(PairElemTypeContext ctx) {
 		if (ctx.baseType() != null) {
@@ -462,5 +426,4 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		}
 		return null;
 	}
-
 }
