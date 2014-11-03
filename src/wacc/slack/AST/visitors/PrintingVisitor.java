@@ -1,10 +1,10 @@
 package wacc.slack.AST.visitors;
 
+import wacc.slack.AST.AssignRHS;
 import wacc.slack.AST.FuncAST;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.StatAST;
 import wacc.slack.AST.Expr.ExprAST;
-
 
 public class PrintingVisitor implements ASTVisitor {
 
@@ -29,7 +29,7 @@ public class PrintingVisitor implements ASTVisitor {
 
 	@Override
 	public void visit(FuncAST func) {
-		output += func.toString();
+		output += "\n" + func.toString();
 	}
 	
 	@Override
@@ -40,6 +40,12 @@ public class PrintingVisitor implements ASTVisitor {
 	@Override
 	public String toString() {
 		return output;
+	}
+
+	@Override
+	public void visit(AssignRHS assignRHS) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

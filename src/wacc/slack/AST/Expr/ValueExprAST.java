@@ -39,6 +39,5 @@ public class ValueExprAST implements ExprAST {
 	
 	public void checkTypes() {
 		// Values never have type errors
-
 	}
 }

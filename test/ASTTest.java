@@ -25,7 +25,7 @@ public class ASTTest {
 	public void simpleFreeAST() {
 		simpleTestAssert("begin free 6 end", "start:\n\tfree 6\nend");
 	}
-	
+
 	@Test
 	public void simpleReturnAST() {
 		simpleTestAssert("begin return 6 end", "start:\n\treturn 6\nend");
@@ -55,23 +55,17 @@ public class ASTTest {
 	public void WhileWithMultipleStats() {
 		simpleTestAssert("begin while true do skip;exit 7 done end", "start:\n\twhile true do  skip exit 7\nend");
 	}
-	
+
 	@Test
 	public void multiSkipExitAST() {
 		simpleTestAssert("begin skip; skip; skip; skip;exit 7 end", "start:\n\tskip\n\tskip\n\tskip\n\tskip\n\texit 7\nend");
 	}
 
+	@Test
 	public void simpleFunctionDeclarationAST() {
 		simpleTestAssert("begin int foo() is return 1 end skip end",
-				         "start:\n\t");
+				         "start:\n\tint foo():\n\t\treturn 1\n\tend\nend");
 	}
-	
-//	@Test
-//	public void simpleExitTest() {
-//		simpleTestAssert("begin exit 2 end","start:\n\texit 2\nend");
-//	}
-	
-
 	
 	private void simpleTestAssert(String in, String expectedOut) {
 		WaccAST ast = getAST(in);

@@ -1,26 +1,36 @@
 package wacc.slack.AST;
 
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.visitors.ASTVisitor;
 
-public class NewPairAST implements ParseTreeReturnable {
+public class NewPairAST implements AssignRHS {
 	
-	private final ExprAST expr1;
-	private final ExprAST expr2;
+	private final ExprAST exprL;
+	private final ExprAST exprR;
 
 	public NewPairAST(ExprAST expr1, ExprAST expr2) {
-		this.expr1 = expr1;
-		this.expr2 = expr2;
-	}
-	
-	public ExprAST getExpr(int i) {
-		if (i == 0) {
-			return expr1;
-		} else if (i == 1) {
-			return expr2;
-		} else {
-			assert false: "new pair only stores 2 expr - access with 0 or 1";
-		}
-		return null;
+		this.exprL = expr1;
+		this.exprR = expr2;
 	}
 
+	@Override
+	public int getPosition() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void accept(ASTVisitor visitor) {
+		exprL.accept(visitor);
+		exprR.accept(visitor);
+		visitor.visit(this);
+	}
+	
+	public ExprAST getExprL() {
+		return exprL;
+	}
+
+	public ExprAST getExprR() {
+		return exprR;
+	}
 }

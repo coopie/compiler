@@ -6,7 +6,7 @@ import java.util.List;
 
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class StatAST implements WaccAST,Iterable<StatAST> {
+public class StatAST implements WaccAST, Iterable<StatAST> {
 
 	private final List<StatAST> stats;
 
