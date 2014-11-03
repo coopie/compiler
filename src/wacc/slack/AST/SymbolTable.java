@@ -3,8 +3,10 @@ package wacc.slack.AST;
 import java.util.HashMap;
 import java.util.Map;
 
+//DO TDD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 public class SymbolTable<T> {
 	
+	//ref == this if it is a top scope symbolTable
 	private SymbolTable<T> ref;
 	private Map<String,T> table = new HashMap<>();
 	
@@ -19,8 +21,18 @@ public class SymbolTable<T> {
 	public void insert(String s, T s1) {
 		table.put(s, s1);
 	}
+	
+	
 	public T lookup(String ident) {
-		return table.get(ident);
+		if(ref == this) {
+			return table.get(ident);
+		}
+		
+		if(!table.containsKey(ident)) {
+			return ref.lookup(ident);
+		} else {
+			return table.get(ident);
+		}
 	}
 	
 	public SymbolTable<T> initializeNewScope() {
@@ -31,8 +43,7 @@ public class SymbolTable<T> {
 		if(ref != this) {
 			return ref;
 		} else {
-			assert false: "poping top scope";
+			throw new IllegalStateException("trying to pop top scope");
 		}
-		return null;
 	}
 }

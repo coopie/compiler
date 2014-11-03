@@ -8,5 +8,4 @@ public interface ExprAST extends WaccAST, AssignRHS {
 
 	public Type getType();
 	
-	public void checkTypes();
 }
