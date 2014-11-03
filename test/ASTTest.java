@@ -39,7 +39,7 @@ public class ASTTest {
 	@Test
 	public void simpleFunctionDeclarationAST() {
 		simpleTestAssert("begin int foo() is return 1 end skip end",
-				         "start:\n\tint foo():\n\t\treturn 1\n\tend\nend");
+				         "start:\nint foo():\nreturn 1\nend\nskip\nend");
 	}
 	
 	private void simpleTestAssert(String in, String expectedOut) {
