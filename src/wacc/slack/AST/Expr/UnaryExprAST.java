@@ -1,5 +1,7 @@
 package wacc.slack.AST.Expr;
 
+import wacc.slack.ErrorRecord;
+import wacc.slack.ErrorRecords;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.Type;
@@ -30,6 +32,24 @@ public class UnaryExprAST implements ExprAST {
 	@Override
 	public Type getType() {
 		return unaryOp.getType();
+	}
+	
+	@Override
+	public void checkTypes() {
+		if (!unaryOp.getType().equals(expr.getType())) {
+			ErrorRecords.getInstance().record(new ErrorRecord() {
+
+				@Override
+				public String getMessage() {
+					return "Expected types do not check.";
+				}
+
+				@Override
+				public int getLineNumber() {
+					return getPosition();
+				} 
+			});
+		}
 	}
 
 	public UnaryOp getUnaryOp() {

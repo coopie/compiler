@@ -28,6 +28,7 @@ public class ValueExprAST implements ExprAST {
 	}
 	
 	@Override
+<<<<<<< HEAD
 	public String toString() {
 		return getValue();
 	}
@@ -36,5 +37,9 @@ public class ValueExprAST implements ExprAST {
 	public void accept(ASTVisitor visitor) {
 		visitor.visit(this);
 		
+=======
+	public void checkTypes() {
+		// Values never have type errors
+>>>>>>> origin/master
 	}
 }

@@ -106,11 +106,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.pairElem() != null) {
 			return visitPairElem(ctx.pairElem());
 		} else if (ctx.NEWPAIR() != null) {
-			// Not yet implemented
-			return null;
+			ExprAST expr1 = visitExpr(ctx.expr(0));
+			ExprAST expr2 = visitExpr(ctx.expr(1));
+			return new NewPairAST(expr1, expr2);
 		} else if (ctx.CALL() != null) {
-			// Not yet implemented
-			return null;
+			String ident = ctx.IDENT().getText();
+			ArgList argList = visitArgList(ctx.argList());
+			return new CallAST(ident, argList);
 		} else {
 			assert false : "should not happen, one of the assignments should be recognized";
 		}

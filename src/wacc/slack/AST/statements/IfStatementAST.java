@@ -21,4 +21,16 @@ public class IfStatementAST extends StatAST {
 	public void accept(ASTVisitor v) {
 		v.visit(this);
 	}
+	
+	public StatAST getFalseStats() {
+		return falseStats;
+	}
+	
+	public ExprAST getCond() {
+		return cond;
+	}
+	
+	public StatAST getTrueStats() {
+		return trueStats;
+	}
 }

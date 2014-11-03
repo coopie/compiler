@@ -1,7 +1,6 @@
 package wacc.slack.AST;
 
 import wacc.slack.AST.types.Type;
-import wacc.slack.AST.visitors.ASTVisitor;
 
 public class Param implements ParseTreeReturnable {
 	
