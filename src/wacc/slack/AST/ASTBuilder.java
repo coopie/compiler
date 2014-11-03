@@ -106,11 +106,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.pairElem() != null) {
 			return visitPairElem(ctx.pairElem());
 		} else if (ctx.NEWPAIR() != null) {
-			// Not yet implemented
-			return null;
+			ExprAST expr1 = visitExpr(ctx.expr(0));
+			ExprAST expr2 = visitExpr(ctx.expr(1));
+			return new NewPairAST(expr1, expr2);
 		} else if (ctx.CALL() != null) {
-			// Not yet implemented
-			return null;
+			String ident = ctx.IDENT().getText();
+			ArgList argList = visitArgList(ctx.argList());
+			return new CallAST(ident, argList);
 		} else {
 			assert false : "should not happen, one of the assignments should be recognized";
 		}
@@ -155,7 +157,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public Assignable visitPairElem(PairElemContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.FST() != null) {
+			return new FstAST(visitExpr(ctx.expr()));
+		} else if (ctx.SND() != null) {
+			return new SndAST(visitExpr(ctx.expr()));
+		} else {
+			assert false: "should not happen, can only start with fst or snd";
+		}
 		return null;
 	}
 
@@ -419,8 +427,12 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public FuncAST visitFunc(FuncContext ctx) {
 		StatAST stat = visitStat(ctx.stat());
 		String ident = ctx.IDENT().getText();
-
-		List<Param> paramList = visitParamList(ctx.paramList()).getParamList();
+		
+		List<Param> paramList = null;
+		
+		if(ctx.paramList() != null) {
+			paramList = visitParamList(ctx.paramList()).getParamList();
+		}
 
 		return new FuncAST(ident, paramList, stat);
 	}
@@ -428,7 +440,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Michael
 	@Override
 	public Liter visitIntLiter(IntLiterContext ctx) {
-		IntLiter sign = visitIntSign(ctx.intSign());
+		IntLiter sign = new IntLiter(1);
+		if(ctx.intSign() != null) {
+			sign = visitIntSign(ctx.intSign());
+		}
 		int intLiter = Integer.parseInt(ctx.INTEGER().getText());
 		return new IntLiter(intLiter * sign.getInt());
 	}

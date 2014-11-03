@@ -3,22 +3,12 @@ package wacc.slack.AST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class ArrayElem implements Assignable {
-
-	private final String ident;
+public class SndAST implements Assignable {
+	
 	private final ExprAST expr;
 	
-	public ArrayElem(String ident, ExprAST expr) {
-		this.ident = ident;
+	public SndAST(ExprAST expr) {
 		this.expr = expr;
-	}
-	
-	public String getIdent() {
-		return ident;
-	}
-	
-	public ExprAST getExpr() {
-		return expr;
 	}
 
 	@Override
@@ -28,11 +18,15 @@ public class ArrayElem implements Assignable {
 
 	@Override
 	public void accept(ASTVisitor visitor) {
-		
 	}
 
 	@Override
 	public String getName() {
-		return ident;
+		return "snd";
 	}
+	
+	public ExprAST getExpr() {
+		return expr;
+	}
+
 }

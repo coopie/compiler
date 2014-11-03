@@ -20,5 +20,10 @@ public class IntLiter implements Liter {
 	public Type getType() {
 		return BaseType.T_int;
 	}
+	
+	@Override
+	public String toString() {
+		return "" + i;
+	}
 
 }
