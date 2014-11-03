@@ -1,7 +1,7 @@
 package wacc.slack.AST.types;
 
-import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.ParseTreeReturnable;
 
-public interface Type extends WaccAST {
+public interface Type extends ParseTreeReturnable {
 
 }
