@@ -1,5 +1,7 @@
 package wacc.slack.AST.Expr;
 
+import wacc.slack.ErrorRecord;
+import wacc.slack.ErrorRecords;
 import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
@@ -31,6 +33,25 @@ public class BinaryExprAST implements ExprAST {
 	@Override
 	public Type getType() {
 		return binaryOp.getType();
+	}
+	
+	@Override
+	public void checkTypes() {
+		if (!binaryOp.getType().equals(exprL.getType()) || 
+				!exprL.getType().equals(exprR.getType())) {
+			ErrorRecords.getInstance().record(new ErrorRecord() {
+
+				@Override
+				public String getMessage() {
+					return "Expected types do not check.";
+				}
+
+				@Override
+				public int getLineNumber() {
+					return getPosition();
+				} 
+			});
+		}
 	}
 
 	public BinaryOp getBinaryOp() {
