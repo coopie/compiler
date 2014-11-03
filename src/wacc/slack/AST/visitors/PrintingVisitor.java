@@ -38,7 +38,7 @@ public class PrintingVisitor implements ASTVisitor {
 	}
 	
 	@Override
-	public void visit(OLD__ExprAST expr) {
+	public void visit(ExprAST expr) {
 		// TODO Auto-generated method stub
 	}
 	

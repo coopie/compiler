@@ -21,4 +21,8 @@ public class ArrayType implements Type {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public boolean equals(Type t) {
+		return t instanceof ArrayType && type.equals(((ArrayType) t).type); 
+	}
 }

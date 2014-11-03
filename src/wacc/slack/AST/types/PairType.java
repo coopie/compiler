@@ -32,4 +32,10 @@ public class PairType implements Type {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public boolean equals(Type t) {
+		return t instanceof PairType &&
+				fst.equals(((PairType) t).fst) &&
+				snd.equals(((PairType) t).snd);
+	}
 }
