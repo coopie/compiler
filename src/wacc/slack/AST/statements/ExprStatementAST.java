@@ -17,7 +17,7 @@ public abstract class ExprStatementAST extends StatAST {
 	
 	@Override
 	public String toString() {
-		return getName() + " " + expr.toString() + "\n";
+		return getName() + " " + expr.toString();
 	}
 	
 	@Override 

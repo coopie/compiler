@@ -425,16 +425,16 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Michael
 	@Override
 	public FuncAST visitFunc(FuncContext ctx) {
-		StatAST stat = visitStat(ctx.stat());
-		String ident = ctx.IDENT().getText();
-		
 		List<Param> paramList = null;
 		
 		if(ctx.paramList() != null) {
 			paramList = visitParamList(ctx.paramList()).getParamList();
 		}
 
-		return new FuncAST(ident, paramList, stat);
+		return new FuncAST(visitType(ctx.type()),
+				ctx.IDENT().getText(),
+				paramList,
+				visitStat(ctx.stat()));
 	}
 
 	// Michael

@@ -12,25 +12,24 @@ public class PrintingVisitor implements ASTVisitor {
 
 	@Override
 	public void visit(ProgramAST program) {
-		output += "start:\n";
+		output += "start:";
 		for(FuncAST f : program.getFunctions()) {
 			f.accept(this);
 		}
-		output += "\t";
 		program.getStatements().accept(this);
 
-		output +="end";
+		output +="\nend";
 	}
 
 	@Override
 	public void visit(StatAST stat) {
-		output += stat + "\n";
+		output += "\n\t" + stat;
 
 	}
 
 	@Override
 	public void visit(FuncAST func) {
-		output += func.toString();
+		output += "\n" + func.toString();
 	}
 	
 	@Override
