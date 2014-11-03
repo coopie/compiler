@@ -64,4 +64,10 @@ public class ArrayElem implements Assignable, Liter {
 	public ExprAST getExpr() {
 		return expr;
 	}
+
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
