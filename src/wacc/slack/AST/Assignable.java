@@ -1,5 +1,6 @@
 package wacc.slack.AST;
 
 public interface Assignable extends WaccAST {
-	String getName();
+	public String getName();
+	public void checkType();
 }

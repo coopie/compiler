@@ -17,7 +17,7 @@ public class ArrayElem implements Assignable, Liter {
 		this.ident = ident;
 		this.expr = expr;
 
-		checkExprType();
+		checkType();
 	}
 
 	@Override
@@ -40,7 +40,8 @@ public class ArrayElem implements Assignable, Liter {
 		return null;
 	}
 	
-	private void checkExprType() {
+	@Override
+	public void checkType() {
 		if (!expr.getType().equals(BaseType.T_int)) {
 			ErrorRecords.getInstance().record(new ErrorRecord() {
 
