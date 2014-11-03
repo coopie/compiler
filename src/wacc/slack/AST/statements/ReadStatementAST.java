@@ -1,10 +1,10 @@
 package wacc.slack.AST.statements;
 
-import wacc.slack.AST.ExprAST;
+import wacc.slack.AST.Expr.ExprAST;
 
 public class ReadStatementAST extends ExprStatementAST {
-	public ReadStatementAST(ExprAST expr) {
-		super(expr);
+	public ReadStatementAST(ExprAST exprAST) {
+		super(exprAST);
 	}
 	
 	@Override

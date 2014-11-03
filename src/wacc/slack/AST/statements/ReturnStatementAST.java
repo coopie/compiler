@@ -1,10 +1,10 @@
 package wacc.slack.AST.statements;
 
-import wacc.slack.AST.ExprAST;
+import wacc.slack.AST.Expr.ExprAST;
 
 public class ReturnStatementAST extends ExprStatementAST {
-	public ReturnStatementAST(ExprAST expr) {
-		super(expr);
+	public ReturnStatementAST(ExprAST exprAST) {
+		super(exprAST);
 	}
 	
 	@Override

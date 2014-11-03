@@ -2,14 +2,14 @@ package wacc.slack.AST;
 
 import java.util.List;
 
-import wacc.slack.AST.visitors.ASTVisitor;
+import wacc.slack.AST.Expr.ExprAST;
 
 public class ArgList implements ParseTreeReturnable {
 	
 	private final List<ExprAST> exprList;
 	
-	public ArgList(List<ExprAST> exprList) {
-		this.exprList = exprList;
+	public ArgList(List<ExprAST> exprList2) {
+		this.exprList = exprList2;
 	}
 
 	

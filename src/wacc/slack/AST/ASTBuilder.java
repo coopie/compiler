@@ -9,6 +9,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.AST.Expr.BinaryExprAST;
+import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.Expr.UnaryExprAST;
+import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.literals.ArrayLiter;
 import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.literals.BoolLiter;
@@ -18,6 +22,7 @@ import wacc.slack.AST.literals.Liter;
 import wacc.slack.AST.literals.PairLiter;
 import wacc.slack.AST.literals.StringLiter;
 import wacc.slack.AST.literals.UnaryOp;
+import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
@@ -25,10 +30,10 @@ import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
-import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;
@@ -94,7 +99,21 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public ParseTreeReturnable visitAssignRhs(AssignRhsContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.expr() != null) {
+			return visitExpr(ctx.expr(0));
+		} else if (ctx.arrayLiter() != null) {
+			return visitArrayLiter(ctx.arrayLiter());
+		} else if (ctx.pairElem() != null) {
+			return visitPairElem(ctx.pairElem());
+		} else if (ctx.NEWPAIR() != null) {
+			// Not yet implemented
+			return null;
+		} else if (ctx.CALL() != null) {
+			// Not yet implemented
+			return null;
+		} else {
+			assert false : "should not happen, one of the assignments should be recognized";
+		}
 		return null;
 	}
 
@@ -136,15 +155,22 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public Assignable visitPairElem(PairElemContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.FST() != null) {
+			return new FstAST(visitExpr(ctx.expr()));
+		} else if (ctx.SND() != null) {
+			return new SndAST(visitExpr(ctx.expr()));
+		} else {
+			assert false: "should not happen, can only start with fst or snd";
+		}
 		return null;
 	}
 
 	// Cale
 	@Override
-	public Assignable visitArrayElem(ArrayElemContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayElem visitArrayElem(ArrayElemContext ctx) {
+		String ident = ctx.IDENT().getText();
+		ExprAST expr = visitExpr(ctx.expr());
+		return new ArrayElem(ident, expr);
 	}
 
 	// Michael
@@ -185,23 +211,33 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public ParamList visitParamList(ParamListContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Param> paramList = new LinkedList<>();
+		
+		for (ParamContext p : ctx.param()) {
+			paramList.add(visitParam(p));
+		}
+		
+		return new ParamList(paramList);
 	}
 
 	// Michael
 	@Override
 	public ExprAST visitExpr(ExprContext ctx) {
 		if (ctx.intLiter() != null) {
-			return new ExprAST(visitIntLiter(ctx.intLiter()));
+			return new ValueExprAST(visitIntLiter(ctx.intLiter()));
+			//return new ExprAST(visitIntLiter(ctx.intLiter()));
 		} else if (ctx.boolLiter() != null) {
-			return new ExprAST(visitBoolLiter(ctx.boolLiter()));
+			return new ValueExprAST(visitBoolLiter(ctx.boolLiter()));
+			//return new ExprAST(visitBoolLiter(ctx.boolLiter()));
 		} else if (ctx.CHAR_LTR() != null) {
-			return new ExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
+			return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
+			//return new ExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
 		} else if (ctx.STRING_LTR() != null) {
-			return new ExprAST(new StringLiter(ctx.STRING_LTR().getText()));
+			return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText()));
+			//return new ExprAST(new StringLiter(ctx.STRING_LTR().getText()));
 		} else if (ctx.pairLiter() != null) {
-			return new ExprAST(visitPairLiter(ctx.pairLiter()));
+			return new ValueExprAST(visitPairLiter(ctx.pairLiter()));
+			//return new ExprAST(visitPairLiter(ctx.pairLiter()));
 		} else if (ctx.IDENT() != null) {
 			return null;
 		} else if (ctx.arrayElem() != null) {
@@ -211,13 +247,16 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			// return new ExprAST(visitArrayElem(ctx.arrayElem()));
 			return null;
 		} else if (ctx.unaryOper() != null) {
-			return new ExprAST(visitExpr(ctx.expr(0)),
-					visitUnaryOper(ctx.unaryOper()));
+			return new UnaryExprAST(visitUnaryOper(ctx.unaryOper()), visitExpr(ctx.expr(0)));
+			//return new ExprAST(visitExpr(ctx.expr(0)),
+			//		visitUnaryOper(ctx.unaryOper()));
 		} else if (ctx.binaryOper() != null) {
-			return new ExprAST(visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)),
-					visitBinaryOper(ctx.binaryOper()));
+			return new BinaryExprAST(visitBinaryOper(ctx.binaryOper()), visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)));
+			//return new ExprAST(visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)),
+			//		visitBinaryOper(ctx.binaryOper()));
 		} else {
-			return new ExprAST(visitExpr(ctx.expr(0)));
+			return visitExpr(ctx.expr(0));
+			//return new ExprAST(visitExpr(ctx.expr(0)));
 		}
 	}
 
@@ -291,7 +330,19 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public UnaryOp visitUnaryOper(UnaryOperContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.NOT() != null) {
+			return UnaryOp.NOT;
+		} else if (ctx.MINUS() != null) {
+			return UnaryOp.MINUS;
+		} else if (ctx.LEN() != null) {
+			return UnaryOp.LEN;
+		} else if (ctx.ORD() != null) {
+			return UnaryOp.ORD;
+		} else if (ctx.CHR() != null) {
+			return UnaryOp.CHR;
+		} else {
+			assert false: "should not happen, one of the operators should be recognized";
+		}
 		return null;
 	}
 
@@ -325,8 +376,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	// Cale
 	@Override
-	public Type visitPairType(PairTypeContext ctx) {
-		// TODO Auto-generated method stub
+	public PairType visitPairType(PairTypeContext ctx) {
+		if (ctx.PAIR() != null) {
+			Type fst = visitPairElemType(ctx.pairElemType(0));
+			Type snd = visitPairElemType(ctx.pairElemType(1));
+			return new PairType(fst, snd);
+		} else {
+			assert false: "must start with keyword pair";
+		}
 		return null;
 	}
 
@@ -391,8 +448,16 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	// Cale
 	@Override
-	public ParseTreeReturnable visitPairElemType(PairElemTypeContext ctx) {
-		// TODO Auto-generated method stub
+	public Type visitPairElemType(PairElemTypeContext ctx) {
+		if (ctx.baseType() != null) {
+			return visitBaseType(ctx.baseType());
+		} else if (ctx.arrayType() != null) {
+			return visitArrayType(ctx.arrayType());
+		} else if (ctx.PAIR() != null) {
+			return BaseType.T_pair;
+		} else {
+			assert false: "should not happen, one of the pair elem types should be recognized";
+		}
 		return null;
 	}
 

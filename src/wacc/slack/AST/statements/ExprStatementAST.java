@@ -1,19 +1,18 @@
 package wacc.slack.AST.statements;
 
-import wacc.slack.AST.ExprAST;
 import wacc.slack.AST.StatAST;
+import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
-
 
 public abstract class ExprStatementAST extends StatAST {
 
 	protected final ExprAST expr;
 
-	public ExprStatementAST(ExprAST expr) {
+	public ExprStatementAST(ExprAST exprAST) {
 		addStat(this);
-		this.expr = expr;
+		this.expr = exprAST;
 	}
-	
+
 	protected abstract String getName();
 	
 	@Override
