@@ -35,3 +35,6 @@ This is done by creating an ErrorRecord Object,(implentation tbd)
 
 Interfaces
 Assignable - For identifiers, pair-elems, array-elems (able to be found in the symbol table)
+
+Scope
+    Scope is equvivalent to symbolTable reference. So each statement has a reference to the symbol table, which also inherently defines the scope.
