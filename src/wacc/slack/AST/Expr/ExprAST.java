@@ -7,4 +7,5 @@ public interface ExprAST extends WaccAST {
 
 	public Type getType();
 	
+	public void checkTypes();
 }

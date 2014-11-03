@@ -27,4 +27,9 @@ public class ValueExprAST implements ExprAST {
 	public Type getType() {
 		return liter.getType();
 	}
+	
+	@Override
+	public void checkTypes() {
+		// Values never have type errors
+	}
 }

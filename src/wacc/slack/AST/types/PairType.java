@@ -21,15 +21,9 @@ public class PairType implements Type {
 		}
 	}
 
-	@Override
-	public int getPosition() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void accept(ASTVisitor visitor) {
-		// TODO Auto-generated method stub
-		
+	public boolean equals(Type t) {
+		return t instanceof PairType &&
+				fst.equals(((PairType) t).fst) &&
+				snd.equals(((PairType) t).snd);
 	}
 }

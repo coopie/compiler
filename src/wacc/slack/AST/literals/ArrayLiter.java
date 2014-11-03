@@ -12,7 +12,6 @@ public class ArrayLiter implements ParseTreeReturnable {
 	public ArrayLiter(List<ExprAST> exprList2) {
 		this.exprList = exprList2;
 	}
-
 	
 	public List<ExprAST> getExprList() {
 		return exprList;
