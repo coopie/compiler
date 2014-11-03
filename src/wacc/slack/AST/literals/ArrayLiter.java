@@ -2,15 +2,16 @@ package wacc.slack.AST.literals;
 
 import java.util.List;
 
-import wacc.slack.AST.ExprAST;
+import wacc.slack.AST.OLD__ExprAST;
 import wacc.slack.AST.ParseTreeReturnable;
+import wacc.slack.AST.Expr.ExprAST;
 
 public class ArrayLiter implements ParseTreeReturnable {
 	
 	private final List<ExprAST> exprList;
 	
-	public ArrayLiter(List<ExprAST> exprList) {
-		this.exprList = exprList;
+	public ArrayLiter(List<ExprAST> exprList2) {
+		this.exprList = exprList2;
 	}
 
 	

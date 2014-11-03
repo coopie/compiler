@@ -9,6 +9,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.AST.Expr.BinaryExprAST;
+import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.Expr.UnaryExprAST;
+import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.literals.ArrayLiter;
 import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.literals.BoolLiter;
@@ -18,6 +22,7 @@ import wacc.slack.AST.literals.Liter;
 import wacc.slack.AST.literals.PairLiter;
 import wacc.slack.AST.literals.StringLiter;
 import wacc.slack.AST.literals.UnaryOp;
+import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
@@ -25,7 +30,6 @@ import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
-import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
@@ -193,15 +197,20 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public ExprAST visitExpr(ExprContext ctx) {
 		if (ctx.intLiter() != null) {
-			return new ExprAST(visitIntLiter(ctx.intLiter()));
+			return new ValueExprAST(visitIntLiter(ctx.intLiter()));
+			//return new ExprAST(visitIntLiter(ctx.intLiter()));
 		} else if (ctx.boolLiter() != null) {
-			return new ExprAST(visitBoolLiter(ctx.boolLiter()));
+			return new ValueExprAST(visitBoolLiter(ctx.boolLiter()));
+			//return new ExprAST(visitBoolLiter(ctx.boolLiter()));
 		} else if (ctx.CHAR_LTR() != null) {
-			return new ExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
+			return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
+			//return new ExprAST(new CharLiter(ctx.CHAR_LTR().getText()));
 		} else if (ctx.STRING_LTR() != null) {
-			return new ExprAST(new StringLiter(ctx.STRING_LTR().getText()));
+			return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText()));
+			//return new ExprAST(new StringLiter(ctx.STRING_LTR().getText()));
 		} else if (ctx.pairLiter() != null) {
-			return new ExprAST(visitPairLiter(ctx.pairLiter()));
+			return new ValueExprAST(visitPairLiter(ctx.pairLiter()));
+			//return new ExprAST(visitPairLiter(ctx.pairLiter()));
 		} else if (ctx.IDENT() != null) {
 			return null;
 		} else if (ctx.arrayElem() != null) {
@@ -211,13 +220,16 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			// return new ExprAST(visitArrayElem(ctx.arrayElem()));
 			return null;
 		} else if (ctx.unaryOper() != null) {
-			return new ExprAST(visitExpr(ctx.expr(0)),
-					visitUnaryOper(ctx.unaryOper()));
+			return new UnaryExprAST(visitUnaryOper(ctx.unaryOper()), visitExpr(ctx.expr(0)));
+			//return new ExprAST(visitExpr(ctx.expr(0)),
+			//		visitUnaryOper(ctx.unaryOper()));
 		} else if (ctx.binaryOper() != null) {
-			return new ExprAST(visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)),
-					visitBinaryOper(ctx.binaryOper()));
+			return new BinaryExprAST(visitBinaryOper(ctx.binaryOper()), visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)));
+			//return new ExprAST(visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)),
+			//		visitBinaryOper(ctx.binaryOper()));
 		} else {
-			return new ExprAST(visitExpr(ctx.expr(0)));
+			return visitExpr(ctx.expr(0));
+			//return new ExprAST(visitExpr(ctx.expr(0)));
 		}
 	}
 

@@ -6,19 +6,19 @@ import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class ExprAST implements WaccAST{
+public class OLD__ExprAST implements WaccAST{
 
 	private final Liter literAST;
-	private final ExprAST expr;
+	private final OLD__ExprAST expr;
 	private final Type type;
 	
-	public ExprAST(Liter literAST) {
+	public OLD__ExprAST(Liter literAST) {
 		this.literAST = literAST;
 		this.expr = null;
 		this.type = literAST.getType();
 	}
 
-	public ExprAST(ExprAST expr, UnaryOp unaryOp) {
+	public OLD__ExprAST(OLD__ExprAST expr, UnaryOp unaryOp) {
 		this.literAST = null;
 		this.expr = null;
 		
@@ -30,7 +30,7 @@ public class ExprAST implements WaccAST{
 		}
 	}
 	
-	public ExprAST(ExprAST expr, ExprAST expr2,
+	public OLD__ExprAST(OLD__ExprAST expr, OLD__ExprAST expr2,
 			BinaryOp binaryOp) {
 		this.literAST = null;
 		this.expr = null;
@@ -43,7 +43,7 @@ public class ExprAST implements WaccAST{
 		}
 	}
 
-	public ExprAST(ExprAST expr) {
+	public OLD__ExprAST(OLD__ExprAST expr) {
 		this.literAST = null;
 		this.expr = expr;
 		this.type = expr.type;
@@ -56,14 +56,14 @@ public class ExprAST implements WaccAST{
 
 	@Override
 	public void accept(ASTVisitor visitor) {
-		visitor.visit(this);
+		//visitor.visdit(this);
 	}
 
 	public Liter getLiterAST() {
 		return literAST;
 	}
 
-	public ExprAST getExpr() {
+	public OLD__ExprAST getExpr() {
 		return expr;
 	}
 

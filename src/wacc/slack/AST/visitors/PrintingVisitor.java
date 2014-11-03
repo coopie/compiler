@@ -1,6 +1,6 @@
 package wacc.slack.AST.visitors;
 
-import wacc.slack.AST.ExprAST;
+import wacc.slack.AST.OLD__ExprAST;
 import wacc.slack.AST.FuncAST;
 import wacc.slack.AST.Param;
 import wacc.slack.AST.ProgramAST;
@@ -38,7 +38,7 @@ public class PrintingVisitor implements ASTVisitor {
 	}
 	
 	@Override
-	public void visit(ExprAST expr) {
+	public void visit(OLD__ExprAST expr) {
 		// TODO Auto-generated method stub
 	}
 	

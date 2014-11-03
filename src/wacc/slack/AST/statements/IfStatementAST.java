@@ -1,7 +1,7 @@
 package wacc.slack.AST.statements;
 
-import wacc.slack.AST.ExprAST;
 import wacc.slack.AST.StatAST;
+import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class IfStatementAST extends StatAST {
@@ -10,10 +10,10 @@ public class IfStatementAST extends StatAST {
 	private final ExprAST cond;
 	private final StatAST trueStats;
 
-	public IfStatementAST(ExprAST cond, StatAST trueStats,
+	public IfStatementAST(ExprAST exprAST, StatAST trueStats,
 			StatAST falseStats) {
 				addStat(this);
-				this.cond = cond;
+				this.cond = exprAST;
 				this.trueStats = trueStats;
 				this.falseStats = falseStats;
 	}
