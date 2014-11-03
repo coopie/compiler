@@ -155,7 +155,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public Assignable visitPairElem(PairElemContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.FST() != null) {
+			return new FstAST(visitExpr(ctx.expr()));
+		} else if (ctx.SND() != null) {
+			return new SndAST(visitExpr(ctx.expr()));
+		} else {
+			assert false: "should not happen, can only start with fst or snd";
+		}
 		return null;
 	}
 
