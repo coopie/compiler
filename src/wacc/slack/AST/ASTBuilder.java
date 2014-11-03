@@ -161,9 +161,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	// Cale
 	@Override
-	public Assignable visitArrayElem(ArrayElemContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayElem visitArrayElem(ArrayElemContext ctx) {
+		String ident = ctx.IDENT().getText();
+		ExprAST expr = visitExpr(ctx.expr());
+		return new ArrayElem(ident, expr);
 	}
 
 	// Michael
