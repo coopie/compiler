@@ -27,4 +27,15 @@ public class WhileStatementAST extends StatAST {
 	public StatAST getBody() {
 		return body;
 	}
+	
+	@Override
+	public String toString() {
+		String body = "";
+		
+		for(StatAST st : this.body) {
+			body += " " + st.toString();
+		}
+		
+		return "while " + cond.toString() + " do " + body;
+	}
 }

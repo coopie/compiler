@@ -1,9 +1,8 @@
 package wacc.slack.AST.Expr;
 
-import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
-import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.literals.UnaryOp;
+import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
@@ -12,12 +11,15 @@ public class UnaryExprAST implements ExprAST {
 	private final UnaryOp unaryOp;
 	private final ExprAST expr;
 	private final int linePos, charPos;
+	private final boolean correctSubExpresions;
+	private final ErrorRecords error = ErrorRecords.getInstance();
 	
 	public UnaryExprAST(UnaryOp unaryOp, ExprAST expr, int linePos, int charPos) {
 		this.unaryOp = unaryOp;
 		this.expr = expr;
 		this.linePos = linePos;
 		this.charPos = charPos;
+		correctSubExpresions = checkTypes();
 	}
 	
 	@Override
@@ -38,25 +40,22 @@ public class UnaryExprAST implements ExprAST {
 	
 	@Override
 	public Type getType() {
-		return unaryOp.getType();
+		return unaryOp.getType();	
 	}
 	
-	@Override
-	public void checkTypes() {
-		if (!unaryOp.getType().equals(expr.getType())) {
-			ErrorRecords.getInstance().record(new ErrorRecord() {
-
-				@Override
-				public String getMessage() {
-					return "Expected types do not check.";
-				}
-
-				@Override
-				public int getLineNumber() {
-					return getLine();
-				} 
-			});
+	private boolean checkTypes() {
+		switch(unaryOp) {
+			case NOT: return expr.getType() == BaseType.T_bool; 
+			case MINUS: return expr.getType() == BaseType.T_int; 
+			case LEN: return expr.getType() == BaseType.T_int; 
+			case ORD: return expr.getType() == BaseType.T_int; 
+			case CHR: return expr.getType() == BaseType.T_char; 
+			default: throw new RuntimeException("not suppoerted UnaryOP");
 		}
+	}
+	
+	public boolean isCorrectSubExpresions() {
+		return correctSubExpresions;
 	}
 
 	public UnaryOp getUnaryOp() {
@@ -65,5 +64,9 @@ public class UnaryExprAST implements ExprAST {
 
 	public ExprAST getExpr() {
 		return expr;
+	}
+
+	public ErrorRecords getError() {
+		return error;
 	}
 }

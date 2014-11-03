@@ -33,4 +33,20 @@ public class IfStatementAST extends StatAST {
 	public StatAST getTrueStats() {
 		return trueStats;
 	}
+	
+	@Override
+	public String toString() {
+		String trueBody = "";
+		String falseBody = "";
+		
+		for(StatAST st : trueStats) {
+			trueBody += " " + st.toString();
+		}
+		
+		for(StatAST st : falseStats) {
+			falseBody += " " + st.toString();
+		}
+		
+		return "if " + cond.toString() + " then " + trueBody + " else " + falseBody;
+	}
 }

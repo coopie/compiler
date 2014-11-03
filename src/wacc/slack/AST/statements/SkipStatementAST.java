@@ -7,7 +7,9 @@ public class SkipStatementAST extends StatAST {
 
 	public SkipStatementAST(int linePos, int charPos) {
 		super(linePos, charPos);
+		addStat(this);
 	}
+	
 	@Override
 	public String toString() {
 		return "skip";

@@ -43,8 +43,8 @@ public class ValueExprAST implements ExprAST {
 	public void accept(ASTVisitor visitor) {
 		visitor.visit(this);	
 	}
-
-	@Override
+	
 	public void checkTypes() {
+		// Values never have type errors
 	}
 }

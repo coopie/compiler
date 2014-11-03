@@ -29,7 +29,7 @@ public class PrintingVisitor implements ASTVisitor {
 
 	@Override
 	public void visit(FuncAST func) {
-		output += func.toString();
+		output += "\n" + func.toString();
 	}
 	
 	@Override

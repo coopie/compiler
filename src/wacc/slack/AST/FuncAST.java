@@ -2,6 +2,7 @@ package wacc.slack.AST;
 
 import java.util.List;
 
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class FuncAST implements WaccAST{	
@@ -10,8 +11,10 @@ public class FuncAST implements WaccAST{
 	private final StatAST stat;
 	private final List<Param> paramList;
 	private final int linePos, charPos;
+	private Type type;
 
-	public FuncAST(String ident, List<Param> paramList2, StatAST stat, int linePos, int charPos) {
+	public FuncAST(Type type, String ident, List<Param> paramList2, StatAST stat, int linePos, int charPos) {
+		this.type = type;
 		this.ident = ident;
 		this.paramList = paramList2;
 		this.stat = stat;
@@ -31,7 +34,7 @@ public class FuncAST implements WaccAST{
 	
 	@Override
 	public String toString() {
-		String output = ident + "(";
+		String output = type + " " + ident + "(";
 		if(paramList != null) {
 			for(Param p : paramList) {
 				output = p.toString() + ", ";
@@ -41,8 +44,8 @@ public class FuncAST implements WaccAST{
 			}
 		}
 		output += "):\n";
-		output += stat;
-		
+		output += stat + "\n";
+		output += "end";
 		return output;
 	}
 

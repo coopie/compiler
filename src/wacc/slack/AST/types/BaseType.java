@@ -14,4 +14,9 @@ public enum BaseType implements Type {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	@Override
+	public String toString() {
+		return super.toString().substring(2);
+	}
 }
