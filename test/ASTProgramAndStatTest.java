@@ -14,8 +14,10 @@ import wacc.slack.AST.visitors.PrintingVisitor;
 import antlr.WaccLexer;
 import antlr.WaccParser;
 
-public class ASTTest {
+public class ASTProgramAndStatTest {
 
+	// STATEMENTS
+	
 	@Test
 	public void simpleSkipAST() {
 		simpleTestAssert("begin skip end", "start:\n\tskip\nend");
@@ -60,6 +62,8 @@ public class ASTTest {
 	public void multiSkipExitAST() {
 		simpleTestAssert("begin skip; skip; skip; skip;exit 7 end", "start:\n\tskip\n\tskip\n\tskip\n\tskip\n\texit 7\nend");
 	}
+	
+	// FUNCTION DEFINITION
 
 	@Test
 	public void simpleFunctionDeclarationAST() {

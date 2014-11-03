@@ -13,7 +13,7 @@ public enum UnaryOp implements Liter {
 			case LEN: return BaseType.T_int;
 			case ORD: return BaseType.T_int;
 			case CHR: return BaseType.T_char;
-			default: throw new RuntimeException("not suppoerted UnaryOP");
+			default: throw new RuntimeException("not supported UnaryOP");
 		}
 	}
 
