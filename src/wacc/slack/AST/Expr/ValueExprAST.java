@@ -28,18 +28,13 @@ public class ValueExprAST implements ExprAST {
 	}
 	
 	@Override
-<<<<<<< HEAD
-	public String toString() {
-		return getValue();
+	public void checkTypes() {
+		// Values never have type errors
 	}
 
 	@Override
 	public void accept(ASTVisitor visitor) {
-		visitor.visit(this);
+		// TODO Auto-generated method stub
 		
-=======
-	public void checkTypes() {
-		// Values never have type errors
->>>>>>> origin/master
 	}
 }

@@ -22,14 +22,14 @@ public class ASTTest {
 	}
 	
 	@Test
-
 	public void skipExitAST() {
-		simpleTestAssert("begin skip; exit 7 end", "start:\n\tskip\nend");
+		simpleTestAssert("begin skip; exit 7 end", "start:\n\texit 7\nend");
 	}
 
+	@Test
 	public void simpleFunctionDeclarationAST() {
 		simpleTestAssert("begin int foo() is return 1 end skip end",
-				         "start:\n something should go here!");
+				         "start:\n \tint foo():\n\t\treturn 1\n\tend\nend");
 	}
 	
 //	@Test
