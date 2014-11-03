@@ -33,6 +33,7 @@ import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;
@@ -98,7 +99,21 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public ParseTreeReturnable visitAssignRhs(AssignRhsContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.expr() != null) {
+			return visitExpr(ctx.expr(0));
+		} else if (ctx.arrayLiter() != null) {
+			return visitArrayLiter(ctx.arrayLiter());
+		} else if (ctx.pairElem() != null) {
+			return visitPairElem(ctx.pairElem());
+		} else if (ctx.NEWPAIR() != null) {
+			// Not yet implemented
+			return null;
+		} else if (ctx.CALL() != null) {
+			// Not yet implemented
+			return null;
+		} else {
+			assert false : "should not happen, one of the assignments should be recognized";
+		}
 		return null;
 	}
 
@@ -189,8 +204,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public ParamList visitParamList(ParamListContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Param> paramList = new LinkedList<>();
+		
+		for (ParamContext p : ctx.param()) {
+			paramList.add(visitParam(p));
+		}
+		
+		return new ParamList(paramList);
 	}
 
 	// Michael
@@ -303,7 +323,19 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public UnaryOp visitUnaryOper(UnaryOperContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.NOT() != null) {
+			return UnaryOp.NOT;
+		} else if (ctx.MINUS() != null) {
+			return UnaryOp.MINUS;
+		} else if (ctx.LEN() != null) {
+			return UnaryOp.LEN;
+		} else if (ctx.ORD() != null) {
+			return UnaryOp.ORD;
+		} else if (ctx.CHR() != null) {
+			return UnaryOp.CHR;
+		} else {
+			assert false: "should not happen, one of the operators should be recognized";
+		}
 		return null;
 	}
 
@@ -337,8 +369,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	// Cale
 	@Override
-	public Type visitPairType(PairTypeContext ctx) {
-		// TODO Auto-generated method stub
+	public PairType visitPairType(PairTypeContext ctx) {
+		if (ctx.PAIR() != null) {
+			Type fst = visitPairElemType(ctx.pairElemType(0));
+			Type snd = visitPairElemType(ctx.pairElemType(1));
+			return new PairType(fst, snd);
+		} else {
+			assert false: "must start with keyword pair";
+		}
 		return null;
 	}
 
@@ -396,8 +434,16 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	// Cale
 	@Override
-	public ParseTreeReturnable visitPairElemType(PairElemTypeContext ctx) {
-		// TODO Auto-generated method stub
+	public Type visitPairElemType(PairElemTypeContext ctx) {
+		if (ctx.baseType() != null) {
+			return visitBaseType(ctx.baseType());
+		} else if (ctx.arrayType() != null) {
+			return visitArrayType(ctx.arrayType());
+		} else if (ctx.PAIR() != null) {
+			return BaseType.T_pair;
+		} else {
+			assert false: "should not happen, one of the pair elem types should be recognized";
+		}
 		return null;
 	}
 
