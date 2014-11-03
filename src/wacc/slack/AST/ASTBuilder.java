@@ -96,7 +96,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	}
 
 	@Override
-	public ParseTreeReturnable visitAssignRhs(AssignRhsContext ctx) {
+	public AssignRHS visitAssignRhs(AssignRhsContext ctx) {
 		if (ctx.expr() != null) {
 			return visitExpr(ctx.expr(0));
 		} else if (ctx.arrayLiter() != null) {
