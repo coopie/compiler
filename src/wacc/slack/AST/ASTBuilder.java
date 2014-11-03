@@ -200,8 +200,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public ParamList visitParamList(ParamListContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Param> paramList = new LinkedList<>();
+		
+		for (ParamContext p : ctx.param()) {
+			paramList.add(visitParam(p));
+		}
+		
+		return new ParamList(paramList);
 	}
 
 	// Michael
