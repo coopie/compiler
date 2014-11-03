@@ -26,4 +26,10 @@ public class IntLiter implements Liter {
 		return "" + i;
 	}
 
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return Integer.toString(i);
+	}
+
 }

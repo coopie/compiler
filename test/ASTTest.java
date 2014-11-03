@@ -21,6 +21,10 @@ public class ASTTest {
 		simpleTestAssert("begin skip end", "start:\n\tskip\nend");
 	}
 	
+	@Test
+	public void skipExitAST() {
+		simpleTestAssert("begin skip; exit 7 end", "start:\n\tskip\nend");
+	}
 	
 	private void simpleTestAssert(String in, String expectedOut) {
 		WaccAST ast = getAST(in);

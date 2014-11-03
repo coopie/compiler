@@ -7,8 +7,10 @@ import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.StatAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.literals.BoolLiter;
+import wacc.slack.AST.literals.CharLiter;
 import wacc.slack.AST.literals.IntLiter;
 import wacc.slack.AST.literals.PairLiter;
+import wacc.slack.AST.literals.StringLiter;
 
 public class PrintingVisitor implements ASTVisitor {
 
@@ -19,10 +21,10 @@ public class PrintingVisitor implements ASTVisitor {
 		output += "start:\n";
 		for(FuncAST f : program.getFunctions()) {
 			output += "\t";
-			visit(f);
+			f.accept(this);
 		}
 		output += "\t";
-		visit(program.getStatements());
+		program.getStatements().accept(this);
 		output +="end";
 	}
 
@@ -39,7 +41,7 @@ public class PrintingVisitor implements ASTVisitor {
 	
 	@Override
 	public void visit(ExprAST expr) {
-		// TODO Auto-generated method stub
+		output += " " + expr.toString();
 	}
 	
 	@Override
