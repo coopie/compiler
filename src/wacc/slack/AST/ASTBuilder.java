@@ -399,7 +399,15 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	// Cale
 	@Override
 	public ParseTreeReturnable visitPairElemType(PairElemTypeContext ctx) {
-		// TODO Auto-generated method stub
+		if (ctx.baseType() != null) {
+			return visitBaseType(ctx.baseType());
+		} else if (ctx.arrayType() != null) {
+			return visitArrayType(ctx.arrayType());
+		} else if (ctx.PAIR() != null) {
+			return BaseType.T_pair;
+		} else {
+			assert false: "should not happen, one of the pair elem types should be recognized";
+		}
 		return null;
 	}
 
