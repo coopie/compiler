@@ -18,13 +18,13 @@ public class ASTTest {
 
 	@Test
 	public void simpleSkipAST() {
-		simpleTestAssert("begin skip end", "start:\n\tskip\nend");
+		simpleTestAssert("begin skip end", "start:\nskip\nend");
 	}
 	
 	@Test
 	public void simpleFunctionDeclarationAST() {
 		simpleTestAssert("begin int foo() is return 1 end skip end",
-				         "start:\n\t");
+				         "start:\n something should go here!");
 	}
 	
 //	@Test
