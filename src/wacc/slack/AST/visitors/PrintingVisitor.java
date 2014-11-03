@@ -18,7 +18,6 @@ public class PrintingVisitor implements ASTVisitor {
 	public void visit(ProgramAST program) {
 		output += "start:\n";
 		for(FuncAST f : program.getFunctions()) {
-			output += "\t";
 			visit(f);
 		}
 		output += "\t";
