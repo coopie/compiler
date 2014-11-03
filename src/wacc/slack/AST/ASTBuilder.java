@@ -29,6 +29,7 @@ import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;
@@ -339,8 +340,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	// Cale
 	@Override
-	public Type visitPairType(PairTypeContext ctx) {
-		// TODO Auto-generated method stub
+	public PairType visitPairType(PairTypeContext ctx) {
+		if (ctx.PAIR() != null) {
+			Type fst = visitPairElemType(ctx.pairElemType(0));
+			Type snd = visitPairElemType(ctx.pairElemType(1));
+			return new PairType(fst, snd);
+		} else {
+			assert false: "must start with keyword pair";
+		}
 		return null;
 	}
 
@@ -398,7 +405,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	// Cale
 	@Override
-	public ParseTreeReturnable visitPairElemType(PairElemTypeContext ctx) {
+	public Type visitPairElemType(PairElemTypeContext ctx) {
 		if (ctx.baseType() != null) {
 			return visitBaseType(ctx.baseType());
 		} else if (ctx.arrayType() != null) {
