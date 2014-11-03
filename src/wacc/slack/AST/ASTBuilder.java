@@ -366,8 +366,9 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		for (ExprContext e : ctx.expr()) {
 			exprList.add(visitExpr(e));
 		}
+		//TODO: lookup null in the symbol table to get the type
+		return new ArrayLiter(exprList, ctx.start.getLine(), ctx.start.getCharPositionInLine(),null);
 
-		return new ArrayLiter(exprList, ctx.start.getLine(), ctx.start.getCharPositionInLine());
 	}
 
 	@Override

@@ -22,7 +22,6 @@ public enum UnaryOp implements Liter {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 	@Override
 	public int getLine() {
 		// TODO Auto-generated method stub
@@ -34,4 +33,18 @@ public enum UnaryOp implements Liter {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override 
+	public String toString() {
+		switch(this) {
+			case NOT: return "¬";
+			case MINUS: return "+";
+			case LEN: return "len";
+			case ORD: return "ord";
+			case CHR: return "chr";
+			default: throw new RuntimeException("not suppoerted UnaryOP");
+		}
+	}
+	
+
 }

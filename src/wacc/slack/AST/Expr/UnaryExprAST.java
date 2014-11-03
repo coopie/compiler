@@ -1,5 +1,6 @@
 package wacc.slack.AST.Expr;
 
+import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
 import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.BaseType;
@@ -14,12 +15,29 @@ public class UnaryExprAST implements ExprAST {
 	private final boolean correctSubExpresions;
 	private final ErrorRecords error = ErrorRecords.getInstance();
 	
-	public UnaryExprAST(UnaryOp unaryOp, ExprAST expr, int linePos, int charPos) {
-		this.unaryOp = unaryOp;
+
+	public UnaryExprAST(UnaryOp unOp, ExprAST expr, int linePos, int charPos) {
+		this.unaryOp = unOp;
 		this.expr = expr;
 		this.linePos = linePos;
 		this.charPos = charPos;
 		correctSubExpresions = checkTypes();
+		if(!correctSubExpresions) {
+			error.record(new ErrorRecord(){
+
+				@Override
+				public String getMessage() {
+					return "type mismatch for " + unaryOp.toString() ;
+				}
+
+				@Override
+				public int getLineNumber() {
+					// TODO Auto-generated method stub
+					return 0;
+				}
+				
+			});
+		}
 	}
 	
 	@Override
