@@ -4,7 +4,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.nullValue;
 
-import wacc.slack.AST.SymbolTable;
+import wacc.slack.AST.symbolTable.SymbolTable;
 
 public class SymbolTableTest {
 

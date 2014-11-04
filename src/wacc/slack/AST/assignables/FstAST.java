@@ -1,4 +1,4 @@
-package wacc.slack.AST;
+package wacc.slack.AST.assignables;
 
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;

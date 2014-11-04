@@ -2,6 +2,8 @@ package wacc.slack.AST;
 
 import java.util.List;
 
+import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class ProgramAST implements WaccAST {

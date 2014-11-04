@@ -1,7 +1,8 @@
-package wacc.slack.AST;
+package wacc.slack.AST.assignables;
 
 import java.util.List;
 
+import wacc.slack.AST.ParseTreeReturnable;
 import wacc.slack.AST.Expr.ExprAST;
 
 public class ArgList implements ParseTreeReturnable {
