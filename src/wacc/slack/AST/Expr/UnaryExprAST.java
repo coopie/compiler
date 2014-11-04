@@ -52,8 +52,8 @@ public class UnaryExprAST implements ExprAST {
 
 	@Override
 	public void accept(ASTVisitor visitor) {
-		expr.accept(visitor);
 		visitor.visit(this);
+		expr.accept(visitor);
 	}
 	
 	@Override
@@ -86,5 +86,10 @@ public class UnaryExprAST implements ExprAST {
 
 	public ErrorRecords getError() {
 		return error;
+	}
+	
+	@Override
+	public String toString() {
+		return unaryOp.toString();
 	}
 }

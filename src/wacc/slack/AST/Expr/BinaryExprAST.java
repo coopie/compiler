@@ -38,8 +38,9 @@ public class BinaryExprAST implements ExprAST {
 	@Override
 	public void accept(ASTVisitor visitor) {
 		exprL.accept(visitor);
-		exprR.accept(visitor);
 		visitor.visit(this);
+		exprR.accept(visitor);
+		
 	}
 	
 	@Override
@@ -80,5 +81,10 @@ public class BinaryExprAST implements ExprAST {
 	
 	public ExprAST getExprR() {
 		return exprR;
+	}
+	
+	@Override
+	public String toString() {
+		return binaryOp.toString();
 	}
 }

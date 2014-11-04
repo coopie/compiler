@@ -37,8 +37,8 @@ public enum UnaryOp implements Liter {
 	@Override 
 	public String toString() {
 		switch(this) {
-			case NOT: return "¬";
-			case MINUS: return "+";
+			case NOT: return "!";
+			case MINUS: return "-";
 			case LEN: return "len";
 			case ORD: return "ord";
 			case CHR: return "chr";

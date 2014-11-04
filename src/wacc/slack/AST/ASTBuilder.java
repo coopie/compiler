@@ -78,8 +78,6 @@ import antlr.WaccParser.TypeContext;
 import antlr.WaccParser.UnaryOperContext;
 import antlr.WaccParserVisitor;
 
-import com.sun.org.apache.xpath.internal.operations.Variable;
-
 public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	private SymbolTable<IdentInfo> scope;

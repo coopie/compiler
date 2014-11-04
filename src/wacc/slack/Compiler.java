@@ -23,8 +23,12 @@ public class Compiler {
 		WaccLexer lexer = new WaccLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		WaccParser parser = new WaccParser(tokens);
-		ParseTree tree = parser.program();
-		System.out.println(tree.toStringTree(parser));
+		//ParseTree tree = parser.program();
+		//System.out.println(tree.toStringTree(parser));
+		int errors = parser.getNumberOfSyntaxErrors();
+		if (errors > 0) {
+			System.exit(100);
+		}
 	}
 
 }
