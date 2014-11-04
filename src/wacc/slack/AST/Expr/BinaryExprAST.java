@@ -76,6 +76,6 @@ public class BinaryExprAST implements ExprAST {
 	
 	@Override
 	public String toString() {
-		return binaryOp.toString();
+		return exprL.toString() + " " + binaryOp.toString() + " " + exprR.toString();
 	}
 }

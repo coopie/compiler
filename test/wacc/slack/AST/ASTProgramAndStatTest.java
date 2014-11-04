@@ -100,14 +100,14 @@ public class ASTProgramAndStatTest extends StatASTTest {
 	public void simpleArrayElem() {
 	}
 	
-	// TODO: Implement UnaryOp class properly and implement test
 	@Test
 	public void simpleUnaryOp() {
+		simpleTestAssert("begin print -1 end", "start:\n\tprint - 1\nend");
 	}
 	
-	// TODO: Implement BinaryOp class properly and implement test
 	@Test
 	public void simpleBinaryOp() {
+		simpleTestAssert("begin print 2 * 6 end", "start:\n\tprint 2 * 6\nend");
 	}
 	
 	@Test
