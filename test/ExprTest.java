@@ -23,7 +23,12 @@ public class ExprTest {
 	
 	@Test
 	public void simpleUnaryOpAST() {
-		simpleTestAssert("!true", " ¬ true");
+		simpleTestAssert("!true", " ! true");
+	}
+	
+	@Test
+	public void simpleBracketTest() {
+		simpleTestAssert("(1+1)", " 1 + 1");
 	}
 	
 	private void simpleTestAssert(String in, String expectedOut) {
