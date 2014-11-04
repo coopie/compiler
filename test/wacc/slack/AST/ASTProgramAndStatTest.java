@@ -60,5 +60,58 @@ public class ASTProgramAndStatTest extends StatASTTest {
 		simpleTestAssert("begin int foo() is return 1 end skip end",
 				         "start:\nint foo():\nreturn 1\nend\n\tskip\nend");
 	}
+	
+	// Expr
+	
+	@Test
+	public void simpleIntLiter() {
+		simpleTestAssert("begin print 1 end", "start:\n\tprint 1\nend");
+	}
+	
+	@Test
+	public void simpleBoolLiter() {
+		simpleTestAssert("begin print true end", "start:\n\tprint true\nend");
+	}
+	
+	// TODO: I don't think this should do this. Check the printing of char-liters (we should only save a not 'a')
+	@Test
+	public void simpleCharLiter() {
+		simpleTestAssert("begin print 'a' end", "start:\n\tprint 'a'\nend");
+	}
 
+	// TODO: I don't think this should do this. Check the printing of string-liters (we should only save HelloWorld not "HelloWorld")
+	@Test
+	public void simpleStringLiter() {
+		simpleTestAssert("begin print \"HelloWorld\" end", "start:\n\tprint \"HelloWorld\"\nend");
+	}
+	
+	// TODO: Implement PairLiter class properly and implement test
+	@Test
+	public void simplePairLiter() {
+	}
+	
+	// TODO: Implement Ident class properly and implement test
+	@Test
+	public void simpleIdent() {
+	}
+	
+	// TODO: Implement ArrayElem class properly and implement test
+	@Test
+	public void simpleArrayElem() {
+	}
+	
+	// TODO: Implement UnaryOp class properly and implement test
+	@Test
+	public void simpleUnaryOp() {
+	}
+	
+	// TODO: Implement BinaryOp class properly and implement test
+	@Test
+	public void simpleBinaryOp() {
+	}
+	
+	@Test
+	public void simpleBracketsExpr() {
+		simpleTestAssert("begin print (1) end", "start:\n\tprint 1\nend");
+	}
 }
