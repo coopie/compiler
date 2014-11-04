@@ -6,7 +6,7 @@ import java.util.Map;
 //DO TDD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 public class SymbolTable<T> {
 	
-	//ref == this if it is a top scope symbolTable
+	//ref == *this* if it is a top scope symbolTable
 	private SymbolTable<T> ref;
 	private Map<String,T> table = new HashMap<>();
 	

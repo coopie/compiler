@@ -8,7 +8,6 @@ public class IdentInfo {
 
 	public IdentInfo(Type ident_type) {
 		this.ident_type = ident_type;
-		// TODO Auto-generated constructor stub
 	}
 	
 }
