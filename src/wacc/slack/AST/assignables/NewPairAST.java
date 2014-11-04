@@ -1,4 +1,4 @@
-package wacc.slack.AST;
+package wacc.slack.AST.assignables;
 
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;

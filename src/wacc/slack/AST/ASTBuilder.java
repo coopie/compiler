@@ -13,6 +13,18 @@ import wacc.slack.AST.Expr.BinaryExprAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
+import wacc.slack.AST.assignables.ArgList;
+import wacc.slack.AST.assignables.ArrayElem;
+import wacc.slack.AST.assignables.AssignRHS;
+import wacc.slack.AST.assignables.Assignable;
+import wacc.slack.AST.assignables.CallAST;
+import wacc.slack.AST.assignables.FstAST;
+import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.assignables.NewPairAST;
+import wacc.slack.AST.assignables.Param;
+import wacc.slack.AST.assignables.ParamList;
+import wacc.slack.AST.assignables.SndAST;
+import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiter;
 import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.literals.BoolLiter;
@@ -22,6 +34,7 @@ import wacc.slack.AST.literals.Liter;
 import wacc.slack.AST.literals.PairLiter;
 import wacc.slack.AST.literals.StringLiter;
 import wacc.slack.AST.literals.UnaryOp;
+import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
@@ -31,7 +44,10 @@ import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
+import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.WhileStatementAST;
+import wacc.slack.AST.symbolTable.IdentInfo;
+import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
@@ -60,8 +76,12 @@ import antlr.WaccParser.TypeContext;
 import antlr.WaccParser.UnaryOperContext;
 import antlr.WaccParserVisitor;
 
+import com.sun.org.apache.xpath.internal.operations.Variable;
+
 public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
+	private SymbolTable<IdentInfo> scope;
+	
 	@Override
 	public ParseTreeReturnable visit(@NotNull ParseTree arg0) {
 		// TODO Auto-generated method stub
@@ -226,7 +246,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.pairLiter() != null) {
 			return new ValueExprAST(visitPairLiter(ctx.pairLiter()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		} else if (ctx.IDENT() != null) {
-			// NEEDS TO BE IMPLEMENTED ONCE IDENT IS CREATED
 			return null;
 		} else if (ctx.arrayElem() != null) {
 			return new ValueExprAST(visitArrayElem(ctx.arrayElem()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
@@ -255,6 +274,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public StatAST visitStat(StatContext ctx) {
+		StatAST stat;
 		List<StatAST> stats = new LinkedList<StatAST>();
 
 		if (ctx.stat().size() > 1 && ctx.IF() == null) {
@@ -264,34 +284,50 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			return new StatAST(stats, ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		} else {
 			if (ctx.READ() != null) {
-				return new ReadStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new ReadStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
 			} else if (ctx.EXIT() != null) {
-				return new ExitStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new ExitStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
 			} else if (ctx.SKIP() != null) {
-				return new SkipStatementAST(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new SkipStatementAST(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			} else if (ctx.ASSIGN() != null) {
+				AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
+				if(ctx.type() != null && ctx.IDENT() != null) {
+					scope.insert(ctx.IDENT().getText(), new IdentInfo(visitType(ctx.type())));
+					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText()), rhs, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				} else if(ctx.assignLhs() != null) {
+					Assignable a = visitAssignLhs(ctx.assignLhs());
+					scope.insert(a.getName(), new IdentInfo(visitType(ctx.type()))); //TODO: might be a bug
+					stat = new AssignStatAST(a, rhs, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				} else {throw new RuntimeException("shouldn't happen, can't recognize Assign stat rule");}
 			} else if (ctx.FREE() != null) {
-				return new FreeStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new FreeStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
 			} else if (ctx.RETURN() != null) {
-				return new ReturnStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new ReturnStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
 			} else if (ctx.PRINT() != null) {
-				return new PrintStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new PrintStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
 			} else if (ctx.PRINTLN() != null) {
-				return new PrintlnStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new PrintlnStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
 			} else if (ctx.IF() != null && ctx.THEN() != null
 					&& ctx.ELSE() != null && ctx.FI() != null) {
-				return new IfStatementAST(visitExpr(ctx.expr()),
+				scope = scope.initializeNewScope();
+				stat = new IfStatementAST(visitExpr(ctx.expr()),
 						visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				scope = scope.popScope();
 			} else if (ctx.WHILE() != null && ctx.DO() != null
 					&& ctx.DONE() != null) {
-				return new WhileStatementAST(visitExpr(ctx.expr()),
+				scope = scope.initializeNewScope();
+				stat = new WhileStatementAST(visitExpr(ctx.expr()),
 						visitStat(ctx.stat(0)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				scope = scope.popScope();
 			} else if (ctx.BEGIN() != null && ctx.END() != null) {
-				return new BeginEndAST(visitStat(ctx.stat(0)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				scope = scope.initializeNewScope();
+				stat = new BeginEndAST(visitStat(ctx.stat(0)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				scope = scope.popScope();
 			} else {
-				assert false : "should not happen";
+				throw new RuntimeException("shouldn't happen, can't recognize stat rule");
 			}
 		}
-		return null;
+		return stat;
 	}
 
 	@Override
@@ -339,6 +375,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public ParseTreeReturnable visitProgram(ProgramContext ctx) {
+		scope = new SymbolTable<>();
 		List<FuncAST> func = new LinkedList<>();
 
 		for (FuncContext f : ctx.func()) {
@@ -426,5 +463,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			assert false: "should not happen, one of the pair elem types should be recognized";
 		}
 		return null;
+	}
+	
+	//for mocking symbol table
+	void setSymbolTable(SymbolTable<IdentInfo> t) {
+		scope = t;
 	}
 }

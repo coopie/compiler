@@ -1,9 +1,10 @@
-package wacc.slack.AST;
+package wacc.slack.AST.statements;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class StatAST implements WaccAST, Iterable<StatAST> {

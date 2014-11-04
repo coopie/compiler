@@ -1,6 +1,5 @@
 package wacc.slack.AST.statements;
 
-import wacc.slack.AST.StatAST;
 
 // Class which represents a 'begin' expr 'end' scope
 

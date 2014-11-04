@@ -1,10 +1,10 @@
 package wacc.slack.AST.visitors;
 
-import wacc.slack.AST.AssignRHS;
-import wacc.slack.AST.FuncAST;
 import wacc.slack.AST.ProgramAST;
-import wacc.slack.AST.StatAST;
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.assignables.AssignRHS;
+import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.statements.StatAST;
 
 public class PrintingVisitor implements ASTVisitor {
 

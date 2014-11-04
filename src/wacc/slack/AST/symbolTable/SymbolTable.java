@@ -1,4 +1,4 @@
-package wacc.slack.AST;
+package wacc.slack.AST.symbolTable;
 
 import java.util.HashMap;
 import java.util.Map;

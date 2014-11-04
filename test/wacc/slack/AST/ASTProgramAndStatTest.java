@@ -1,3 +1,4 @@
+package wacc.slack.AST;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;

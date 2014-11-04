@@ -2,8 +2,8 @@ package wacc.slack.AST.literals;
 
 import java.util.List;
 
-import wacc.slack.AST.AssignRHS;
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.AST.visitors.ASTVisitor;

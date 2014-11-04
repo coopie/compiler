@@ -1,7 +1,9 @@
-package wacc.slack.AST;
+package wacc.slack.AST.assignables;
 
 import java.util.List;
 
+import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 

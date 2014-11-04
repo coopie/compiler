@@ -1,6 +1,8 @@
-package wacc.slack.AST;
+package wacc.slack.AST.assignables;
 
 import java.util.List;
+
+import wacc.slack.AST.ParseTreeReturnable;
 
 public class ParamList implements ParseTreeReturnable {
 

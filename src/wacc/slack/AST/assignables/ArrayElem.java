@@ -1,21 +1,25 @@
-package wacc.slack.AST;
+package wacc.slack.AST.assignables;
 
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
 import wacc.slack.AST.Expr.ExprAST;
-import wacc.slack.AST.types.PairType;
+import wacc.slack.AST.literals.Liter;
+import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class SndAST implements Assignable {
-	
+public class ArrayElem implements Assignable, Liter {
+
+	private final String ident;
 	private final ExprAST expr;
 	private final int linePos, charPos;
 	
-	public SndAST(ExprAST expr, int linePos, int charPos) {
+	public ArrayElem(String ident, ExprAST expr, int linePos, int charPos) {
+		this.ident = ident;
 		this.expr = expr;
 		this.linePos = linePos;
 		this.charPos = charPos;
-		
+
 		checkType();
 	}
 
@@ -28,7 +32,7 @@ public class SndAST implements Assignable {
 	public int getCharColumn() {
 		return charPos;
 	}
-
+	
 	@Override
 	public void accept(ASTVisitor visitor) {
 		// TODO Auto-generated method stub
@@ -36,12 +40,18 @@ public class SndAST implements Assignable {
 
 	@Override
 	public String getName() {
-		return "snd";
+		return ident;
+	}
+
+	@Override
+	public Type getType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	@Override
 	public void checkType() {
-		if (expr instanceof PairType) {
+		if (!expr.getType().equals(BaseType.T_int)) {
 			ErrorRecords.getInstance().record(new ErrorRecord() {
 
 				@Override
@@ -55,6 +65,16 @@ public class SndAST implements Assignable {
 				} 
 			});
 		}
+	}
+	
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public String getIdent() {
+		return ident;
 	}
 	
 	public ExprAST getExpr() {

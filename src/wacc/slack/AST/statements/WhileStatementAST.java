@@ -1,6 +1,5 @@
 package wacc.slack.AST.statements;
 
-import wacc.slack.AST.StatAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
