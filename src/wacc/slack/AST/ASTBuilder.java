@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import wacc.slack.ErrorRecord;
+import wacc.slack.ErrorRecords;
 import wacc.slack.AST.Expr.BinaryExprAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
@@ -275,51 +277,68 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		StatAST stat;
 		List<StatAST> stats = new LinkedList<StatAST>();
 
+		final int line = ctx.start.getLine();
+		final int col = ctx.start.getCharPositionInLine();
+		
 		if (ctx.stat().size() > 1 && ctx.IF() == null) {
 			for (StatContext s : ctx.stat()) {
 				stats.add(visitStat(s));
 			}
-			return new StatAST(stats, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new StatAST(stats, line, col);
 		} else {
 			if (ctx.READ() != null) {
-				stat = new ReadStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new ReadStatementAST(visitExpr(ctx.expr()), line, col);
 			} else if (ctx.EXIT() != null) {
-				stat = new ExitStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new ExitStatementAST(visitExpr(ctx.expr()), line, col);
 			} else if (ctx.SKIP() != null) {
-				stat = new SkipStatementAST(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new SkipStatementAST(line, col);
 			} else if (ctx.ASSIGN() != null) {
 				AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
 				if(ctx.type() != null && ctx.IDENT() != null) {
 					scope.insert(ctx.IDENT().getText(), new IdentInfo(visitType(ctx.type())));
-					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText()), rhs, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText()), rhs, line, col);
 				} else if(ctx.assignLhs() != null) {
-					Assignable a = visitAssignLhs(ctx.assignLhs());
-					scope.insert(a.getName(), new IdentInfo(visitType(ctx.type()))); //TODO: might be a bug
-					stat = new AssignStatAST(a, rhs, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+					final Assignable a = visitAssignLhs(ctx.assignLhs());
+					if(scope.lookup(a.getName()) !=  null) {
+						ErrorRecords.getInstance().record(new ErrorRecord(){
+
+							@Override
+							public String getMessage() {
+								return "variable: " + a.getName() + "not defined in scope";
+							}
+
+							@Override
+							public int getLineNumber() {
+								return line;
+							}
+							
+						});
+					}
+					stat = new AssignStatAST(a, rhs, line, col);
 				} else {throw new RuntimeException("shouldn't happen, can't recognize Assign stat rule");}
 			} else if (ctx.FREE() != null) {
-				stat = new FreeStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new FreeStatementAST(visitExpr(ctx.expr()), line, col);
 			} else if (ctx.RETURN() != null) {
-				stat = new ReturnStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new ReturnStatementAST(visitExpr(ctx.expr()), line, col);
 			} else if (ctx.PRINT() != null) {
-				stat = new PrintStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new PrintStatementAST(visitExpr(ctx.expr()), line, col);
 			} else if (ctx.PRINTLN() != null) {
-				stat = new PrintlnStatementAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new PrintlnStatementAST(visitExpr(ctx.expr()), line, col);
 			} else if (ctx.IF() != null && ctx.THEN() != null
 					&& ctx.ELSE() != null && ctx.FI() != null) {
 				scope = scope.initializeNewScope();
 				stat = new IfStatementAST(visitExpr(ctx.expr()),
-						visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+						visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), line, col);
 				scope = scope.popScope();
 			} else if (ctx.WHILE() != null && ctx.DO() != null
 					&& ctx.DONE() != null) {
 				scope = scope.initializeNewScope();
 				stat = new WhileStatementAST(visitExpr(ctx.expr()),
-						visitStat(ctx.stat(0)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+						visitStat(ctx.stat(0)), line, col);
 				scope = scope.popScope();
 			} else if (ctx.BEGIN() != null && ctx.END() != null) {
 				scope = scope.initializeNewScope();
-				stat = new BeginEndAST(visitStat(ctx.stat(0)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				stat = new BeginEndAST(visitStat(ctx.stat(0)), line, col);
 				scope = scope.popScope();
 			} else {
 				throw new RuntimeException("shouldn't happen, can't recognize stat rule");

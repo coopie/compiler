@@ -1,21 +1,10 @@
 package wacc.slack.AST;
-import static org.junit.Assert.assertEquals;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 
-import wacc.slack.AST.ASTBuilder;
-import wacc.slack.AST.WaccAST;
-import wacc.slack.AST.visitors.PrintingVisitor;
-import antlr.WaccLexer;
-import antlr.WaccParser;
 
-public class ASTProgramAndStatTest {
+public class ASTProgramAndStatTest extends StatASTTest {
 
 	// STATEMENTS
 	
@@ -71,61 +60,5 @@ public class ASTProgramAndStatTest {
 		simpleTestAssert("begin int foo() is return 1 end skip end",
 				         "start:\nint foo():\nreturn 1\nend\n\tskip\nend");
 	}
-	
-	// EXPRS
-	
-	@Test
-	public void intLiterTest() {
-		exprTest("1", "1");
-	}
-	
-	@Test
-	public void BoolLiterTest() {
-		exprTest("true", "true");
-	}
-	
-	@Test
-	public void CharLiterTest() {
-		exprTest("a", "a");
-	}
-	
-	public void BinopTest() {
-		exprTest("2 + 2", "2 + 2");
-	}
-	
 
-	private void exprTest(String in, String expectedOut) {
-		internalTestAssert("return " + in, "\treturn " + expectedOut);
-	}
-	
-	// use this if you want to make a test which is not program specific e.g exprs
-	private void internalTestAssert(String in, String expectedOut) {
-		simpleTestAssert("begin " + in + "end","start:\n" + expectedOut + "\nend");
-	}
-	
-	private void simpleTestAssert(String in, String expectedOut) {
-		WaccAST ast = getAST(in);
-		PrintingVisitor p = new PrintingVisitor();
-		ast.accept(p);
-		
-		System.out.println(p);
-		assertEquals(expectedOut, p.toString());
-	}
-	
-	private WaccAST getAST(String s) {
-		try{
-			ANTLRInputStream input = new ANTLRInputStream(new ByteArrayInputStream(s.getBytes("UTF-8")));
-			WaccLexer lexer = new WaccLexer(input);
-			CommonTokenStream tokens = new CommonTokenStream(lexer);
-			WaccParser parser = new WaccParser(tokens);
-			ParseTree tree = parser.program();
-			
-			return (WaccAST)tree.accept(new ASTBuilder());
-			
-			
-		} catch(IOException i) {
-			// can't really happen
-		}
-		return null;
-	}
 }
