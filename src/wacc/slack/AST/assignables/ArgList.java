@@ -2,28 +2,23 @@ package wacc.slack.AST.assignables;
 
 import java.util.List;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.ParseTreeReturnable;
 import wacc.slack.AST.Expr.ExprAST;
 
 public class ArgList implements ParseTreeReturnable {
 	
 	private final List<ExprAST> exprList;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public ArgList(List<ExprAST> exprList2, int linePos, int charPos) {
+	public ArgList(List<ExprAST> exprList2, FilePosition filePos) {
 		this.exprList = exprList2;
-		this.linePos = linePos;
-		this.charPos = charPos;
-	}
-	
-	@Override
-	public int getLine() {
-		return linePos;
+		this.filePos = filePos;
 	}
 
 	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	public List<ExprAST> getExprList() {

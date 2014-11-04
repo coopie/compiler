@@ -1,11 +1,13 @@
 package wacc.slack.AST.types;
 
+import wacc.slack.FilePosition;
+
 public class PairType implements Type {
 
 	private final Type fst, snd;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public PairType(Type fst, Type snd, int linePos, int charPos) {
+	public PairType(Type fst, Type snd, FilePosition filePos) {
 		if (fst instanceof PairType) {
 			this.fst = BaseType.T_pair;
 		} else {
@@ -18,18 +20,12 @@ public class PairType implements Type {
 			this.snd = snd;
 		}
 		
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	public boolean equals(Type t) {

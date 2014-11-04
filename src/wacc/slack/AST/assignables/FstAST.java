@@ -2,6 +2,7 @@ package wacc.slack.AST.assignables;
 
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.visitors.ASTVisitor;
@@ -9,24 +10,18 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public class FstAST implements Assignable {
 	
 	private final ExprAST expr;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public FstAST(ExprAST expr, int linePos, int charPos) {
+	public FstAST(ExprAST expr, FilePosition filePos) {
 		this.expr = expr;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 		
 		checkType();
 	}
-	
-	@Override
-	public int getLine() {
-		return linePos;
-	}
 
 	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	@Override
@@ -50,8 +45,8 @@ public class FstAST implements Assignable {
 				}
 
 				@Override
-				public int getLineNumber() {
-					return getLine();
+				public FilePosition getFilePosition() {
+					return filePos;
 				} 
 			});
 		}

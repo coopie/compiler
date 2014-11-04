@@ -2,6 +2,7 @@ package wacc.slack.AST.Expr;
 
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
+import wacc.slack.FilePosition;
 import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
@@ -11,16 +12,15 @@ public class UnaryExprAST implements ExprAST {
 
 	private final UnaryOp unaryOp;
 	private final ExprAST expr;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	private final boolean correctSubExpresions;
 	private final ErrorRecords error = ErrorRecords.getInstance();
 	
 
-	public UnaryExprAST(UnaryOp unOp, ExprAST expr, int linePos, int charPos) {
+	public UnaryExprAST(UnaryOp unOp, ExprAST expr, FilePosition filePos) {
 		this.unaryOp = unOp;
 		this.expr = expr;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 		correctSubExpresions = checkTypes();
 		if(!correctSubExpresions) {
 			error.record(new ErrorRecord(){
@@ -31,9 +31,8 @@ public class UnaryExprAST implements ExprAST {
 				}
 
 				@Override
-				public int getLineNumber() {
-					// TODO Auto-generated method stub
-					return 0;
+				public FilePosition getFilePosition() {
+					return filePos;
 				}
 				
 			});
@@ -41,14 +40,10 @@ public class UnaryExprAST implements ExprAST {
 	}
 	
 	@Override
-	public int getLine() {
-		return linePos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
-	@Override
-	public int getCharColumn() {
-		return charPos;
-	}
 
 	@Override
 	public void accept(ASTVisitor visitor) {

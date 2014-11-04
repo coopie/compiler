@@ -1,12 +1,15 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 
 public class StringLiter implements Liter {
 
+	private final String text;
+	
 	public StringLiter(String text) {
-		// TODO Auto-generated constructor stub
+		this.text = text;
 	}
 
 	@Override
@@ -16,20 +19,12 @@ public class StringLiter implements Liter {
 
 	@Override
 	public String getValue() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public int getLine() {
-		// TODO Auto-generated method stub
-		return 0;
+		return text;
 	}
 
 	@Override
-	public int getCharColumn() {
-		// TODO Auto-generated method stub
-		return 0;
+	public FilePosition getFilePosition() {
+		return null;
 	}
 
 }

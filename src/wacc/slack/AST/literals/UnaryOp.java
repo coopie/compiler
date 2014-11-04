@@ -1,5 +1,6 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 
@@ -23,15 +24,8 @@ public enum UnaryOp implements Liter {
 		return null;
 	}
 	@Override
-	public int getLine() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getCharColumn() {
-		// TODO Auto-generated method stub
-		return 0;
+	public FilePosition getFilePosition() {
+		return null;
 	}
 
 	@Override 
@@ -45,6 +39,4 @@ public enum UnaryOp implements Liter {
 			default: throw new RuntimeException("not suppoerted UnaryOP");
 		}
 	}
-	
-
 }

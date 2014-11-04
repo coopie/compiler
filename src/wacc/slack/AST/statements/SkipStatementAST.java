@@ -1,14 +1,15 @@
 package wacc.slack.AST.statements;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class SkipStatementAST extends StatAST {
 
-	public SkipStatementAST(int linePos, int charPos) {
-		super(linePos, charPos);
+	public SkipStatementAST(FilePosition filePos) {
+		super(filePos);
 		addStat(this);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "skip";

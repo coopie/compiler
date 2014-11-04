@@ -2,6 +2,7 @@ package wacc.slack.AST.assignables;
 
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.literals.Liter;
 import wacc.slack.AST.types.BaseType;
@@ -12,25 +13,19 @@ public class ArrayElem implements Assignable, Liter {
 
 	private final String ident;
 	private final ExprAST expr;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public ArrayElem(String ident, ExprAST expr, int linePos, int charPos) {
+	public ArrayElem(String ident, ExprAST expr, FilePosition filePos) {
 		this.ident = ident;
 		this.expr = expr;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 
 		checkType();
 	}
 
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-	
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	@Override
@@ -60,8 +55,8 @@ public class ArrayElem implements Assignable, Liter {
 				}
 
 				@Override
-				public int getLineNumber() {
-					return getLine();
+				public FilePosition getFilePosition() {
+					return filePos;
 				} 
 			});
 		}

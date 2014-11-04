@@ -4,24 +4,23 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class StatAST implements WaccAST, Iterable<StatAST> {
 
 	private final List<StatAST> stats;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 
-	public StatAST(int linePos, int charPos) {
+	public StatAST(FilePosition filePos) {
 		stats = new LinkedList<>();
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 	
-	public StatAST(List<StatAST> stats, int linePos, int charPos) {
+	public StatAST(List<StatAST> stats, FilePosition filePos) {
 		this.stats = stats;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 	
 	protected void addStat(StatAST stat) {
@@ -33,18 +32,13 @@ public class StatAST implements WaccAST, Iterable<StatAST> {
 	}
 
 	@Override
-	public Iterator<StatAST> iterator() {
-		return stats.iterator();
-	}
-
-	@Override
-	public int getLine() {
-		return linePos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	@Override
-	public int getCharColumn() {
-		return charPos;
+	public Iterator<StatAST> iterator() {
+		return stats.iterator();
 	}
 
 	@Override
@@ -53,5 +47,4 @@ public class StatAST implements WaccAST, Iterable<StatAST> {
 			s.accept(visitor);
 		}
 	}
-
 }

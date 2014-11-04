@@ -1,15 +1,15 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 
 public class PairLiter implements Liter {
 
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public PairLiter(int linePos, int charPos) {
-		this.linePos = linePos;
-		this.charPos = charPos;
+	public PairLiter(FilePosition filePos) {
+		this.filePos = filePos;
 	}
 
 	@Override
@@ -24,12 +24,7 @@ public class PairLiter implements Liter {
 	}
 
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 }

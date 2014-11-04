@@ -2,6 +2,7 @@ package wacc.slack.AST.assignables;
 
 import java.util.List;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.types.Type;
@@ -12,26 +13,20 @@ public class FuncAST implements WaccAST{
 	private final String ident;
 	private final StatAST stat;
 	private final List<Param> paramList;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	private Type type;
 
-	public FuncAST(Type type, String ident, List<Param> paramList2, StatAST stat, int linePos, int charPos) {
+	public FuncAST(Type type, String ident, List<Param> paramList2, StatAST stat, FilePosition filePos) {
 		this.type = type;
 		this.ident = ident;
 		this.paramList = paramList2;
 		this.stat = stat;
-		this.linePos = linePos;
-		this.charPos = charPos;
-	}
-
-	@Override
-	public int getLine() {
-		return linePos;
+		this.filePos = filePos;
 	}
 	
 	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	@Override

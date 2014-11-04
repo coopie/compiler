@@ -2,6 +2,7 @@ package wacc.slack.AST.literals;
 
 import java.util.List;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.types.Type;
@@ -12,14 +13,12 @@ public class ArrayLiter implements Liter, AssignRHS {
 	
 	private final List<ExprAST> exprList;
 	private final WaccArrayType type;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public ArrayLiter(List<ExprAST> exprList, int linePos, int charPos, WaccArrayType type) {
+	public ArrayLiter(List<ExprAST> exprList, FilePosition filePos, WaccArrayType type) {
 		this.exprList = exprList;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 		this.type = type;
-
 	}
 	
 	public List<ExprAST> getExprList() {
@@ -38,13 +37,8 @@ public class ArrayLiter implements Liter, AssignRHS {
 	}
 
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-	
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 
 	@Override

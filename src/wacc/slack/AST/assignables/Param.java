@@ -1,5 +1,6 @@
 package wacc.slack.AST.assignables;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.ParseTreeReturnable;
 import wacc.slack.AST.types.Type;
 
@@ -7,23 +8,17 @@ public class Param implements ParseTreeReturnable {
 	
 	private final String ident;
 	private final Type type;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public Param(String ident, Type type, int linePos, int charPos) {
+	public Param(String ident, Type type, FilePosition filePos) {
 		this.ident = ident;
 		this.type = type;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	public String getIdent() {
@@ -33,4 +28,6 @@ public class Param implements ParseTreeReturnable {
 	public Type getType() {
 		return type;
 	}
+
+
 }

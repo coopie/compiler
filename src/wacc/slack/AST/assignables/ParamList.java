@@ -2,27 +2,22 @@ package wacc.slack.AST.assignables;
 
 import java.util.List;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.ParseTreeReturnable;
 
 public class ParamList implements ParseTreeReturnable {
 
 	private final List<Param> paramList;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public ParamList(List<Param> paramList, int linePos, int charPos) {
+	public ParamList(List<Param> paramList, FilePosition filePos) {
 		this.paramList = paramList;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
-
+	
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	public List<Param> getParamList() {

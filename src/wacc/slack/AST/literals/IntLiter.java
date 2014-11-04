@@ -1,16 +1,17 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 
 public class IntLiter implements Liter {
 
-	private final int i, linePos, charPos;
+	private final int i;
+	private final FilePosition filePos;
 	
-	public IntLiter(int i, int linePos, int charPos) {
+	public IntLiter(int i, FilePosition filePos) {
 		this.i = i;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 
 	@Override
@@ -29,13 +30,8 @@ public class IntLiter implements Liter {
 	}
 	
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
 	public int getInt() {

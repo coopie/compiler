@@ -1,5 +1,6 @@
 package wacc.slack.AST.Expr;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
@@ -10,29 +11,20 @@ public class BinaryExprAST implements ExprAST {
 	private final BinaryOp binaryOp;
 	private final ExprAST exprL, exprR;
 	private final boolean typesCheck;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 
 	
-	public BinaryExprAST(BinaryOp binaryOp, ExprAST exprL, ExprAST exprR, int linePos, int charPos) {
+	public BinaryExprAST(BinaryOp binaryOp, ExprAST exprL, ExprAST exprR, FilePosition filePos) {
 		this.binaryOp = binaryOp;
 		this.exprL = exprL;
 		this.exprR = exprR;
-
 		this.typesCheck = checkTypes();
-		
-		this.linePos = linePos;
-		this.charPos = charPos;
-
+		this.filePos = filePos;
 	}
 	
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-	
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 
 	@Override
@@ -40,7 +32,6 @@ public class BinaryExprAST implements ExprAST {
 		exprL.accept(visitor);
 		visitor.visit(this);
 		exprR.accept(visitor);
-		
 	}
 	
 	@Override

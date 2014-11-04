@@ -1,5 +1,6 @@
 package wacc.slack.AST.assignables;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class VariableAST implements Assignable {
@@ -17,15 +18,8 @@ public class VariableAST implements Assignable {
 	}
 
 	@Override
-	public int getLine() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getCharColumn() {
-		// TODO Auto-generated method stub
-		return 0;
+	public FilePosition getFilePosition() {
+		return null;
 	}
 
 	@Override

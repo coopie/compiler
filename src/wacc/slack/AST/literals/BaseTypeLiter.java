@@ -14,15 +14,8 @@ public abstract class BaseTypeLiter implements Liter {
 	}
 
 	@Override
-	public int getLine() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getCharColumn() {
-		// TODO Auto-generated method stub
-		return 0;
+	public FilePosition getFilePosition() {
+		return null;
 	}
 
 	@Override

@@ -1,30 +1,25 @@
 package wacc.slack.AST.assignables;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class NewPairAST implements AssignRHS {
 	
 	private final ExprAST exprL, exprR;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 
-	public NewPairAST(ExprAST expr1, ExprAST expr2, int linePos, int charPos) {
+	public NewPairAST(ExprAST expr1, ExprAST expr2, FilePosition filePos) {
 		this.exprL = expr1;
 		this.exprR = expr2;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 
 	@Override
-	public int getLine() {
-		return linePos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
-	@Override
-	public int getCharColumn() {
-		return charPos;
-	}
-
 	@Override
 	public void accept(ASTVisitor visitor) {
 		exprL.accept(visitor);

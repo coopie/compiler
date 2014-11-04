@@ -1,5 +1,6 @@
 package wacc.slack.AST.statements;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
@@ -8,12 +9,13 @@ public class WhileStatementAST extends StatAST {
 	private final ExprAST cond;
 	private final StatAST body;
 
-	public WhileStatementAST(ExprAST exprAST, StatAST body, int linePos, int charPos) {
-		super(linePos, charPos);
+	public WhileStatementAST(ExprAST exprAST, StatAST body, FilePosition filePos) {
+		super(filePos);
 		addStat(this);
 		this.cond = exprAST;
 		this.body = body;
 	}
+
 	@Override 
 	public void accept(ASTVisitor v) {
 		v.visit(this);

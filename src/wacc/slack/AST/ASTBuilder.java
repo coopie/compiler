@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.BinaryExprAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
@@ -108,15 +109,17 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public IntLiter visitIntSign(IntSignContext ctx) {
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		if (ctx.MINUS() != null) {
-			return new IntLiter(-1, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new IntLiter(-1, filePos);
 		} else {
-			return new IntLiter(1, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new IntLiter(1, filePos);
 		}
 	}
 
 	@Override
 	public AssignRHS visitAssignRhs(AssignRhsContext ctx) {
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		if (ctx.expr() != null) {
 			return visitExpr(ctx.expr(0));
 		} else if (ctx.arrayLiter() != null) {
@@ -126,11 +129,11 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.NEWPAIR() != null) {
 			ExprAST expr1 = visitExpr(ctx.expr(0));
 			ExprAST expr2 = visitExpr(ctx.expr(1));
-			return new NewPairAST(expr1, expr2, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new NewPairAST(expr1, expr2, filePos);
 		} else if (ctx.CALL() != null) {
 			String ident = ctx.IDENT().getText();
 			ArgList argList = visitArgList(ctx.argList());
-			return new CallAST(ident, argList, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new CallAST(ident, argList, filePos);
 		} else {
 			assert false : "should not happen, one of the assignments should be recognized";
 		}
@@ -145,7 +148,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			exprList.add(visitExpr(e));
 		}
 
-		return new ArgList(exprList, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ArgList(exprList, filePos);
 	}
 
 	@Override
@@ -166,15 +170,17 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public Param visitParam(ParamContext ctx) {
 		String ident = ctx.IDENT().getText();
 		Type type = visitType(ctx.type());
-		return new Param(ident, type, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new Param(ident, type, filePos);
 	}
 
 	@Override
 	public Assignable visitPairElem(PairElemContext ctx) {
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		if (ctx.FST() != null) {
-			return new FstAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new FstAST(visitExpr(ctx.expr()), filePos);
 		} else if (ctx.SND() != null) {
-			return new SndAST(visitExpr(ctx.expr()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new SndAST(visitExpr(ctx.expr()), filePos);
 		} else {
 			assert false: "should not happen, can only start with fst or snd";
 		}
@@ -185,7 +191,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public ArrayElem visitArrayElem(ArrayElemContext ctx) {
 		String ident = ctx.IDENT().getText();
 		ExprAST expr = visitExpr(ctx.expr());
-		return new ArrayElem(ident, expr, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ArrayElem(ident, expr, filePos);
 	}
 
 	@Override
@@ -230,29 +237,31 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			paramList.add(visitParam(p));
 		}
 		
-		return new ParamList(paramList, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ParamList(paramList, filePos);
 	}
 
 	@Override
 	public ExprAST visitExpr(ExprContext ctx) {
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		if (ctx.intLiter() != null) {
-			return new ValueExprAST(visitIntLiter(ctx.intLiter()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new ValueExprAST(visitIntLiter(ctx.intLiter()), filePos);
 		} else if (ctx.boolLiter() != null) {
-			return new ValueExprAST(visitBoolLiter(ctx.boolLiter()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new ValueExprAST(visitBoolLiter(ctx.boolLiter()), filePos);
 		} else if (ctx.CHAR_LTR() != null) {
-			return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()), filePos);
 		} else if (ctx.STRING_LTR() != null) {
-			return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText()), filePos);
 		} else if (ctx.pairLiter() != null) {
-			return new ValueExprAST(visitPairLiter(ctx.pairLiter()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new ValueExprAST(visitPairLiter(ctx.pairLiter()), filePos);
 		} else if (ctx.IDENT() != null) {
 			return null;
 		} else if (ctx.arrayElem() != null) {
-			return new ValueExprAST(visitArrayElem(ctx.arrayElem()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new ValueExprAST(visitArrayElem(ctx.arrayElem()), filePos);
 		} else if (ctx.unaryOper() != null) {
-			return new UnaryExprAST(visitUnaryOper(ctx.unaryOper()), visitExpr(ctx.expr(0)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new UnaryExprAST(visitUnaryOper(ctx.unaryOper()), visitExpr(ctx.expr(0)), filePos);
 		} else if (ctx.binaryOper() != null) {
-			return new BinaryExprAST(visitBinaryOper(ctx.binaryOper()), visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new BinaryExprAST(visitBinaryOper(ctx.binaryOper()), visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)), filePos);
 		} else {
 			return visitExpr(ctx.expr(0));
 		}
@@ -277,26 +286,25 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		StatAST stat;
 		List<StatAST> stats = new LinkedList<StatAST>();
 
-		final int line = ctx.start.getLine();
-		final int col = ctx.start.getCharPositionInLine();
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		
 		if (ctx.stat().size() > 1 && ctx.IF() == null) {
 			for (StatContext s : ctx.stat()) {
 				stats.add(visitStat(s));
 			}
-			return new StatAST(stats, line, col);
+			return new StatAST(stats, filePos);
 		} else {
 			if (ctx.READ() != null) {
-				stat = new ReadStatementAST(visitExpr(ctx.expr()), line, col);
+				stat = new ReadStatementAST(visitExpr(ctx.expr()), filePos);
 			} else if (ctx.EXIT() != null) {
-				stat = new ExitStatementAST(visitExpr(ctx.expr()), line, col);
+				stat = new ExitStatementAST(visitExpr(ctx.expr()), filePos);
 			} else if (ctx.SKIP() != null) {
-				stat = new SkipStatementAST(line, col);
+				stat = new SkipStatementAST(filePos);
 			} else if (ctx.ASSIGN() != null) {
 				AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
 				if(ctx.type() != null && ctx.IDENT() != null) {
 					scope.insert(ctx.IDENT().getText(), new IdentInfo(visitType(ctx.type())));
-					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText()), rhs, line, col);
+					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText()), rhs, filePos);
 				} else if(ctx.assignLhs() != null) {
 					final Assignable a = visitAssignLhs(ctx.assignLhs());
 					if(scope.lookup(a.getName()) !=  null) {
@@ -308,37 +316,36 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 							}
 
 							@Override
-							public int getLineNumber() {
-								return line;
+							public FilePosition getFilePosition() {
+								return filePos;
 							}
-							
 						});
 					}
-					stat = new AssignStatAST(a, rhs, line, col);
+					stat = new AssignStatAST(a, rhs, filePos);
 				} else {throw new RuntimeException("shouldn't happen, can't recognize Assign stat rule");}
 			} else if (ctx.FREE() != null) {
-				stat = new FreeStatementAST(visitExpr(ctx.expr()), line, col);
+				stat = new FreeStatementAST(visitExpr(ctx.expr()), filePos);
 			} else if (ctx.RETURN() != null) {
-				stat = new ReturnStatementAST(visitExpr(ctx.expr()), line, col);
+				stat = new ReturnStatementAST(visitExpr(ctx.expr()), filePos);
 			} else if (ctx.PRINT() != null) {
-				stat = new PrintStatementAST(visitExpr(ctx.expr()), line, col);
+				stat = new PrintStatementAST(visitExpr(ctx.expr()), filePos);
 			} else if (ctx.PRINTLN() != null) {
-				stat = new PrintlnStatementAST(visitExpr(ctx.expr()), line, col);
+				stat = new PrintlnStatementAST(visitExpr(ctx.expr()), filePos);
 			} else if (ctx.IF() != null && ctx.THEN() != null
 					&& ctx.ELSE() != null && ctx.FI() != null) {
 				scope = scope.initializeNewScope();
 				stat = new IfStatementAST(visitExpr(ctx.expr()),
-						visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), line, col);
+						visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), filePos);
 				scope = scope.popScope();
 			} else if (ctx.WHILE() != null && ctx.DO() != null
 					&& ctx.DONE() != null) {
 				scope = scope.initializeNewScope();
 				stat = new WhileStatementAST(visitExpr(ctx.expr()),
-						visitStat(ctx.stat(0)), line, col);
+						visitStat(ctx.stat(0)), filePos);
 				scope = scope.popScope();
 			} else if (ctx.BEGIN() != null && ctx.END() != null) {
 				scope = scope.initializeNewScope();
-				stat = new BeginEndAST(visitStat(ctx.stat(0)), line, col);
+				stat = new BeginEndAST(visitStat(ctx.stat(0)), filePos);
 				scope = scope.popScope();
 			} else {
 				throw new RuntimeException("shouldn't happen, can't recognize stat rule");
@@ -349,10 +356,11 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public Liter visitBoolLiter(BoolLiterContext ctx) {
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		if (ctx.TRUE() != null) {
-			return new BoolLiter("true", ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new BoolLiter("true", filePos);
 		} else {
-			return new BoolLiter("false", ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new BoolLiter("false", filePos);
 		}
 	}
 
@@ -398,15 +406,17 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		for (FuncContext f : ctx.func()) {
 			func.add(visitFunc(f));
 		}
-		return new ProgramAST(func, visitStat(ctx.stat()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ProgramAST(func, visitStat(ctx.stat()), filePos);
 	}
 
 	@Override
 	public PairType visitPairType(PairTypeContext ctx) {
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		if (ctx.PAIR() != null) {
 			Type fst = visitPairElemType(ctx.pairElemType(0));
 			Type snd = visitPairElemType(ctx.pairElemType(1));
-			return new PairType(fst, snd, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new PairType(fst, snd, filePos);
 		} else {
 			assert false: "must start with keyword pair";
 		}
@@ -420,8 +430,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		for (ExprContext e : ctx.expr()) {
 			exprList.add(visitExpr(e));
 		}
+		
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		//TODO: lookup null in the symbol table to get the type
-		return new ArrayLiter(exprList, ctx.start.getLine(), ctx.start.getCharPositionInLine(),null);
+		return new ArrayLiter(exprList, filePos, null);
 
 	}
 
@@ -441,7 +453,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public Liter visitPairLiter(PairLiterContext ctx) {
-		return new PairLiter(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new PairLiter(filePos);
 	}
 
 	@Override
@@ -452,20 +465,22 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			paramList = visitParamList(ctx.paramList()).getParamList();
 		}
 
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		return new FuncAST(visitType(ctx.type()),
 				ctx.IDENT().getText(),
 				paramList,
-				visitStat(ctx.stat()), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+				visitStat(ctx.stat()), filePos);
 	}
 
 	@Override
 	public Liter visitIntLiter(IntLiterContext ctx) {
-		IntLiter sign = new IntLiter(1, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		IntLiter sign = new IntLiter(1, filePos);
 		if(ctx.intSign() != null) {
 			sign = visitIntSign(ctx.intSign());
 		}
 		int intLiter = Integer.parseInt(ctx.INTEGER().getText());
-		return new IntLiter(intLiter * sign.getInt(), ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new IntLiter(intLiter * sign.getInt(), filePos);
 	}
 
 	@Override

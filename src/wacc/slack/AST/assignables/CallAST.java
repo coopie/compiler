@@ -1,34 +1,28 @@
 package wacc.slack.AST.assignables;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class CallAST implements AssignRHS {
 	
 	private final String ident;
 	private final ArgList argList;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public CallAST(String ident, ArgList argList, int linePos, int charPos) {
+	public CallAST(String ident, ArgList argList, FilePosition filePos) {
 		this.ident = ident;
 		this.argList = argList;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 	
 	@Override
-	public int getLine() {
-		return linePos;
-	}
-	
-	@Override
-	public int getCharColumn() {
-		return charPos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 
 	@Override
 	public void accept(ASTVisitor visitor) {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	public String getIdent() {
@@ -38,4 +32,6 @@ public class CallAST implements AssignRHS {
 	public ArgList getArgList() {
 		return argList;
 	}
+
+
 }

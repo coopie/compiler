@@ -1,5 +1,7 @@
 package wacc.slack.AST.types;
 
+import wacc.slack.FilePosition;
+
 public class WaccArrayType implements Type {
 
 	Type type;
@@ -13,14 +15,7 @@ public class WaccArrayType implements Type {
 	}
 
 	@Override
-	public int getLine() {
-		// TODO Auto-generated method stub
-		return -1;
-	}
-
-	@Override
-	public int getCharColumn() {
-		// TODO Auto-generated method stub
-		return -1;
+	public FilePosition getFilePosition() {
+		return null;
 	}
 }

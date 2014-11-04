@@ -1,5 +1,6 @@
 package wacc.slack.AST.Expr;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.literals.Liter;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
@@ -7,24 +8,18 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public class ValueExprAST implements ExprAST {
 
 	private final Liter liter;
-	private final int linePos, charPos;
+	private final FilePosition filePos;
 	
-	public ValueExprAST(Liter l, int linePos, int charPos) {
+	public ValueExprAST(Liter l, FilePosition filePos) {
 		this.liter = l ;
-		this.linePos = linePos;
-		this.charPos = charPos;
+		this.filePos = filePos;
 	}
 	
 	@Override
-	public int getLine() {
-		return linePos;
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 	
-	@Override
-	public int getCharColumn() {
-		return charPos;
-	}
-
 	public String getValue() {
 		return liter.getValue();
 	}

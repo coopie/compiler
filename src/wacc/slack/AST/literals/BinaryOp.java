@@ -1,5 +1,6 @@
 package wacc.slack.AST.literals;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.types.BaseType;
 
@@ -43,19 +44,12 @@ public enum BinaryOp implements Liter {
 	public String getValue() {
 		// TODO Auto-generated method stub
 		return null;
-
 	}
 
 	@Override
-	public int getLine() {
+	public FilePosition getFilePosition() {
 		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getCharColumn() {
-		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 	
 	@Override
@@ -91,5 +85,4 @@ public enum BinaryOp implements Liter {
 			throw new RuntimeException("not supported BiaryOP");
 		}
 	}
-	
 }
