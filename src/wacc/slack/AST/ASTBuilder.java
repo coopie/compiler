@@ -331,9 +331,9 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public Liter visitBoolLiter(BoolLiterContext ctx) {
 		if (ctx.TRUE() != null) {
-			return new BoolLiter(true, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new BoolLiter("true", ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		} else {
-			return new BoolLiter(false, ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			return new BoolLiter("false", ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		}
 	}
 

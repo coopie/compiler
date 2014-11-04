@@ -6,10 +6,10 @@ import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.assignables.FuncAST;
 import wacc.slack.AST.statements.StatAST;
 
-public interface ASTVisitor {
-	void visit(StatAST stat);
-	void visit(FuncAST func);
-	void visit(ExprAST expr);
-	void visit(ProgramAST program);
-	void visit(AssignRHS assignRHS);
+public interface ASTVisitor<T> {
+	T visit(StatAST stat);
+	T visit(FuncAST func);
+	T visit(ExprAST expr);
+	T visit(ProgramAST program);
+	T visit(AssignRHS assignRHS);
 }

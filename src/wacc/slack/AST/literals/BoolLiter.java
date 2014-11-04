@@ -5,11 +5,11 @@ import wacc.slack.AST.types.Type;
 
 public class BoolLiter implements Liter {
 
-	private final boolean b;
+	private final String value;
 	private final int linePos, charPos;
 	
-	public BoolLiter(boolean b, int linePos, int charPos) {
-		this.b = b;
+	public BoolLiter(String value, int linePos, int charPos) {
+		this.value = value;
 		this.linePos = linePos;
 		this.charPos = charPos;
 	}
@@ -21,7 +21,7 @@ public class BoolLiter implements Liter {
 
 	@Override
 	public String getValue() {
-		return Boolean.toString(b);
+		return value;
 	}
 	
 	@Override
@@ -32,9 +32,5 @@ public class BoolLiter implements Liter {
 	@Override
 	public int getCharColumn() {
 		return charPos;
-	}
-
-	public boolean getBool() {
-		return b;
 	}
 }

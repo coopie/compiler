@@ -72,6 +72,37 @@ public class ASTProgramAndStatTest {
 				         "start:\nint foo():\nreturn 1\nend\n\tskip\nend");
 	}
 	
+	// EXPRS
+	
+	@Test
+	public void intLiterTest() {
+		exprTest("1", "1");
+	}
+	
+	@Test
+	public void BoolLiterTest() {
+		exprTest("true", "true");
+	}
+	
+	@Test
+	public void CharLiterTest() {
+		exprTest("a", "a");
+	}
+	
+	public void BinopTest() {
+		exprTest("2 + 2", "2 + 2");
+	}
+	
+
+	private void exprTest(String in, String expectedOut) {
+		internalTestAssert("return " + in, "\treturn " + expectedOut);
+	}
+	
+	// use this if you want to make a test which is not program specific e.g exprs
+	private void internalTestAssert(String in, String expectedOut) {
+		simpleTestAssert("begin " + in + "end","start:\n" + expectedOut + "\nend");
+	}
+	
 	private void simpleTestAssert(String in, String expectedOut) {
 		WaccAST ast = getAST(in);
 		PrintingVisitor p = new PrintingVisitor();
