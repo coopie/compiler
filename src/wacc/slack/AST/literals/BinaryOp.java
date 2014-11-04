@@ -58,4 +58,38 @@ public enum BinaryOp implements Liter {
 		return 0;
 	}
 	
+	@Override
+	public String toString() {
+		switch (this) {
+		case MUL:
+			return "*";
+		case DIV:
+			return "/";
+		case MOD:
+			return "%";
+		case PLUS:
+			return "+";
+		case MINUS:
+			return "-";
+		case GT:
+			return ">";
+		case GTE:
+			return ">=";
+		case LT:
+			return "<";
+		case LTE:
+			return "<=";
+		case EQ:
+			return "==";
+		case NEQ:
+			return "!=";
+		case AND:
+			return "&&";
+		case OR:
+			return "||";
+		default :
+			throw new RuntimeException("not supported BiaryOP");
+		}
+	}
+	
 }
