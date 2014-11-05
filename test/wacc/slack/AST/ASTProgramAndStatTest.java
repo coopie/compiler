@@ -20,7 +20,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simpleExitAST() {
-		statementTestAssert("Exit 7", "Exit 7");
+		statementTestAssert("exit 7", "exit 7");
 	}
 	
 	@Test
@@ -45,7 +45,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simpleIfAST() {
-		statementTestAssert("if true then skip else skip fi", "if true then\n\tskip else\n\tskip\nend");
+		statementTestAssert("if true then skip else skip fi", "if true\n\tskip\nelse\n\tskip");
 	}
 	
 	@Test
@@ -118,16 +118,16 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simpleUnaryOp() {
-		statementTestAssert("-1", "-(1)");
+		exprTestAssert("-1", "-(1)");
 	}
 	
 	@Test
 	public void simpleBinaryOp() {
-		exprTestAssert("print 2 * 6", "print (2 * 6)");
+		exprTestAssert("2 * 6", "(2 * 6)");
 	}
 	
 	@Test
 	public void simpleBracketsExpr() {
-		exprTestAssert("print (1)", "print 1");
+		exprTestAssert("(1)", "1");
 	}
 }

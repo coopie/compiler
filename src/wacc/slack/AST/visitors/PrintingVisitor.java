@@ -17,6 +17,7 @@ import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExprStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
@@ -100,13 +101,13 @@ public class PrintingVisitor implements ASTVisitor<String> {
 		String r = "";
 		
 		r += "if " + ifStat.getCond().accept(this);
-		r += newLine();
 		indent();
+		r += newLine();
 		r += ifStat.getTrueStats().accept(this);
 		endIndent();
-		r += "else" + newLine();
+		r += newLine() + "else";
 		indent();
-		r += ifStat.getFalseStats().accept(this);
+		r += newLine() + ifStat.getFalseStats().accept(this);
 		endIndent();
 		
 		output = r;
@@ -195,8 +196,8 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(VariableAST variable) {
-		// TODO Auto-generated method stub
-		return null;
+		output = variable.getName();
+		return output;
 	}
 	
 	@Override
@@ -216,6 +217,11 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	@Override
 	public String visit(ExprStatementAST exprStat) {
 		output = exprStat.getName() + " " + exprStat.getExpr().accept(this);
+		return output;
+	}
+	@Override
+	public String visit(ReadStatementAST readStatementAST) {
+		output = "read " +  readStatementAST.getAssignable().accept(this);
 		return output;
 	}
 }

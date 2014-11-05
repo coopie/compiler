@@ -324,7 +324,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			return new StatListAST(stats, filePos);
 		} else {
 			if (ctx.READ() != null) {
-				stat = new ReadStatementAST(visitExpr(ctx.expr()), filePos);
+				stat = new ReadStatementAST(visitAssignLhs(ctx.assignLhs()), filePos);
 			} else if (ctx.EXIT() != null) {
 				stat = new ExitStatementAST(visitExpr(ctx.expr()), filePos);
 			} else if (ctx.SKIP() != null) {
@@ -469,7 +469,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public Assignable visitAssignLhs(AssignLhsContext ctx) {
 		if (ctx.IDENT() != null) {
-			return null;
+			return new VariableAST(ctx.IDENT().getText(),scope,new FilePosition(ctx.IDENT().getSymbol().getLine(), ctx.IDENT().getSymbol().getCharPositionInLine()));
 		} else if (ctx.arrayElem() != null) {
 			return visitArrayElem(ctx.arrayElem());
 		} else if (ctx.pairElem() != null) {
