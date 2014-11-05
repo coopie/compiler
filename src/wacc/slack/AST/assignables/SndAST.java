@@ -34,8 +34,7 @@ public class SndAST implements Assignable {
 		return "snd";
 	}
 	
-	@Override
-	public void checkType() {
+	private void checkType() {
 		if (expr instanceof PairType) {
 			ErrorRecords.getInstance().record(new ErrorRecord() {
 

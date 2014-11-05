@@ -17,7 +17,7 @@ public class UnaryExprAST implements ExprAST {
 	private final ErrorRecords error = ErrorRecords.getInstance();
 	
 
-	public UnaryExprAST(UnaryOp unOp, ExprAST expr, FilePosition filePos) {
+	public UnaryExprAST(UnaryOp unOp, ExprAST expr, final FilePosition filePos) {
 		this.unaryOp = unOp;
 		this.expr = expr;
 		this.filePos = filePos;

@@ -44,8 +44,8 @@ public class ArrayElem implements Assignable, Liter {
 		return null;
 	}
 	
-	@Override
-	public void checkType() {
+
+	private void checkType() {
 		if (!expr.getType().equals(BaseType.T_int)) {
 			ErrorRecords.getInstance().record(new ErrorRecord() {
 

@@ -2,6 +2,7 @@ package wacc.slack.AST.Expr;
 
 import wacc.slack.FilePosition;
 import wacc.slack.AST.literals.Liter;
+import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 

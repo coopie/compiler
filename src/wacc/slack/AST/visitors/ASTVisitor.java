@@ -4,6 +4,7 @@ import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.statements.StatAST;
 
 public interface ASTVisitor<T> {

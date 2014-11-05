@@ -23,7 +23,7 @@ public class StatAssignemntAndScopingTests extends StatASTTest {
 		
 		context.checking(new Expectations(){{
     		never(table).initializeNewScope();
-    		exactly(1).of(table).insert("a", new IdentInfo(BaseType.T_int));
+    		exactly(1).of(table).insert("a", new IdentInfo(BaseType.T_int,null));
     	}});
       
 		

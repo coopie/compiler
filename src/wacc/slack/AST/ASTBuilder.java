@@ -286,7 +286,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		StatAST stat;
 		List<StatAST> stats = new LinkedList<StatAST>();
 
-		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		
 		if (ctx.stat().size() > 1 && ctx.IF() == null) {
 			for (StatContext s : ctx.stat()) {
@@ -303,11 +303,11 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			} else if (ctx.ASSIGN() != null) {
 				AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
 				if(ctx.type() != null && ctx.IDENT() != null) {
-					scope.insert(ctx.IDENT().getText(), new IdentInfo(visitType(ctx.type())));
-					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText()), rhs, filePos);
+					scope.insert(ctx.IDENT().getText(), new IdentInfo(visitType(ctx.type()),filePos));//TODO: check if it is decalred already
+					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText(),scope,filePos), rhs, filePos);
 				} else if(ctx.assignLhs() != null) {
 					final Assignable a = visitAssignLhs(ctx.assignLhs());
-					if(scope.lookup(a.getName()) !=  null) {
+					if(scope.lookup(a.getName()) ==  null) {
 						ErrorRecords.getInstance().record(new ErrorRecord(){
 
 							@Override

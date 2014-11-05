@@ -34,8 +34,7 @@ public class FstAST implements Assignable {
 		return "fst";
 	}
 	
-	@Override
-	public void checkType() {
+	private void checkType() {
 		if (expr instanceof PairType) {
 			ErrorRecords.getInstance().record(new ErrorRecord() {
 
