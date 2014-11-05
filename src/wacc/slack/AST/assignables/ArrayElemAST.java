@@ -34,8 +34,8 @@ public class ArrayElemAST implements Assignable, Liter {
 	}
 	
 	@Override
-	public <T> T accept(ASTVisitor<T> visitor) {
-		return visitor.visit(this);
+	public void accept(ASTVisitor<?> visitor) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

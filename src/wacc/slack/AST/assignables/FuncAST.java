@@ -49,8 +49,8 @@ public class FuncAST implements WaccAST{
 	}
 
 	@Override
-	public <T> T accept(ASTVisitor<T> visitor) {
-		return visitor.visit(this);
+	public void accept(ASTVisitor<?> visitor) {
+		visitor.visit(this);
 	}
 
 	public String getIdent() {
