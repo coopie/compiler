@@ -11,13 +11,13 @@ import wacc.slack.AST.types.Type;
 import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class ArrayLiter implements Liter, AssignRHS {
+public class ArrayLiterAST implements Liter, AssignRHS {
 	
 	private final List<ExprAST> exprList;
 	private final WaccArrayType type;
 	private final FilePosition filePos;
 	
-	public ArrayLiter(List<ExprAST> exprList, FilePosition filePos, WaccArrayType type) {
+	public ArrayLiterAST(List<ExprAST> exprList, FilePosition filePos, WaccArrayType type) {
 		this.exprList = exprList;
 		this.filePos = filePos;
 		this.type = type;

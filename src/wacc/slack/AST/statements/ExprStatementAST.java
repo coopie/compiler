@@ -26,11 +26,6 @@ public abstract class ExprStatementAST extends StatAST {
 		return getName() + " " + getExpr().toString();
 	}
 	
-	@Override 
-	public void accept(ASTVisitor v) {
-		v.visit(this);
-	}
-	
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(getExpr()));
@@ -39,4 +34,5 @@ public abstract class ExprStatementAST extends StatAST {
 	public ExprAST getExpr() {
 		return expr;
 	}
+
 }

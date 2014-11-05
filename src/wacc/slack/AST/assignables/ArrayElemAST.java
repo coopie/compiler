@@ -14,13 +14,13 @@ import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class ArrayElem implements Assignable, Liter {
+public class ArrayElemAST implements Assignable, Liter {
 
 	private final String ident;
 	private final ExprAST expr;
 	private final FilePosition filePos;
 	
-	public ArrayElem(String ident, ExprAST expr, FilePosition filePos) {
+	public ArrayElemAST(String ident, ExprAST expr, FilePosition filePos) {
 		this.ident = ident;
 		this.expr = expr;
 		this.filePos = filePos;

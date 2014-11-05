@@ -17,7 +17,7 @@ import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArgList;
-import wacc.slack.AST.assignables.ArrayElem;
+import wacc.slack.AST.assignables.ArrayElemAST;
 import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.assignables.Assignable;
 import wacc.slack.AST.assignables.CallAST;
@@ -28,7 +28,7 @@ import wacc.slack.AST.assignables.Param;
 import wacc.slack.AST.assignables.ParamList;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
-import wacc.slack.AST.literals.ArrayLiter;
+import wacc.slack.AST.literals.ArrayLiterAST;
 import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.literals.BoolLiter;
 import wacc.slack.AST.literals.CharLiter;
@@ -188,11 +188,11 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	}
 
 	@Override
-	public ArrayElem visitArrayElem(ArrayElemContext ctx) {
+	public ArrayElemAST visitArrayElem(ArrayElemContext ctx) {
 		String ident = ctx.IDENT().getText();
 		ExprAST expr = visitExpr(ctx.expr());
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
-		return new ArrayElem(ident, expr, filePos);
+		return new ArrayElemAST(ident, expr, filePos);
 	}
 
 	@Override
@@ -424,7 +424,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	}
 
 	@Override
-	public ArrayLiter visitArrayLiter(ArrayLiterContext ctx) {
+	public ArrayLiterAST visitArrayLiter(ArrayLiterContext ctx) {
 		List<ExprAST> exprList = new LinkedList<>();
 
 		for (ExprContext e : ctx.expr()) {
@@ -433,7 +433,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		//TODO: lookup null in the symbol table to get the type
-		return new ArrayLiter(exprList, filePos, null);
+		return new ArrayLiterAST(exprList, filePos, null);
 
 	}
 
