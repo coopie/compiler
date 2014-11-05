@@ -84,7 +84,7 @@ public class PrintingVisitor implements ASTVisitor<Void> {
 
 	@Override
 	public Void visit(SkipStatementAST skipStat) {
-		// TODO Auto-generated method stub
+		output += skipStat.toString();
 		return null;
 	}
 
