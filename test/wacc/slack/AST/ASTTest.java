@@ -14,9 +14,9 @@ import wacc.slack.AST.visitors.PrintingVisitor;
 import antlr.WaccLexer;
 import antlr.WaccParser;
 
-public class StatASTTest {
+public class ASTTest {
 
-	public StatASTTest() {
+	public ASTTest() {
 		super();
 	}
 	
@@ -46,47 +46,64 @@ public class StatASTTest {
 		System.out.println(p);
 		assertEquals(expectedOut, p.toString());
 	}
+	
+	protected void functionTestAssert(String in, String expectedOut) {
+		WaccAST ast = getFunc(in);
+		PrintingVisitor p = new PrintingVisitor();
+		ast.accept(p);
+		
+		System.out.println(p);
+		assertEquals(expectedOut, p.toString());
+	}
 
 	protected ASTBuilder astBuilder = new ASTBuilder();
+	
 	private WaccAST getAST(String s) {
-		try{
-			ANTLRInputStream input = new ANTLRInputStream(new ByteArrayInputStream(s.getBytes("UTF-8")));
-			WaccLexer lexer = new WaccLexer(input);
-			CommonTokenStream tokens = new CommonTokenStream(lexer);
-			WaccParser parser = new WaccParser(tokens);
-			ParseTree tree = parser.program();
+		return getRule(s, new ParserManipulator() {
 			
-			return (WaccAST)tree.accept(astBuilder);
-			
-			
-		} catch(IOException i) {
-			// can't really happen
-		}
-		return null;
+			@Override
+			public ParseTree manipulate(WaccParser p) {
+				return p.program();
+			}
+		});
 	}
+	
 	private WaccAST getStat(String s) {
-		try{
-			ANTLRInputStream input = new ANTLRInputStream(new ByteArrayInputStream(s.getBytes("UTF-8")));
-			WaccLexer lexer = new WaccLexer(input);
-			CommonTokenStream tokens = new CommonTokenStream(lexer);
-			WaccParser parser = new WaccParser(tokens);
-			ParseTree tree = parser.stat();
-			
-			return (WaccAST)tree.accept(astBuilder);
-			
-			
-		} catch(IOException i) {
-			// can't really happen
-		}
-		return null;
+		return getRule(s, new ParserManipulator() {
+			@Override
+			public ParseTree manipulate(WaccParser p) {
+				return p.stat();
+			}
+		});
 	}
+	
 	private WaccAST getExpr(String s) {
+		return getRule(s, new ParserManipulator() {
+			
+			@Override
+			public ParseTree manipulate(WaccParser p) {
+				return p.expr();
+			}
+		});
+	}
+	
+	private WaccAST getFunc(String s) {
+		return getRule(s, new ParserManipulator() {
+			
+			@Override
+			public ParseTree manipulate(WaccParser p) {
+				return p.func();
+			}
+		});
+	}
+	
+	private WaccAST getRule(String s, ParserManipulator pm) {
 		try{
 			ANTLRInputStream input = new ANTLRInputStream(new ByteArrayInputStream(s.getBytes("UTF-8")));
 			WaccLexer lexer = new WaccLexer(input);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			WaccParser parser = new WaccParser(tokens);
-			ParseTree tree = parser.expr();
+			ParseTree tree = pm.manipulate(parser);
 			
 			return (WaccAST)tree.accept(astBuilder);
 			

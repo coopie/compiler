@@ -2,6 +2,7 @@ package wacc.slack.AST.visitors;
 
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
+import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArrayElemAST;
@@ -18,7 +19,7 @@ import wacc.slack.AST.statements.IfStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 
-public class PrintingVisitor implements ASTVisitor<Void> {
+public class PrintingVisitor implements ASTVisitor<String> {
 
 	private String output = "";
 	
@@ -43,7 +44,7 @@ public class PrintingVisitor implements ASTVisitor<Void> {
 	}
 
 	@Override
-	public Void visit(ProgramAST program) {
+	public String visit(ProgramAST program) {
 		output += "start:";
 		indent();
 		for(FuncAST f : program.getFunctions()) {
@@ -58,98 +59,104 @@ public class PrintingVisitor implements ASTVisitor<Void> {
 	}
 	
 	@Override
-	public Void visit(FuncAST func) {
+	public String visit(FuncAST func) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(AssignStatAST assignStat) {
+	public String visit(AssignStatAST assignStat) {
 		output += assignStat;
 		newLine();
 		return null;
 	}
 
 	@Override
-	public Void visit(BeginEndAST beginEnd) {
+	public String visit(BeginEndAST beginEnd) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(IfStatementAST ifStat) {
+	public String visit(IfStatementAST ifStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(SkipStatementAST skipStat) {
+	public String visit(SkipStatementAST skipStat) {
 		output += skipStat.toString();
 		return null;
 	}
 
 	@Override
-	public Void visit(WhileStatementAST whileStat) {
+	public String visit(WhileStatementAST whileStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(ArrayElemAST arrayElem) {
+	public String visit(ArrayElemAST arrayElem) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(FstAST fst) {
+	public String visit(FstAST fst) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(SndAST snd) {
+	public String visit(SndAST snd) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(ArrayLiterAST arrayLiter) {
+	public String visit(ArrayLiterAST arrayLiter) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(CallAST call) {
+	public String visit(CallAST call) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(NewPairAST newPair) {
+	public String visit(NewPairAST newPair) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(BinaryExprAST binExpr) {
+	public String visit(BinaryExprAST binExpr) {
+		String r = "( "
+	            + visit(binExpr.getExprL()) + " "
+				+ binExpr + " "
+				+ visit(binExpr.getExprR()) +
+				")";
+		
+		output = r;
+		return r;
+	}
+
+	@Override
+	public String visit(UnaryExprAST unExpr) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Void visit(UnaryExprAST unExpr) {
-		// TODO Auto-generated method stub
-		return null;
+	public String visit(ValueExprAST valueExpr) {
+		output = valueExpr.getValue();
+		return valueExpr.getValue();
 	}
 
 	@Override
-	public Void visit(ValueExprAST valueExpr) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Void visit(VariableAST variable) {
+	public String visit(VariableAST variable) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -157,6 +164,10 @@ public class PrintingVisitor implements ASTVisitor<Void> {
 	@Override
 	public String toString() {
 		return output;
+	}
+	
+	public String visit(ExprAST x) {
+		throw new RuntimeException("");
 	}
 
 

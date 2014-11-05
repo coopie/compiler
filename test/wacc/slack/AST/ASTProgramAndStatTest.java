@@ -4,7 +4,7 @@ package wacc.slack.AST;
 import org.junit.Test;
 
 
-public class ASTProgramAndStatTest extends StatASTTest {
+public class ASTProgramAndStatTest extends ASTTest {
 
 	// STATEMENTS
 	
@@ -14,28 +14,38 @@ public class ASTProgramAndStatTest extends StatASTTest {
 	}
 	
 	@Test
+	public void simpleReadAST() {
+		statementTestAssert("read a", "read a");
+	}
+	
+	@Test
+	public void simpleExitAST() {
+		statementTestAssert("Exit 7", "Exit 7");
+	}
+	
+	@Test
 	public void simpleFreeAST() {
-		programTestAssert("begin free 6 end", "start:\n\tfree 6\nend");
+		statementTestAssert("free 6", "free 6");
 	}
 
 	@Test
 	public void simpleReturnAST() {
-		programTestAssert("begin return 6 end", "start:\n\treturn 6\nend");
+		statementTestAssert("return 6", "return 6");
 	}
 	
 	@Test
 	public void simplePrintAST() {
-		programTestAssert("begin print 6 end", "start:\n\tprint 6\nend");
+		statementTestAssert("print 6", "print 6");
 	}
 	
 	@Test
 	public void simplePrintlnAST() {
-		programTestAssert("begin println 6 end", "start:\n\tprintln 6\nend");
+		statementTestAssert("println 6", "println 6");
 	}
 	
 	@Test
 	public void simpleIfAST() {
-		programTestAssert("begin if true then skip else skip fi end", "start:\n\tif true then  skip else  skip\nend");
+		statementTestAssert("if true then skip else skip fi", "if true then\n\tskip else\n\tskip\nend");
 	}
 	
 	@Test
@@ -50,42 +60,52 @@ public class ASTProgramAndStatTest extends StatASTTest {
 
 	@Test
 	public void multiSkipExitAST() {
-		programTestAssert("begin skip; skip; skip; skip;exit 7 end", "start:\n\tskip\n\tskip\n\tskip\n\tskip\n\texit 7\nend");
+		programTestAssert("begin skip; skip; skip; skip;exit 7 end",
+				"start:"
+			  + "\n\tskip"
+			  + "\n\tskip"
+			  + "\n\tskip"
+			  + "\n\tskip"
+			  + "\n\texit 7"
+			  + "\nend");
 	}
 	
 	// FUNCTION DEFINITION
 
 	@Test
 	public void simpleFunctionDeclarationAST() {
-		programTestAssert("begin int foo() is return 1 end skip end",
-				         "start:\nint foo():\nreturn 1\nend\n\tskip\nend");
+		functionTestAssert("int foo() is return 1 end skip end",
+				         "int foo():"
+				       + "\n\treturn 1"
+				       + "\nend"
+				       + "\nstart:"
+				       + "\n\tskip"
+				       + "\nend");
 	}
 	
-	// Expr
+	// EXPRS
 	
 	@Test
 	public void simpleIntLiter() {
-		programTestAssert("begin print 1 end", "start:\n\tprint 1\nend");
+		exprTestAssert("124352", "124352");
 	}
 	
 	@Test
 	public void simpleBoolLiter() {
-		programTestAssert("begin print true end", "start:\n\tprint true\nend");
+		exprTestAssert("true", "true");
 	}
 	
-	// TODO: I don't think this should do this. Check the printing of char-liters (we should only save a not 'a')
 	@Test
 	public void simpleCharLiter() {
-		programTestAssert("begin print 'a' end", "start:\n\tprint 'a'\nend");
+		exprTestAssert("'a'", "'a'");
 	}
 
-	// TODO: I don't think this should do this. Check the printing of string-liters (we should only save HelloWorld not "HelloWorld")
 	@Test
 	public void simpleStringLiter() {
-		programTestAssert("begin print \"HelloWorld\" end", "start:\n\tprint \"HelloWorld\"\nend");
+		exprTestAssert("\"HelloWorld\"", "\"HelloWorld\"");
 	}
 	
-	// TODO: Implement PairLiter class properly and implement test
+	// TODO: Implement PairLiter class properly and implement test - look at spec, it's just null
 	@Test
 	public void simplePairLiter() {
 	}
@@ -107,11 +127,11 @@ public class ASTProgramAndStatTest extends StatASTTest {
 	
 	@Test
 	public void simpleBinaryOp() {
-		programTestAssert("begin print 2 * 6 end", "start:\n\tprint 2 * 6\nend");
+		exprTestAssert("print 2 * 6", "print (2 * 6)");
 	}
 	
 	@Test
 	public void simpleBracketsExpr() {
-		programTestAssert("begin print (1) end", "start:\n\tprint 1\nend");
+		exprTestAssert("print (1)", "print 1");
 	}
 }
