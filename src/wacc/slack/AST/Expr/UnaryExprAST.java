@@ -51,9 +51,8 @@ public class UnaryExprAST implements ExprAST {
 	
 
 	@Override
-	public void accept(ASTVisitor visitor) {
-		visitor.visit(this);
-		expr.accept(visitor);
+	public <T> T accept(ASTVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 	
 	@Override

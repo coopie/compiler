@@ -73,27 +73,27 @@ pairElemType :
 | PAIR ;
 
 expr : 
-  intLiter
-| boolLiter
-| CHAR_LTR
-| STRING_LTR
-| pairLiter
-| IDENT
-| arrayElem
-| unaryOper expr
-| expr MUL expr 
-| expr DIV expr
-| expr MOD expr 
-| expr PLUS expr 
-| expr MINUS expr 
-| expr GT expr 
-| expr GTE expr 
-| expr LT expr 
-| expr LTE expr
-| expr EQ expr
-| expr NEQ expr
-| expr AND expr
-| expr OR expr 
+  intLiter	
+| boolLiter		
+| CHAR_LTR		
+| STRING_LTR		
+| pairLiter			
+| IDENT				
+| arrayElem			
+| unaryOper expr	
+| expr MUL expr 	  
+| expr DIV expr  
+| expr MOD expr   
+| expr PLUS expr   
+| expr MINUS expr   
+| expr GT expr   
+| expr GTE expr   
+| expr LT expr   
+| expr LTE expr  
+| expr EQ expr  
+| expr NEQ expr  
+| expr AND expr  
+| expr OR expr   
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES
 ;
 

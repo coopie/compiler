@@ -26,10 +26,8 @@ public class NewPairAST implements AssignRHS {
 	}
 	
 	@Override
-	public void accept(ASTVisitor<?> visitor) {
-		exprL.accept(visitor);
-		exprR.accept(visitor);
-		visitor.visit(this);
+	public <T> T accept(ASTVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 	
 	public ExprAST getExprL() {
