@@ -61,7 +61,6 @@ import antlr.WaccParser.ArrayTypeContext;
 import antlr.WaccParser.AssignLhsContext;
 import antlr.WaccParser.AssignRhsContext;
 import antlr.WaccParser.BaseTypeContext;
-import antlr.WaccParser.BinaryOperContext;
 import antlr.WaccParser.BoolLiterContext;
 import antlr.WaccParser.ExprContext;
 import antlr.WaccParser.FuncContext;
@@ -195,7 +194,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new ArrayElemAST(ident, expr, filePos);
 	}
 
-	@Override
+/*	@Override
 	public BinaryOp visitBinaryOper(BinaryOperContext ctx) {
 		if (ctx.MUL() != null) {
 			return BinaryOp.MUL;
@@ -227,7 +226,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			assert false : "should not happen, one of the operators should be recognized";
 		}
 		return null;
-	}
+	}*/
 
 	@Override
 	public ParamList visitParamList(ParamListContext ctx) {
@@ -260,11 +259,40 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			return new ValueExprAST(visitArrayElem(ctx.arrayElem()), filePos);
 		} else if (ctx.unaryOper() != null) {
 			return new UnaryExprAST(visitUnaryOper(ctx.unaryOper()), visitExpr(ctx.expr(0)), filePos);
-		} else if (ctx.binaryOper() != null) {
-			return new BinaryExprAST(visitBinaryOper(ctx.binaryOper()), visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)), filePos);
+		} else if (ctx.MUL() != null) {
+			return retBinOP(ctx,BinaryOp.MUL);
+		} else if (ctx.DIV()!= null) {
+			return retBinOP(ctx,BinaryOp.DIV);
+		} else if (ctx.PLUS() != null) {
+			return retBinOP(ctx,BinaryOp.PLUS);
+		} else if (ctx.MINUS() != null) {
+			return retBinOP(ctx,BinaryOp.MINUS);
+		} else if (ctx.MOD() != null) {
+			return retBinOP(ctx,BinaryOp.MOD);
+		} else if (ctx.EQ() != null) {
+			return retBinOP(ctx,BinaryOp.EQ);
+		} else if (ctx.NEQ() != null) {
+			return retBinOP(ctx,BinaryOp.NEQ);
+		} else if (ctx.LT() != null) {
+			return retBinOP(ctx,BinaryOp.LT);
+		} else if (ctx.LTE() != null) {
+			return retBinOP(ctx,BinaryOp.LTE);
+		} else if (ctx.GT() != null) {
+			return retBinOP(ctx,BinaryOp.GT);
+		} else if (ctx.GTE() != null) {
+			return retBinOP(ctx,BinaryOp.GTE);
+		} else if (ctx.AND() != null) {
+			return retBinOP(ctx,BinaryOp.AND);
+		} else if (ctx.OR() != null) {
+			return retBinOP(ctx,BinaryOp.OR);
 		} else {
 			return visitExpr(ctx.expr(0));
 		}
+	}
+	
+	private BinaryExprAST retBinOP(ExprContext ctx, BinaryOp op) {
+		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new BinaryExprAST(op, visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)), filePos);
 	}
 
 	@Override

@@ -122,7 +122,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simpleUnaryOp() {
-		programTestAssert("begin print -1 end", "start:\n\tprint - 1\nend");
+		statementTestAssert("-1", "-(1)");
 	}
 	
 	@Test

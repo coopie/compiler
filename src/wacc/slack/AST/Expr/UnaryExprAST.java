@@ -89,7 +89,7 @@ public class UnaryExprAST implements ExprAST {
 	
 	@Override
 	public String toString() {
-		return unaryOp.toString() + " " + expr.toString();
+		return unaryOp.toString();
 	}
 
 	@Override

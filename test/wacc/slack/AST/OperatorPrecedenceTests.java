@@ -23,9 +23,15 @@ public class OperatorPrecedenceTests extends ASTTest {
 	//	&& 
 	//	|| 
 	
+	// UNARY
+	@Test
+	public void notBeatsAll() {
+		exprTestAssert("!true && !false", "(!(true) && !(false))");
+	}
+	
 	// ARITHMETIC
 	
-	@Test // for timotej
+	@Test // for Timotej
 	public void MultiplyBeatsPlus() {
 		exprTestAssert("1 + 2 * 3", "(1 + (2 * 3))");
 	}
@@ -73,8 +79,8 @@ public class OperatorPrecedenceTests extends ASTTest {
 	}
 	
 	@Test
-	public void neqBeatseq() {
-		exprTestAssert("1 == 2 != 3", "(1 == (2 != 3))");
+	public void eqBeatsneq() {
+		exprTestAssert("1 != 2 == 3", "(1 != (2 == 3))");
 	}
 	
 	// LOGICAL OPERATORS

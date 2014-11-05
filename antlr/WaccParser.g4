@@ -81,12 +81,23 @@ expr :
 | IDENT
 | arrayElem
 | unaryOper expr
-| expr binaryOper expr
-| OPEN_PARENTHESES expr CLOSE_PARENTHESES ;
+| expr MUL expr 
+| expr DIV expr
+| expr MOD expr 
+| expr PLUS expr 
+| expr MINUS expr 
+| expr GT expr 
+| expr GTE expr 
+| expr LT expr 
+| expr LTE expr
+| expr EQ expr
+| expr NEQ expr
+| expr AND expr
+| expr OR expr 
+| OPEN_PARENTHESES expr CLOSE_PARENTHESES
+;
 
 unaryOper : NOT | MINUS | LEN | ORD | CHR ;
-
-binaryOper : MUL | DIV | MOD | PLUS | MINUS | GT | GTE | LT | LTE | EQ | NEQ | AND | OR ;
 
 arrayElem : IDENT OPEN_SQ_PARENTHESES expr CLOSE_SQ_PARENTHESES ;
 

@@ -146,8 +146,9 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(UnaryExprAST unExpr) {
-		// TODO Auto-generated method stub
-		return null;
+		String r = unExpr + "(" + unExpr.getExpr() + ")"; 
+		output += r;		
+		return r;
 	}
 
 	@Override
