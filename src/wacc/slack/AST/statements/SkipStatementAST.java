@@ -7,11 +7,10 @@ import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class SkipStatementAST extends StatAST {
+public class SkipStatementAST extends StatAST implements WaccAST {
 
 	public SkipStatementAST(FilePosition filePos) {
 		super(filePos);
-		addStat(this);
 	}
 
 	@Override

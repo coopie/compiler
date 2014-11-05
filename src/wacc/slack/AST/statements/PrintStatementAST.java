@@ -10,7 +10,7 @@ public class PrintStatementAST extends ExprStatementAST {
 	}
 
 	@Override
-	protected String getName() {
+	public String getName() {
 		return "print";
 	}
 

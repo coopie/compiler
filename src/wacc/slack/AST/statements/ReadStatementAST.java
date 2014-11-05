@@ -10,7 +10,7 @@ public class ReadStatementAST extends ExprStatementAST {
 	}
 
 	@Override
-	protected String getName() {
+	public String getName() {
 		return "read";
 	}
 

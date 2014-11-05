@@ -9,17 +9,15 @@ import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public abstract class ExprStatementAST extends StatAST {
+public abstract class ExprStatementAST extends StatAST implements WaccAST {
 
 	private final ExprAST expr;
-
 	public ExprStatementAST(ExprAST exprAST, FilePosition filePos) {
 		super(filePos);
-		addStat(this);
 		this.expr = exprAST;
 	}
 
-	protected abstract String getName();
+	public abstract String getName();
 	
 	@Override
 	public String toString() {
@@ -33,6 +31,11 @@ public abstract class ExprStatementAST extends StatAST {
 
 	public ExprAST getExpr() {
 		return expr;
+	}
+
+	@Override
+	public <T> T accept(ASTVisitor<T> visitor){
+		return visitor.visit(this);
 	}
 
 }

@@ -8,16 +8,15 @@ import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.assignables.Assignable;
+import wacc.slack.AST.visitors.ASTVisitor;
 
-public class AssignStatAST extends StatAST {
+public class AssignStatAST extends StatAST implements WaccAST {
 	private final Assignable lhs;
 	private final AssignRHS rhs;
-
 	public AssignStatAST(Assignable lhs, AssignRHS rhs, FilePosition filePos) {
 		super(filePos);
 		this.lhs = lhs;
 		this.rhs = rhs;
-		addStat(this);
 	}
 
 	public Assignable getLhs() {
@@ -31,5 +30,10 @@ public class AssignStatAST extends StatAST {
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(lhs,rhs));
+	}
+
+	@Override
+	public <T> T accept(ASTVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 }

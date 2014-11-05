@@ -10,7 +10,7 @@ public class ExitStatementAST extends ExprStatementAST {
 	}
 
 	@Override
-	protected String getName() {
+	public String getName() {
 		return "exit";
 	}
 

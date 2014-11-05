@@ -10,7 +10,7 @@ public class FreeStatementAST extends ExprStatementAST {
 	}
 
 	@Override
-	protected String getName() {
+	public String getName() {
 		return "free";
 	}
 }

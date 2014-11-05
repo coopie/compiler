@@ -48,6 +48,7 @@ import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.StatAST;
+import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
@@ -312,7 +313,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public StatAST visitStat(StatContext ctx) {
 		StatAST stat;
-		List<StatAST> stats = new LinkedList<StatAST>();
+		List<StatAST> stats = new LinkedList<>();
 
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		
@@ -320,7 +321,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			for (StatContext s : ctx.stat()) {
 				stats.add(visitStat(s));
 			}
-			return new StatAST(stats, filePos);
+			return new StatListAST(stats, filePos);
 		} else {
 			if (ctx.READ() != null) {
 				stat = new ReadStatementAST(visitExpr(ctx.expr()), filePos);

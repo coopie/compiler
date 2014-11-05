@@ -37,5 +37,4 @@ public class IntLiter implements Liter {
 	public int getInt() {
 		return i;
 	}
-
 }

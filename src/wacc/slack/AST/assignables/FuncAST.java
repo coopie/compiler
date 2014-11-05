@@ -7,6 +7,7 @@ import java.util.List;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.statements.StatAST;
+import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
@@ -16,7 +17,7 @@ public class FuncAST implements WaccAST{
 	private final StatAST stat;
 	private final List<Param> paramList;
 	private final FilePosition filePos;
-	private Type type;
+	private final Type type;
 
 	public FuncAST(Type type, String ident, List<Param> paramList2, StatAST stat, FilePosition filePos) {
 		this.type = type;
@@ -33,7 +34,7 @@ public class FuncAST implements WaccAST{
 	
 	@Override
 	public String toString() {
-		String output = type + " " + ident + "(";
+		String output = getType() + " " + ident + "(";
 		if(paramList != null) {
 			for(Param p : paramList) {
 				output = p.toString() + ", ";
@@ -68,5 +69,9 @@ public class FuncAST implements WaccAST{
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(stat));
+	}
+
+	public Type getType() {
+		return type;
 	}
 }

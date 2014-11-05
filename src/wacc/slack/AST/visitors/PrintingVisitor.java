@@ -1,8 +1,8 @@
 package wacc.slack.AST.visitors;
 
 import wacc.slack.AST.ProgramAST;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
-import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArrayElemAST;
@@ -15,9 +15,10 @@ import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
+import wacc.slack.AST.statements.ExprStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
-import wacc.slack.AST.statements.StatAST;
+import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 
 public class PrintingVisitor implements ASTVisitor<String> {
@@ -36,64 +37,99 @@ public class PrintingVisitor implements ASTVisitor<String> {
 		}
 	}
 	
-	private void newLine() {
+	private String newLine() {
 		String newLine = "\n";
 		for(int i = 0; i < indent; i++) {
 			newLine += "\t";
 		}
 		output += newLine;
+		return newLine;
 	}
-
+	public void clear() {
+		output = "";
+	}
 	@Override
 	public String visit(ProgramAST program) {
-		output += "start:";
+		String r = "";
+		
+		r += "start:";
 		indent();
 		for(FuncAST f : program.getFunctions()) {
-			newLine();
-			f.accept(this);
+			r += newLine();
+			r += f.accept(this);
 		}
-		endIndent();
-		program.getStatements().accept(this);
+		r += newLine();
+		r += program.getStatements().accept(this);
 
-		output +="\nend";
-		return null;
+		endIndent();
+		r += newLine();
+		r += "end";
+		output = r;
+		return r;
 	}
 	
 	@Override
 	public String visit(FuncAST func) {
-		// TODO Auto-generated method stub
-		return null;
+		output += func.getType() + " " + func.getIdent() + "()";
+		indent();
+		output += newLine();
+		output += func.getStat().accept(this);
+		endIndent();
+		return output;
 	}
 
 	@Override
 	public String visit(AssignStatAST assignStat) {
-		output += assignStat;
-		newLine();
 		return null;
 	}
 
 	@Override
 	public String visit(BeginEndAST beginEnd) {
-		// TODO Auto-generated method stub
-		return null;
+		String r = "";
+		
+		indent();
+		r += beginEnd.getBody().accept(this);
+		endIndent();
+		
+		output = r;
+		return r;
 	}
 
 	@Override
 	public String visit(IfStatementAST ifStat) {
-		// TODO Auto-generated method stub
-		return null;
+		String r = "";
+		
+		r += "if " + ifStat.getCond().accept(this);
+		r += newLine();
+		indent();
+		r += ifStat.getTrueStats().accept(this);
+		endIndent();
+		r += "else" + newLine();
+		indent();
+		r += ifStat.getFalseStats().accept(this);
+		endIndent();
+		
+		output = r;
+		return r;
 	}
 
 	@Override
 	public String visit(SkipStatementAST skipStat) {
-		output += skipStat.toString();
-		return null;
+		output = skipStat.toString();
+		return output;
 	}
 
 	@Override
 	public String visit(WhileStatementAST whileStat) {
-		// TODO Auto-generated method stub
-		return null;
+		String r = "";
+		
+		r += "while (" + whileStat.getCond().accept(this) + ")";
+		indent();
+		r += whileStat.getBody().accept(this);
+		endIndent();
+		
+		output = r;
+		return r;
 	}
 
 	@Override
@@ -164,13 +200,22 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	}
 	
 	@Override
-	public String visit(StatAST statAST) {
-		// TODO Auto-generated method stub
-		return null;
+	public String visit(StatListAST statAST) {
+		output = "";
+		for(WaccAST a : statAST.getChildren()) {
+			output += newLine();
+			output += a.accept(this);
+		}
+		return output;
 	}
 	
 	@Override
 	public String toString() {
+		return output;
+	}
+	@Override
+	public String visit(ExprStatementAST exprStat) {
+		output = exprStat.getName() + " " + exprStat.getExpr().accept(this);
 		return output;
 	}
 }

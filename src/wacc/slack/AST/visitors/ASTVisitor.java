@@ -14,9 +14,10 @@ import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
+import wacc.slack.AST.statements.ExprStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
-import wacc.slack.AST.statements.StatAST;
+import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 
 
@@ -25,12 +26,13 @@ public interface ASTVisitor<T> {
 	
 	T visit(ProgramAST prog);
 	//statements
-	T visit(StatAST statAST);
+	T visit(StatListAST statAST);
 	T visit(AssignStatAST assignStat);
 	T visit(BeginEndAST beginEnd);
 	T visit(IfStatementAST ifStat);
 	T visit(SkipStatementAST skipStat);
 	T visit(WhileStatementAST whileStat);
+	T visit(ExprStatementAST exprStat);
 	//assignables
 	T visit(ArrayElemAST arrayElem);
 	T visit(FstAST fst);

@@ -8,8 +8,9 @@ import java.io.IOException;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.junit.Test;
 
+import wacc.slack.AST.symbolTable.IdentInfo;
+import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.visitors.PrintingVisitor;
 import antlr.WaccLexer;
 import antlr.WaccParser;
@@ -41,10 +42,10 @@ public class ASTTest {
 	protected void programTestAssert(String in, String expectedOut) {
 		WaccAST ast = getAST(in);
 		PrintingVisitor p = new PrintingVisitor();
-		ast.accept(p);
+		String s = ast.accept(p);
 		
-		System.out.println(p);
-		assertEquals(expectedOut, p.toString());
+		System.out.println(s);
+		assertEquals(expectedOut, s);
 	}
 	
 	protected void functionTestAssert(String in, String expectedOut) {
@@ -104,6 +105,8 @@ public class ASTTest {
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			WaccParser parser = new WaccParser(tokens);
 			ParseTree tree = pm.manipulate(parser);
+			
+			astBuilder.setSymbolTable(new SymbolTable<IdentInfo>()); //shouldn't mess with anything
 			
 			return (WaccAST)tree.accept(astBuilder);
 			

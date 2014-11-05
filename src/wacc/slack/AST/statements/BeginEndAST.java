@@ -6,16 +6,15 @@ import java.util.List;
 
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.visitors.ASTVisitor;
 
 // Class which represents a 'begin' expr 'end' scope
 
-public class BeginEndAST extends StatAST {
+public class BeginEndAST extends StatAST implements WaccAST {
 
 	private final StatAST body;
-
 	public BeginEndAST(StatAST body, FilePosition filePos) {
 		super(filePos);
-		addStat(this);
 		this.body = body;
 	}
 
@@ -26,5 +25,10 @@ public class BeginEndAST extends StatAST {
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(body));
+	}
+
+	@Override
+	public <T> T accept(ASTVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 }

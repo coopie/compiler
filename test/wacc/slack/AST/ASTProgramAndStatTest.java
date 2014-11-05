@@ -55,7 +55,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void WhileWithMultipleStats() {
-		programTestAssert("begin while true do skip;exit 7 done end", "start:\n\twhile true do  skip exit 7\nend");
+		programTestAssert("begin while true do skip;exit 7 done end", "start:\n\twhile (true)\n\t\tskip\n\t\texit 7\nend");
 	}
 
 	@Test
@@ -74,13 +74,9 @@ public class ASTProgramAndStatTest extends ASTTest {
 
 	@Test
 	public void simpleFunctionDeclarationAST() {
-		functionTestAssert("int foo() is return 1 end skip end",
-				         "int foo():"
-				       + "\n\treturn 1"
-				       + "\nend"
-				       + "\nstart:"
-				       + "\n\tskip"
-				       + "\nend");
+		functionTestAssert("int foo() is return 1 end",
+				         "int foo()"
+				       + "\n\treturn 1");
 	}
 	
 	// EXPRS

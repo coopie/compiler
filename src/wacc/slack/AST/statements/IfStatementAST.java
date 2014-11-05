@@ -9,21 +9,19 @@ import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class IfStatementAST extends StatAST {
+public class IfStatementAST extends StatAST implements WaccAST {
 
 	private final StatAST falseStats, trueStats;
 	private final ExprAST cond;
-
 	public IfStatementAST(ExprAST exprAST, StatAST trueStats,
 			StatAST falseStats, FilePosition filePos) {
 		super(filePos);
-		addStat(this);
 		this.cond = exprAST;
 		this.trueStats = trueStats;
 		this.falseStats = falseStats;
 	}
 
-	@Override 
+	@Override
 	public <T> T accept(ASTVisitor<T> v) {
 		return v.visit(this);
 	}
@@ -47,17 +45,6 @@ public class IfStatementAST extends StatAST {
 
 	@Override
 	public String toString() {
-		String trueBody = "";
-		String falseBody = "";
-		
-		for(StatAST st : trueStats) {
-			trueBody += " " + st.toString();
-		}
-		
-		for(StatAST st : falseStats) {
-			falseBody += " " + st.toString();
-		}
-		
-		return "if " + cond.toString() + " then " + trueBody + " else " + falseBody;
+		return "if";
 	}
 }
