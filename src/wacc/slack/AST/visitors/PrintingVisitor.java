@@ -17,6 +17,7 @@ import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.IfStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
+import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 
 public class PrintingVisitor implements ASTVisitor<String> {
@@ -133,10 +134,10 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(BinaryExprAST binExpr) {
-		String r = "( "
-	            + visit(binExpr.getExprL()) + " "
+		String r = "("
+	            + binExpr.getExprL().accept(this) + " "
 				+ binExpr + " "
-				+ visit(binExpr.getExprR()) +
+				+ binExpr.getExprR().accept(this) +
 				")";
 		
 		output = r;
@@ -162,14 +163,13 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	}
 	
 	@Override
+	public String visit(StatAST statAST) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
 	public String toString() {
 		return output;
 	}
-	
-	public String visit(ExprAST x) {
-		throw new RuntimeException("");
-	}
-
-
-
 }

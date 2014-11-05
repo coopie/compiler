@@ -25,6 +25,11 @@ public class OperatorPrecedenceTests extends ASTTest {
 	
 	// ARITHMETIC
 	
+	@Test // for timotej
+	public void MultiplyBeatsPlus() {
+		exprTestAssert("1 + 2 * 3", "(1 + (2 * 3))");
+	}
+	
 	@Test
 	public void multiplyBeatsDiv() {
 		exprTestAssert("1 / 2 * 3", "(1 / (2 * 3))");

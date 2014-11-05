@@ -24,8 +24,8 @@ public class IfStatementAST extends StatAST {
 	}
 
 	@Override 
-	public void accept(ASTVisitor<?> v) {
-		v.visit(this);
+	public <T> T accept(ASTVisitor<T> v) {
+		return v.visit(this);
 	}
 	
 	public StatAST getFalseStats() {

@@ -19,8 +19,8 @@ public class SkipStatementAST extends StatAST {
 		return "skip";
 	}
 	@Override 
-	public void accept(ASTVisitor v) {
-		v.visit(this);
+	public <T> T accept(ASTVisitor<T> v) {
+		return v.visit(this);
 	}
 
 	@Override

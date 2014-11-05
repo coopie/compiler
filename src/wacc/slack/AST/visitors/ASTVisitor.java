@@ -16,6 +16,7 @@ import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.IfStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
+import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 
 
@@ -24,6 +25,7 @@ public interface ASTVisitor<T> {
 	
 	T visit(ProgramAST prog);
 	//statements
+	T visit(StatAST statAST);
 	T visit(AssignStatAST assignStat);
 	T visit(BeginEndAST beginEnd);
 	T visit(IfStatementAST ifStat);
@@ -41,7 +43,5 @@ public interface ASTVisitor<T> {
 	T visit(UnaryExprAST unExpr);
 	T visit(ValueExprAST valueExpr);
 	T visit(VariableAST variable);
-	
-	
-	
+
 }

@@ -17,8 +17,8 @@ public class WhileStatementAST extends StatAST {
 	}
 
 	@Override 
-	public void accept(ASTVisitor v) {
-		v.visit(this);
+	public <T> T accept(ASTVisitor<T> v) {
+		return v.visit(this);
 	}
 	
 	public ExprAST getCond() {
