@@ -1,6 +1,10 @@
 package wacc.slack.AST.assignables;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class CallAST implements AssignRHS {
@@ -21,8 +25,8 @@ public class CallAST implements AssignRHS {
 	}
 
 	@Override
-	public void accept(ASTVisitor visitor) {
-		// TODO Auto-generated method stub
+	public void accept(ASTVisitor<?> visitor) {
+		visitor.visit(this);
 	}
 	
 	public String getIdent() {
@@ -33,5 +37,9 @@ public class CallAST implements AssignRHS {
 		return argList;
 	}
 
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>();
+	}
 
 }

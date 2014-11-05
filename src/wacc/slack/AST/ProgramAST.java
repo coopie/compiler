@@ -1,5 +1,6 @@
 package wacc.slack.AST;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import wacc.slack.FilePosition;
@@ -25,7 +26,7 @@ public class ProgramAST implements WaccAST {
 	}
 	
 	@Override
-	public void accept(ASTVisitor visitor) {
+	public void accept(ASTVisitor<?> visitor) {
 		visitor.visit(this);
 	}
 
@@ -35,5 +36,14 @@ public class ProgramAST implements WaccAST {
 
 	public StatAST getStatements() {
 		return stat;
+	}
+	
+
+	@Override
+	public List<WaccAST> getChildren() {
+		List<WaccAST> l = new LinkedList<WaccAST>();
+		l.add(stat);
+		l.addAll(func);
+		return l;
 	}
 }

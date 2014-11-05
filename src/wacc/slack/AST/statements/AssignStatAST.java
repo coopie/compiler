@@ -1,6 +1,11 @@
 package wacc.slack.AST.statements;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.assignables.Assignable;
 
@@ -21,5 +26,10 @@ public class AssignStatAST extends StatAST {
 
 	public AssignRHS getRhs() {
 		return rhs;
+	}
+	
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>(Arrays.asList(lhs,rhs));
 	}
 }

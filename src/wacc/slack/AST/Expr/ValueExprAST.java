@@ -1,8 +1,11 @@
 package wacc.slack.AST.Expr;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.literals.Liter;
-import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
@@ -42,5 +45,10 @@ public class ValueExprAST implements ExprAST {
 	
 	public void checkTypes() {
 		// Values never have type errors
+	}
+
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>();
 	}
 }

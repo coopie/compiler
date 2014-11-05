@@ -1,8 +1,13 @@
 package wacc.slack.AST.Expr;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
@@ -86,5 +91,10 @@ public class UnaryExprAST implements ExprAST {
 	@Override
 	public String toString() {
 		return unaryOp.toString() + " " + expr.toString();
+	}
+
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>(Arrays.asList(expr));
 	}
 }

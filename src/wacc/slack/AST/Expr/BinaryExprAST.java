@@ -1,6 +1,11 @@
 package wacc.slack.AST.Expr;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
@@ -28,7 +33,7 @@ public class BinaryExprAST implements ExprAST {
 	}
 
 	@Override
-	public void accept(ASTVisitor visitor) {
+	public void accept(ASTVisitor<?> visitor) {
 		exprL.accept(visitor);
 		visitor.visit(this);
 		exprR.accept(visitor);
@@ -77,5 +82,10 @@ public class BinaryExprAST implements ExprAST {
 	@Override
 	public String toString() {
 		return exprL.toString() + " " + binaryOp.toString() + " " + exprR.toString();
+	}
+	
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>(Arrays.asList(exprL,exprR));
 	}
 }

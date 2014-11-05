@@ -47,4 +47,11 @@ public class StatAST implements WaccAST, Iterable<StatAST> {
 			s.accept(visitor);
 		}
 	}
+
+	@Override
+	public List<WaccAST> getChildren() {
+		List<WaccAST> l = new LinkedList<WaccAST>();
+		l.addAll(stats);
+		return l;
+	}
 }

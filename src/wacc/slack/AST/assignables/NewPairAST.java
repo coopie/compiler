@@ -1,6 +1,11 @@
 package wacc.slack.AST.assignables;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
@@ -21,7 +26,7 @@ public class NewPairAST implements AssignRHS {
 	}
 	
 	@Override
-	public void accept(ASTVisitor visitor) {
+	public void accept(ASTVisitor<?> visitor) {
 		exprL.accept(visitor);
 		exprR.accept(visitor);
 		visitor.visit(this);
@@ -33,5 +38,10 @@ public class NewPairAST implements AssignRHS {
 
 	public ExprAST getExprR() {
 		return exprR;
+	}
+
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>(Arrays.asList(exprL,exprR));
 	}
 }

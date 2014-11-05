@@ -1,6 +1,10 @@
 package wacc.slack.AST.assignables;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
@@ -20,7 +24,7 @@ public class VariableAST implements Assignable,ExprAST {
 	}
 
 	@Override
-	public void accept(ASTVisitor visitor) {
+public void accept(ASTVisitor<?> visitor) {
 		visitor.visit(this);
 	}
 
@@ -39,4 +43,8 @@ public class VariableAST implements Assignable,ExprAST {
 		return scope.lookup(id).getType();
 	}
 
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>();
+	}
 }

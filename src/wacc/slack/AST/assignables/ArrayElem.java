@@ -1,8 +1,13 @@
 package wacc.slack.AST.assignables;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.ErrorRecord;
 import wacc.slack.ErrorRecords;
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.literals.Liter;
 import wacc.slack.AST.types.BaseType;
@@ -29,7 +34,7 @@ public class ArrayElem implements Assignable, Liter {
 	}
 	
 	@Override
-	public void accept(ASTVisitor visitor) {
+	public void accept(ASTVisitor<?> visitor) {
 		// TODO Auto-generated method stub
 	}
 
@@ -74,5 +79,11 @@ public class ArrayElem implements Assignable, Liter {
 	
 	public ExprAST getExpr() {
 		return expr;
+	}
+	
+	
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>(Arrays.asList(expr));
 	}
 }

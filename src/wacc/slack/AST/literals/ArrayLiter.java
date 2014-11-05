@@ -1,8 +1,10 @@
 package wacc.slack.AST.literals;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.types.Type;
@@ -42,8 +44,13 @@ public class ArrayLiter implements Liter, AssignRHS {
 	}
 
 	@Override
-	public void accept(ASTVisitor visitor) {
-		// TODO Auto-generated method stub
+	public void accept(ASTVisitor<?> visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>(exprList);
 	}
 
 }

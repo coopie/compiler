@@ -1,6 +1,11 @@
 package wacc.slack.AST.statements;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
@@ -35,6 +40,11 @@ public class IfStatementAST extends StatAST {
 		return trueStats;
 	}
 	
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>(Arrays.asList(cond, trueStats, falseStats));
+	}
+
 	@Override
 	public String toString() {
 		String trueBody = "";

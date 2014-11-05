@@ -1,6 +1,10 @@
 package wacc.slack.AST.statements;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import wacc.slack.FilePosition;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class SkipStatementAST extends StatAST {
@@ -17,5 +21,10 @@ public class SkipStatementAST extends StatAST {
 	@Override 
 	public void accept(ASTVisitor v) {
 		v.visit(this);
+	}
+
+	@Override
+	public List<WaccAST> getChildren() {
+		return new LinkedList<WaccAST>();
 	}
 }
