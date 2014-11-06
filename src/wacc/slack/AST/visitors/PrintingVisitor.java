@@ -53,10 +53,8 @@ public class PrintingVisitor implements ASTVisitor<String> {
 		r += "start:";
 		indent();
 		for(FuncAST f : program.getFunctions()) {
-			r += newLine();
 			r += f.accept(this);
 		}
-		r += newLine();
 		r += program.getStatements().accept(this);
 
 		endIndent();
@@ -69,7 +67,6 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	public String visit(FuncAST func) {
 		String s = func.getType() + " " + func.getIdent() + "()";
 		indent();
-		s += newLine();
 		s += func.getStat().accept(this);
 		endIndent();
 		return s;
@@ -93,16 +90,15 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(IfStatementAST ifStat) {
-		String r = "";
+		String r = newLine();
 		
 		r += "if " + ifStat.getCond().accept(this);
 		indent();
-		r += newLine();
 		r += ifStat.getTrueStats().accept(this);
 		endIndent();
 		r += newLine() + "else";
 		indent();
-		r += newLine() + ifStat.getFalseStats().accept(this);
+		r += ifStat.getFalseStats().accept(this);
 		endIndent();
 		
 		return r;
@@ -110,12 +106,12 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(SkipStatementAST skipStat) {
-		return skipStat.toString();
+		return newLine() + skipStat.toString();
 	}
 
 	@Override
 	public String visit(WhileStatementAST whileStat) {
-		String r = "";
+		String r = newLine();
 		
 		r += "while (" + whileStat.getCond().accept(this) + ")";
 		indent();
@@ -191,7 +187,6 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	public String visit(StatListAST statAST) {
 		String r  = "";
 		for(WaccAST a : statAST.getChildren()) {
-			r += newLine();
 			r += a.accept(this);
 		}
 		return r;
@@ -204,7 +199,7 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	
 	@Override
 	public String visit(ExprStatementAST exprStat) {
-		 return exprStat.getName() + " " + exprStat.getExpr().accept(this);
+		 return newLine() + exprStat.getName() + " " + exprStat.getExpr().accept(this);
 	}
 	@Override
 	public String visit(ReadStatementAST readStatementAST) {
