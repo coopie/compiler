@@ -50,6 +50,7 @@ import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
+import wacc.slack.AST.symbolTable.FuncIdentInfo;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
@@ -251,7 +252,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.CHAR_LTR() != null) {
 			return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()), filePos);
 		} else if (ctx.STRING_LTR() != null) {
-			return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText()), filePos);
+			return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText(),filePos), filePos);
 		} else if (ctx.pairLiter() != null) {
 			return new ValueExprAST(visitPairLiter(ctx.pairLiter()), filePos);
 		} else if (ctx.IDENT() != null) {
@@ -490,15 +491,33 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public FuncAST visitFunc(FuncContext ctx) {
 		List<Param> paramList = null;
 		
+		List<Type> paramTypes = new LinkedList<>();
+		
+		
 		if(ctx.paramList() != null) {
 			paramList = visitParamList(ctx.paramList()).getParamList();
 		}
 
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
-		return new FuncAST(visitType(ctx.type()),
+		Type returnType = visitType(ctx.type());
+		
+		//rembering top scope so I can add the function Identifier to it after I add the params to the function scope and extract the types of params
+		SymbolTable<IdentInfo> topScope = scope; 
+		scope = scope.initializeNewScope();
+		
+		for(Param p : paramList) {
+			paramTypes.add(p.getType());
+			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));
+		}
+		
+		topScope.insert(ctx.IDENT().getText(), new FuncIdentInfo(returnType,paramTypes,filePos));
+		
+		FuncAST f = new FuncAST(returnType,
 				ctx.IDENT().getText(),
 				paramList,
 				visitStat(ctx.stat()), filePos);
+		scope = scope.popScope();
+		return f;
 	}
 
 	@Override

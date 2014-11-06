@@ -7,9 +7,11 @@ import wacc.slack.AST.types.Type;
 public class StringLiter implements Liter {
 
 	private final String text;
+	private final FilePosition filePos;
 	
-	public StringLiter(String text) {
+	public StringLiter(String text, FilePosition filePost) {
 		this.text = text;
+		this.filePos = filePost;
 	}
 
 	@Override
@@ -24,7 +26,7 @@ public class StringLiter implements Liter {
 
 	@Override
 	public FilePosition getFilePosition() {
-		return null;
+		return filePos;
 	}
 
 }

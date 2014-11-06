@@ -1,5 +1,7 @@
 package wacc.slack.AST.symbolTable;
 
+import java.util.List;
+
 import wacc.slack.FilePosition;
 import wacc.slack.AST.types.Type;
 
@@ -19,6 +21,10 @@ public class IdentInfo {
 
 	public FilePosition getDeclaredAt() {
 		return declaredAt;
+	}
+	
+	public List<Type> getParamTypes() {
+		throw new RuntimeException("can't get params on non function identifier");
 	}
 	
 }

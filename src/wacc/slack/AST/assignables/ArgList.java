@@ -1,12 +1,13 @@
 package wacc.slack.AST.assignables;
 
+import java.util.Iterator;
 import java.util.List;
 
 import wacc.slack.FilePosition;
 import wacc.slack.AST.ParseTreeReturnable;
 import wacc.slack.AST.Expr.ExprAST;
 
-public class ArgList implements ParseTreeReturnable {
+public class ArgList implements ParseTreeReturnable,Iterable<ExprAST> {
 	
 	private final List<ExprAST> exprList;
 	private final FilePosition filePos;
@@ -23,5 +24,10 @@ public class ArgList implements ParseTreeReturnable {
 	
 	public List<ExprAST> getExprList() {
 		return exprList;
+	}
+
+	@Override
+	public Iterator<ExprAST> iterator() {
+		return exprList.iterator();
 	}
 }
