@@ -9,8 +9,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import wacc.slack.ErrorRecord;
-import wacc.slack.ErrorRecords;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.BinaryExprAST;
 import wacc.slack.AST.Expr.ExprAST;
@@ -56,6 +54,8 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.errorHandling.errorRecords.ErrorRecord;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;

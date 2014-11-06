@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import wacc.slack.ErrorRecord;
-import wacc.slack.ErrorRecords;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
@@ -15,6 +13,8 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
+import wacc.slack.errorHandling.errorRecords.ErrorRecord;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 
 public class ArrayElemAST implements Assignable, Liter {
 

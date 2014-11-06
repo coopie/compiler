@@ -1,4 +1,4 @@
-package wacc.slack;
+package wacc.slack.errorHandling.errorRecords;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArgList;
@@ -19,6 +20,8 @@ import wacc.slack.AST.symbolTable.FuncIdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.errorHandling.errorRecords.ErrorRecord;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 

@@ -1,4 +1,4 @@
-package wacc.slack;
+package wacc.slack.errorHandling.errorRecords;
 
 import java.util.Iterator;
 import java.util.LinkedList;
