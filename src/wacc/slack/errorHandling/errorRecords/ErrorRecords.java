@@ -8,11 +8,11 @@ import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.errorHandling.expectations.WaccExpectation;
 
-public class ErrorRecords implements Iterable<ErrorRecord> {
+public class ErrorRecords implements Iterable<ErrorObject> {
 
 	private static ErrorRecords INSTANCE;
 	
-	private final List<ErrorRecord> records = new LinkedList<>();
+	private final List<ErrorObject> records = new LinkedList<>();
 	private final List<WaccExpectation> expectations = new LinkedList<>();
 	SymbolTable<IdentInfo> scope;
 	
@@ -20,7 +20,7 @@ public class ErrorRecords implements Iterable<ErrorRecord> {
 		
 	}
 	
-	public void record(ErrorRecord e) {
+	public void record(ErrorObject e) {
 		records.add(e);
 	}
 	
@@ -54,7 +54,7 @@ public class ErrorRecords implements Iterable<ErrorRecord> {
 	}
 	
 	@Override
-	public Iterator<ErrorRecord> iterator() {
+	public Iterator<ErrorObject> iterator() {
 		return records.iterator();
 	}
 

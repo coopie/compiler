@@ -11,6 +11,7 @@ import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class WhileStatementAST extends StatAST implements WaccAST {
 
@@ -22,19 +23,8 @@ public class WhileStatementAST extends StatAST implements WaccAST {
 		this.body = body;
 		
 		if(!cond.getType().equals(BaseType.T_bool)){
-			ErrorRecords.getInstance().record(new ErrorRecord(){
-
-				@Override
-				public String getMessage() {
-					return "condition for while statement doesn't evaluate to bool";
-				}
-
-				@Override
-				public FilePosition getFilePosition() {
-					return filePos;
-				}
-				
-			});
+			ErrorRecords.getInstance().record(
+					new TypeMismatchError(BaseType.T_bool, exprAST.getType(), filePos));
 		}
 	}
 

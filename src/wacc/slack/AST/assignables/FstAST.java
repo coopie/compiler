@@ -7,11 +7,13 @@ import java.util.List;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class FstAST implements Assignable {
 	
@@ -41,19 +43,9 @@ public class FstAST implements Assignable {
 	}
 	
 	private void checkType() {
-		if (expr instanceof PairType) {
-			ErrorRecords.getInstance().record(new ErrorRecord() {
-
-				@Override
-				public String getMessage() {
-					return "Expected types do not check.";
-				}
-
-				@Override
-				public FilePosition getFilePosition() {
-					return filePos;
-				} 
-			});
+		if (!(expr instanceof PairType)) {
+			ErrorRecords.getInstance().record(
+					new TypeMismatchError(BaseType.T_pair, expr.getType(), filePos));
 		}
 	}
 	

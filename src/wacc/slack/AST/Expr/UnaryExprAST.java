@@ -12,6 +12,7 @@ import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class UnaryExprAST implements ExprAST {
 
@@ -19,29 +20,19 @@ public class UnaryExprAST implements ExprAST {
 	private final ExprAST expr;
 	private final FilePosition filePos;
 	private final boolean correctSubExpresions;
-	private final ErrorRecords error = ErrorRecords.getInstance();
+	private final ErrorRecords errors = ErrorRecords.getInstance();
 	
 
 	public UnaryExprAST(UnaryOp unOp, ExprAST expr, final FilePosition filePos) {
 		this.unaryOp = unOp;
 		this.expr = expr;
 		this.filePos = filePos;
-		correctSubExpresions = checkTypes();
+		
+		correctSubExpresions = checkTypes();	
+		
 		if(!correctSubExpresions) {
-			error.record(new ErrorRecord(){
-
-				@Override
-				public String getMessage() {
-					return "type mismatch for " + unaryOp.toString() ;
-				}
-
-				@Override
-				public FilePosition getFilePosition() {
-					return filePos;
-				}
-				
-			});
-		}
+			errors.record(new TypeMismatchError(unaryOp.getType(), expr.getType(), filePos));
+		}	
 	}
 	
 	@Override
@@ -49,7 +40,6 @@ public class UnaryExprAST implements ExprAST {
 		return filePos;
 	}
 	
-
 	@Override
 	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
@@ -84,7 +74,7 @@ public class UnaryExprAST implements ExprAST {
 	}
 
 	public ErrorRecords getError() {
-		return error;
+		return errors;
 	}
 	
 	@Override

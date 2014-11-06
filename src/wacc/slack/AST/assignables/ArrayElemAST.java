@@ -15,6 +15,7 @@ import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class ArrayElemAST implements Assignable, Liter {
 
@@ -55,18 +56,8 @@ public class ArrayElemAST implements Assignable, Liter {
 
 	private void checkType() {
 		if (!expr.getType().equals(BaseType.T_int)) {
-			ErrorRecords.getInstance().record(new ErrorRecord() {
-
-				@Override
-				public String getMessage() {
-					return "Expected types do not check.";
-				}
-
-				@Override
-				public FilePosition getFilePosition() {
-					return filePos;
-				} 
-			});
+			ErrorRecords.getInstance().record(
+					new TypeMismatchError(BaseType.T_int, expr.getType(), filePos));
 		}
 	}
 	

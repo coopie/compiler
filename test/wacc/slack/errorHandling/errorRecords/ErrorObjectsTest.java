@@ -23,7 +23,7 @@ import wacc.slack.AST.types.Type;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 
-public class ErrorRecordsTest {
+public class ErrorObjectsTest {
 
 	ErrorRecords records = ErrorRecords.getInstance(true);
 	private ArgList args = new ArgList	(new LinkedList<ExprAST>(Arrays.asList(
@@ -37,7 +37,7 @@ public class ErrorRecordsTest {
 	}
 	@Test
 	public void canAddErrors() {
-		records.record(new ErrorRecord(){
+		records.record(new ErrorObject(){
 
 			@Override
 			public String getMessage() {

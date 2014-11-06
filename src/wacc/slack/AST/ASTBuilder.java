@@ -56,6 +56,8 @@ import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
+import wacc.slack.errorHandling.errorRecords.UndeclaredVariableError;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;
@@ -351,18 +353,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		IdentInfo funcInfo = scope.lookup(currentFunction);
 		ExprAST expr = visitExpr(ctx.expr());
 		if(funcInfo == null) { //meaning return outside a function
-			ErrorRecords.getInstance().record(new ErrorRecord(){
-
-				@Override
-				public String getMessage() {
-					return "return called outside a function";
-				}
-
-				@Override
-				public FilePosition getFilePosition() {
-					return filePos;
-				}
-			});
+			ErrorRecords.getInstance().record(new IllegalOperationError(filePos));
 		} else {
 			if(!funcInfo.getType().equals(expr.getType())) {
 			/*TODO:	some weird error ErrorRecords.getInstance().record(new ErrorRecord(){
@@ -389,18 +380,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		if(ctx.type() != null && ctx.IDENT() != null) {
 			final String id = ctx.IDENT().getText();
 			if(scope.lookupCurrentScope(id) != null) {
-				ErrorRecords.getInstance().record(new ErrorRecord(){
-
-					@Override
-					public String getMessage() {
-						return "variable: " + id + "redfined in scope";
-					}
-
-					@Override
-					public FilePosition getFilePosition() {
-						return filePos;
-					}
-				});
+				ErrorRecords.getInstance().record(new UndeclaredVariableError(filePos, id));
 			}
 			scope.insert(id, new IdentInfo(visitType(ctx.type()),filePos));//TODO: check if it is decalred already
 			return new AssignStatAST(new VariableAST(ctx.IDENT().getText(),scope,filePos), rhs, filePos);
