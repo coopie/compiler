@@ -1,19 +1,21 @@
 package wacc.slack.errorHandling.expectations;
 
 import java.util.Iterator;
-import java.util.List;
 
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.assignables.ArgList;
-import wacc.slack.AST.assignables.Param;
+import wacc.slack.AST.symbolTable.IdentInfo;
+import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.Type;
 
 
-public class FunctionCallExpectation implements WaccExpectation<List<Type>> {
+public class FunctionCallExpectation implements WaccExpectation {
 
 	private final String ident;
 	private final ArgList args;
+	private SymbolTable<IdentInfo> scope;
 
+	
 	public FunctionCallExpectation(String ident, ArgList args) {
 		this.ident = ident;
 		this.args = args;
@@ -22,11 +24,18 @@ public class FunctionCallExpectation implements WaccExpectation<List<Type>> {
 	public String getIdent() {
 		return ident;
 	}
+	public void setScope(SymbolTable<IdentInfo> scope) {
+		this.scope  = scope;	
+	}
 	
 	@Override
-	public boolean check(List<Type> params) {
+	public boolean check() {
+		if(scope == null) {
+			throw new IllegalArgumentException("need scope before checking");
+		}
+		
 		boolean b = true;
-		Iterator<Type> ps = params.iterator();
+		Iterator<Type> ps = scope.lookup(ident).getParamTypes().iterator();
 		Iterator<ExprAST> as = args.iterator();
 		
 		while(ps.hasNext() && as.hasNext()) 
@@ -34,8 +43,7 @@ public class FunctionCallExpectation implements WaccExpectation<List<Type>> {
 			b &= ps.next().equals(as.next().getType());
 		}
 		
-		b &= !ps.hasNext() && !as.hasNext();
-		
+		b &= !ps.hasNext() && !as.hasNext();		
 		return b;
 	}
 

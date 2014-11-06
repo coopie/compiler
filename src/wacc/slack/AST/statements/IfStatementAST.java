@@ -4,9 +4,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import wacc.slack.ErrorRecord;
+import wacc.slack.ErrorRecords;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class IfStatementAST extends StatAST implements WaccAST {
@@ -14,11 +17,27 @@ public class IfStatementAST extends StatAST implements WaccAST {
 	private final StatAST falseStats, trueStats;
 	private final ExprAST cond;
 	public IfStatementAST(ExprAST exprAST, StatAST trueStats,
-			StatAST falseStats, FilePosition filePos) {
+			StatAST falseStats, final FilePosition filePos) {
 		super(filePos);
 		this.cond = exprAST;
 		this.trueStats = trueStats;
 		this.falseStats = falseStats;
+		
+		if(!exprAST.getType().equals(BaseType.T_bool)){
+			ErrorRecords.getInstance().record(new ErrorRecord(){
+
+				@Override
+				public String getMessage() {
+					return "expression for if statement doesn't evaluate to bool";
+				}
+
+				@Override
+				public FilePosition getFilePosition() {
+					return filePos;
+				}
+				
+			});
+		}
 	}
 
 	@Override

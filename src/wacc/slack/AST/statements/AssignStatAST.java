@@ -4,11 +4,14 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import wacc.slack.ErrorRecords;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.assignables.AssignRHS;
 import wacc.slack.AST.assignables.Assignable;
+import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.visitors.ASTVisitor;
+import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 
 public class AssignStatAST extends StatAST implements WaccAST {
 	private final Assignable lhs;
@@ -17,6 +20,10 @@ public class AssignStatAST extends StatAST implements WaccAST {
 		super(filePos);
 		this.lhs = lhs;
 		this.rhs = rhs;
+		
+		if(rhs instanceof CallAST) {
+			ErrorRecords.getInstance().addExpectation(new FunctionReturnTypeExpectation(((CallAST) rhs).getIdent(),lhs.getType()));
+		}
 	}
 
 	public Assignable getLhs() {

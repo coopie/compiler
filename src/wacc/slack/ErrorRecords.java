@@ -4,11 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import wacc.slack.AST.symbolTable.FuncIdentInfo;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
-import wacc.slack.AST.types.Type;
-import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import wacc.slack.errorHandling.expectations.WaccExpectation;
 
 public class ErrorRecords implements Iterable<ErrorRecord> {
@@ -16,7 +13,7 @@ public class ErrorRecords implements Iterable<ErrorRecord> {
 	private static ErrorRecords INSTANCE;
 	
 	private final List<ErrorRecord> records = new LinkedList<>();
-	private final List<FunctionCallExpectation> expectations = new LinkedList<>();
+	private final List<WaccExpectation> expectations = new LinkedList<>();
 	SymbolTable<IdentInfo> scope;
 	
 	private ErrorRecords() {
@@ -46,10 +43,11 @@ public class ErrorRecords implements Iterable<ErrorRecord> {
 	public boolean isErrorFree() {
 		boolean ans =  records.size() == 0;
 		
-		for(FunctionCallExpectation e : expectations) {
+		for(WaccExpectation e : expectations) {
 			IdentInfo i = scope.lookup(e.getIdent());
 			if(i == null) return false;
-			ans &= e.check(i.getParamTypes());
+			e.setScope(scope);
+			ans &= e.check();
 		}
 		
 		return ans;
@@ -60,7 +58,7 @@ public class ErrorRecords implements Iterable<ErrorRecord> {
 		return records.iterator();
 	}
 
-	public void addExpectation(FunctionCallExpectation e) {
+	public void addExpectation(WaccExpectation e) {
 		expectations.add(e);	
 	}
 }

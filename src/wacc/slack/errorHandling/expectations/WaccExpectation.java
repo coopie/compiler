@@ -1,6 +1,11 @@
 package wacc.slack.errorHandling.expectations;
 
-public interface WaccExpectation<T> {
-	boolean check(T x);
+import wacc.slack.AST.symbolTable.IdentInfo;
+import wacc.slack.AST.symbolTable.SymbolTable;
+
+
+public interface WaccExpectation {
+    boolean check();
+    void setScope(SymbolTable<IdentInfo> scope);
 	String getIdent();
 }

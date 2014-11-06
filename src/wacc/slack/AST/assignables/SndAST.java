@@ -10,6 +10,7 @@ import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.types.PairType;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class SndAST implements Assignable {
@@ -64,5 +65,10 @@ public class SndAST implements Assignable {
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(expr));
+	}
+	
+	@Override
+	public Type getType() {
+		return expr.getType(); //TODO: not sure about this
 	}
 }

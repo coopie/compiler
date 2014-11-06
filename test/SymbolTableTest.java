@@ -41,6 +41,14 @@ public class SymbolTableTest {
 		} catch (IllegalStateException e) {
 			assertThat(e.getMessage(),is("trying to pop top scope"));
 		}
+	}
+	
+	@Test
+	public void canLookupJustCurrentScope() {
+		table.insert("x","hoho");
 		
+		table = table.initializeNewScope();
+		
+		assertThat(table.lookupCurrentScope("x"),nullValue());
 	}
 }

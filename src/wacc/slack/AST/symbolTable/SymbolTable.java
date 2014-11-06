@@ -46,4 +46,8 @@ public class SymbolTable<T> {
 			throw new IllegalStateException("trying to pop top scope");
 		}
 	}
+
+	public T lookupCurrentScope(String key) {
+		return table.get(key);
+	}
 }

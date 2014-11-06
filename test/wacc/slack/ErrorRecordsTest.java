@@ -20,6 +20,7 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
+import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 
 public class ErrorRecordsTest {
 
@@ -58,7 +59,7 @@ public class ErrorRecordsTest {
 	}
 	
 	@Test
-	public void canCheckFalseFunctionExpectations() {
+	public void canCheckFalseParamsFunctionExpectations() {
 		List<Type> params = new LinkedList<Type>(Arrays.asList(
 								BaseType.T_char,
 								BaseType.T_char
@@ -72,7 +73,7 @@ public class ErrorRecordsTest {
 	}
 	
 	@Test
-	public void canCheckTrueFunctionExpectations() {
+	public void canCheckTrueParamsFunctionExpectations() {
 		List<Type> params = new LinkedList<Type>(Arrays.asList(
 								BaseType.T_int,
 								BaseType.T_string
@@ -83,5 +84,23 @@ public class ErrorRecordsTest {
 		records.addExpectation(new FunctionCallExpectation("intStringFunc", args));
 		
 		assertThat(records.isErrorFree(),is(true));	
+	}
+	
+	@Test
+	public void canCheckTrueReturnType() {
+		
+		records.scope.insert("intStringFunc", new FuncIdentInfo(BaseType.T_int,new LinkedList<Type>(),null));
+		records.addExpectation(new FunctionReturnTypeExpectation("intStringFunc", BaseType.T_int));
+		
+		assertThat(records.isErrorFree(),is(true));	
+	}
+	
+	@Test
+	public void canCheckFalseReturnType() {
+		
+		records.scope.insert("intStringFunc", new FuncIdentInfo(BaseType.T_int,new LinkedList<Type>(),null));
+		records.addExpectation(new FunctionReturnTypeExpectation("intStringFunc", BaseType.T_char));
+		
+		assertThat(records.isErrorFree(),is(false));	
 	}
 }

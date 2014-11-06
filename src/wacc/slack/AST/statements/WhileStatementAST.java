@@ -4,19 +4,38 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import wacc.slack.ErrorRecord;
+import wacc.slack.ErrorRecords;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class WhileStatementAST extends StatAST implements WaccAST {
 
 	private final ExprAST cond;
 	private final StatAST body;
-	public WhileStatementAST(ExprAST exprAST, StatAST body, FilePosition filePos) {
+	public WhileStatementAST(ExprAST exprAST, StatAST body, final FilePosition filePos) {
 		super(filePos);
 		this.cond = exprAST;
 		this.body = body;
+		
+		if(!cond.getType().equals(BaseType.T_bool)){
+			ErrorRecords.getInstance().record(new ErrorRecord(){
+
+				@Override
+				public String getMessage() {
+					return "condition for while statement doesn't evaluate to bool";
+				}
+
+				@Override
+				public FilePosition getFilePosition() {
+					return filePos;
+				}
+				
+			});
+		}
 	}
 
 	@Override 

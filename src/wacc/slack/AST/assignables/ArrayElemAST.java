@@ -10,6 +10,8 @@ import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.literals.Liter;
+import wacc.slack.AST.symbolTable.IdentInfo;
+import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
@@ -19,10 +21,12 @@ public class ArrayElemAST implements Assignable, Liter {
 	private final String ident;
 	private final ExprAST expr;
 	private final FilePosition filePos;
+	private final SymbolTable<IdentInfo> scope;
 	
-	public ArrayElemAST(String ident, ExprAST expr, FilePosition filePos) {
+	public ArrayElemAST(String ident, ExprAST expr, SymbolTable<IdentInfo> scope,FilePosition filePos) {
 		this.ident = ident;
 		this.expr = expr;
+		this.scope = scope;
 		this.filePos = filePos;
 
 		checkType();
@@ -45,8 +49,7 @@ public class ArrayElemAST implements Assignable, Liter {
 
 	@Override
 	public Type getType() {
-		// TODO Auto-generated method stub
-		return null;
+		return scope.lookup(ident).getType();
 	}
 	
 

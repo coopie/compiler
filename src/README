@@ -27,7 +27,16 @@ Naming conventions:
 -- Do not.
 
 
-
+Semantics that is implemented to be checked (write " - TESTED" for the ones tests are written):
+- return type of function called should match the assignable it is matched to
+- arguments of function call should match the params of the function
+- expression types should check
+- variables can't be redeclared in scope
+- variables are declared before use
+- if statments's expr should be bool
+- while statments's cond should be bool
+- return gets called only in a function
+- return must return the type the function sginature requires
 
 Error Handling:
 This is done by creating an ErrorRecord Object,(implentation tbd)
