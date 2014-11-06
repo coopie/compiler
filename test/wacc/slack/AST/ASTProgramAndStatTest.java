@@ -44,6 +44,11 @@ public class ASTProgramAndStatTest extends ASTTest {
 	}
 	
 	@Test
+	public void simpleCallAST() {
+		statementTestAssert("int a = call add(1,2)", "\na = add(1 2 )");
+	}
+	
+	@Test
 	public void simpleIfAST() {
 		statementTestAssert("if true then skip else skip fi",
 				  "\nif true"
@@ -127,11 +132,17 @@ public class ASTProgramAndStatTest extends ASTTest {
 	// TODO: Implement Ident class properly and implement test
 	@Test
 	public void simpleIdent() {
+		statementTestAssert("int a = 0", "\na = 0");
 	}
 	
-	// TODO: Implement ArrayElem class properly and implement test
 	@Test
-	public void simpleArrayElem() {
+	public void simpleArrayElemStat() {
+		statementTestAssert("int[] a = [1]", "\na = [1 ]");
+	}
+	
+	@Test
+	public void newPairTest() {
+		statementTestAssert("pair(int, char) a = newpair(1, 'a')", "\na = newpair(1, 'a')");
 	}
 	
 	@Test

@@ -121,9 +121,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public AssignRHS visitAssignRhs(AssignRhsContext ctx) {
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
-		if (ctx.expr() != null) {
-			return visitExpr(ctx.expr(0));
-		} else if (ctx.arrayLiter() != null) {
+	    if (ctx.arrayLiter() != null) {
 			return visitArrayLiter(ctx.arrayLiter());
 		} else if (ctx.pairElem() != null) {
 			return visitPairElem(ctx.pairElem());
@@ -135,6 +133,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			String ident = ctx.IDENT().getText();
 			ArgList argList = visitArgList(ctx.argList());
 			return new CallAST(ident, argList, filePos);
+		} else if (ctx.expr() != null) {
+			return visitExpr(ctx.expr(0));
 		} else {
 			assert false : "should not happen, one of the assignments should be recognized";
 		}
@@ -256,7 +256,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.pairLiter() != null) {
 			return new ValueExprAST(visitPairLiter(ctx.pairLiter()), filePos);
 		} else if (ctx.IDENT() != null) {
-			return null;
+			// TODO: insert scoping stuff here
+			return new VariableAST(ctx.IDENT().getText(), scope, filePos);
 		} else if (ctx.arrayElem() != null) {
 			return new ValueExprAST(visitArrayElem(ctx.arrayElem()), filePos);
 		} else if (ctx.unaryOper() != null) {

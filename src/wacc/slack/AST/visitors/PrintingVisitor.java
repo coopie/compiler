@@ -3,6 +3,7 @@ package wacc.slack.AST.visitors;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
+import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArrayElemAST;
@@ -13,7 +14,6 @@ import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
-import wacc.slack.AST.literals.PairLiter;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExprStatementAST;
@@ -75,7 +75,8 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(AssignStatAST assignStat) {
-		return null;
+		return newLine() + assignStat.getLhs().accept(this) 
+				 + " = " + assignStat.getRhs().accept(this); 
 	}
 
 	@Override
@@ -142,20 +143,30 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(ArrayLiterAST arrayLiter) {
-		// TODO Auto-generated method stub
-		return null;
+		String r = "[";
+		for(WaccAST expr : arrayLiter.getChildren()) {
+			r += expr.accept(this) + " ";
+		}
+		r += "]";
+		return r;
 	}
 
 	@Override
 	public String visit(CallAST call) {
-		// TODO Auto-generated method stub
-		return null;
+		String r = call.getIdent() + "(";
+				for(ExprAST expr : call.getArgList().getExprList()) {
+					r += expr.accept(this) + " "; 
+				}
+				r += ")";
+				return r;
 	}
 
 	@Override
 	public String visit(NewPairAST newPair) {
-		// TODO Auto-generated method stub
-		return null;
+		return  "newpair(" +
+				newPair.getExprL() + ", " +
+				newPair.getExprR() + 
+				")";
 	}
 
 	@Override
