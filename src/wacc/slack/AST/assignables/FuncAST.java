@@ -7,7 +7,6 @@ import java.util.List;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.statements.StatAST;
-import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 

@@ -20,8 +20,6 @@ import wacc.slack.AST.symbolTable.FuncIdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
-import wacc.slack.errorHandling.errorRecords.ErrorRecord;
-import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 

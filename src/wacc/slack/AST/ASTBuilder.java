@@ -63,10 +63,15 @@ import antlr.WaccParser.ArrayLiterContext;
 import antlr.WaccParser.ArrayTypeContext;
 import antlr.WaccParser.AssignLhsContext;
 import antlr.WaccParser.AssignRhsContext;
+import antlr.WaccParser.AssignStatContext;
 import antlr.WaccParser.BaseTypeContext;
+import antlr.WaccParser.BeginStatContext;
 import antlr.WaccParser.BoolLiterContext;
+import antlr.WaccParser.ExitStatContext;
 import antlr.WaccParser.ExprContext;
+import antlr.WaccParser.FreeStatContext;
 import antlr.WaccParser.FuncContext;
+import antlr.WaccParser.IfStatContext;
 import antlr.WaccParser.IntLiterContext;
 import antlr.WaccParser.IntSignContext;
 import antlr.WaccParser.PairElemContext;
@@ -75,10 +80,17 @@ import antlr.WaccParser.PairLiterContext;
 import antlr.WaccParser.PairTypeContext;
 import antlr.WaccParser.ParamContext;
 import antlr.WaccParser.ParamListContext;
+import antlr.WaccParser.PrintStatContext;
+import antlr.WaccParser.PrintlnStatContext;
 import antlr.WaccParser.ProgramContext;
+import antlr.WaccParser.ReadStatContext;
+import antlr.WaccParser.ReturnStatContext;
+import antlr.WaccParser.SkipStatContext;
 import antlr.WaccParser.StatContext;
+import antlr.WaccParser.StatListContext;
 import antlr.WaccParser.TypeContext;
 import antlr.WaccParser.UnaryOperContext;
+import antlr.WaccParser.WhileStatContext;
 import antlr.WaccParserVisitor;
 
 public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
@@ -316,122 +328,158 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	}
 
 	@Override
-	public StatAST visitStat(StatContext ctx) {
-		StatAST stat;
-		List<StatAST> stats = new LinkedList<>();
-
+	public StatAST visitStatList(StatListContext ctx) {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		List<StatAST> stats = new LinkedList<>();
 		
-		if (ctx.stat().size() > 1 && ctx.IF() == null) {
-			for (StatContext s : ctx.stat()) {
-				stats.add(visitStat(s));
-			}
-			return new StatListAST(stats, filePos);
-		} else {
-			if (ctx.READ() != null) {
-				stat = new ReadStatementAST(visitAssignLhs(ctx.assignLhs()), filePos);
-			} else if (ctx.EXIT() != null) {
-				stat = new ExitStatementAST(visitExpr(ctx.expr()), filePos);
-			} else if (ctx.SKIP() != null) {
-				stat = new SkipStatementAST(filePos);
-			} else if (ctx.ASSIGN() != null) {
-				AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
-				if(ctx.type() != null && ctx.IDENT() != null) {
-					final String id = ctx.IDENT().getText();
-					if(scope.lookupCurrentScope(id) != null) {
-						ErrorRecords.getInstance().record(new ErrorRecord(){
+		for (StatContext s : ctx.stat()) {
+			stats.add((StatAST)s.accept(this));
+		}
+		return new StatListAST(stats, filePos);
+	}
 
-							@Override
-							public String getMessage() {
-								return "variable: " + id + "redfined in scope";
-							}
+	@Override
+	public StatAST visitReadStat(ReadStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ReadStatementAST(visitAssignLhs(ctx.assignLhs()), filePos);
+	}
 
-							@Override
-							public FilePosition getFilePosition() {
-								return filePos;
-							}
-						});
-					}
-					scope.insert(id, new IdentInfo(visitType(ctx.type()),filePos));//TODO: check if it is decalred already
-					stat = new AssignStatAST(new VariableAST(ctx.IDENT().getText(),scope,filePos), rhs, filePos);
-				} else if(ctx.assignLhs() != null) {
-					final Assignable a = visitAssignLhs(ctx.assignLhs());
-					if(scope.lookup(a.getName()) ==  null) {
-						ErrorRecords.getInstance().record(new ErrorRecord(){
+	@Override
+	public StatAST visitReturnStat(ReturnStatContext ctx) {
+		
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		IdentInfo funcInfo = scope.lookup(currentFunction);
+		ExprAST expr = visitExpr(ctx.expr());
+		if(funcInfo == null) { //meaning return outside a function
+			ErrorRecords.getInstance().record(new ErrorRecord(){
 
-							@Override
-							public String getMessage() {
-								return "variable: " + a.getName() + "not defined in scope";
-							}
-
-							@Override
-							public FilePosition getFilePosition() {
-								return filePos;
-							}
-						});
-					}
-					stat = new AssignStatAST(a, rhs, filePos);
-				} else {throw new RuntimeException("shouldn't happen, can't recognize Assign stat rule");}
-			} else if (ctx.FREE() != null) {
-				stat = new FreeStatementAST(visitExpr(ctx.expr()), filePos);
-			} else if (ctx.RETURN() != null) {
-				IdentInfo funcInfo = scope.lookup(currentFunction);
-				ExprAST expr = visitExpr(ctx.expr());
-				if(funcInfo == null) { //meaning return outside a function
-					ErrorRecords.getInstance().record(new ErrorRecord(){
-
-						@Override
-						public String getMessage() {
-							return "return called outside a function";
-						}
-
-						@Override
-						public FilePosition getFilePosition() {
-							return filePos;
-						}
-					});
-				} else {
-					if(!funcInfo.getType().equals(expr.getType())) {
-						ErrorRecords.getInstance().record(new ErrorRecord(){
-
-							@Override
-							public String getMessage() {
-								return "return expr doesn't match function signature";
-							}
-
-							@Override
-							public FilePosition getFilePosition() {
-								return filePos;
-							}
-						});
-					}
+				@Override
+				public String getMessage() {
+					return "return called outside a function";
 				}
-				
-				stat = new ReturnStatementAST(expr, filePos);
-			} else if (ctx.PRINT() != null) {
-				stat = new PrintStatementAST(visitExpr(ctx.expr()), filePos);
-			} else if (ctx.PRINTLN() != null) {
-				stat = new PrintlnStatementAST(visitExpr(ctx.expr()), filePos);
-			} else if (ctx.IF() != null && ctx.THEN() != null
-					&& ctx.ELSE() != null && ctx.FI() != null) {
-				scope = scope.initializeNewScope();
-				stat = new IfStatementAST(visitExpr(ctx.expr()),
-						visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), filePos);
-				scope = scope.popScope();
-			} else if (ctx.WHILE() != null && ctx.DO() != null
-					&& ctx.DONE() != null) {
-				scope = scope.initializeNewScope();
-				stat = new WhileStatementAST(visitExpr(ctx.expr()),
-						visitStat(ctx.stat(0)), filePos);
-				scope = scope.popScope();
-			} else if (ctx.BEGIN() != null && ctx.END() != null) {
-				scope = scope.initializeNewScope();
-				stat = new BeginEndAST(visitStat(ctx.stat(0)), filePos);
-				scope = scope.popScope();
-			} else {
-				throw new RuntimeException("shouldn't happen, can't recognize stat rule");
+
+				@Override
+				public FilePosition getFilePosition() {
+					return filePos;
+				}
+			});
+		} else {
+			if(!funcInfo.getType().equals(expr.getType())) {
+			/*TODO:	some weird error ErrorRecords.getInstance().record(new ErrorRecord(){
+
+					@Override
+					public String getMessage() {
+						return "return expr doesn't match function signature";
+					}
+
+					@Override
+					public FilePosition getFilePosition() {
+						return filePos;
+					}
+				});*/
 			}
 		}
+		return new ReturnStatementAST(expr, filePos);
+	}
+
+	@Override
+	public StatAST visitAssignStat(AssignStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
+		if(ctx.type() != null && ctx.IDENT() != null) {
+			final String id = ctx.IDENT().getText();
+			if(scope.lookupCurrentScope(id) != null) {
+				ErrorRecords.getInstance().record(new ErrorRecord(){
+
+					@Override
+					public String getMessage() {
+						return "variable: " + id + "redfined in scope";
+					}
+
+					@Override
+					public FilePosition getFilePosition() {
+						return filePos;
+					}
+				});
+			}
+			scope.insert(id, new IdentInfo(visitType(ctx.type()),filePos));//TODO: check if it is decalred already
+			return new AssignStatAST(new VariableAST(ctx.IDENT().getText(),scope,filePos), rhs, filePos);
+		} else if(ctx.assignLhs() != null) {
+			final Assignable a = visitAssignLhs(ctx.assignLhs());
+			if(scope.lookup(a.getName()) ==  null) {
+		/*	TODO:	ErrorRecords.getInstance().record(new ErrorRecord(){
+
+					@Override
+					public String getMessage() {
+						return "variable: " + a.getName() + "not defined in scope";
+					}
+
+					@Override
+					public FilePosition getFilePosition() {
+						return filePos;
+					}
+				});*/
+			}
+			return new AssignStatAST(a, rhs, filePos);
+		}else {throw new RuntimeException("shouldn't happen, can't recognize Assign stat rule");}	
+	}
+
+	@Override
+	public ParseTreeReturnable visitPrintStat(PrintStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new PrintStatementAST(visitExpr(ctx.expr()), filePos);
+	}
+
+	@Override
+	public StatAST visitFreeStat(FreeStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new FreeStatementAST(visitExpr(ctx.expr()), filePos);
+	}
+
+	@Override
+	public ParseTreeReturnable visitWhileStat(WhileStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		scope = scope.initializeNewScope();
+		StatAST stat = new WhileStatementAST(visitExpr(ctx.expr()),
+				(StatAST)ctx.stat().accept(this), filePos);
+		scope = scope.popScope();
+		return stat;
+	}
+
+	@Override
+	public StatAST visitExitStat(ExitStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ExitStatementAST(visitExpr(ctx.expr()),filePos);
+	}
+
+	@Override
+	public StatAST visitIfStat(IfStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		scope = scope.initializeNewScope();
+		StatAST stat = new IfStatementAST(visitExpr(ctx.expr()),
+				(StatAST)ctx.stat(0).accept(this), (StatAST)ctx.stat(1).accept(this), filePos);
+		scope = scope.popScope();
+		return stat;
+	}
+
+	@Override
+	public StatAST visitSkipStat(SkipStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new SkipStatementAST(filePos);
+	}
+
+	@Override
+	public ParseTreeReturnable visitPrintlnStat(PrintlnStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new PrintlnStatementAST(visitExpr(ctx.expr()), filePos);
+	}
+	
+	@Override 
+	public StatAST visitBeginStat(BeginStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		scope = scope.initializeNewScope();
+		StatAST stat = new BeginEndAST((StatAST)ctx.stat().accept(this), filePos); //TODO: improve this
+		scope = scope.popScope();
 		return stat;
 	}
 
@@ -488,7 +536,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			func.add(visitFunc(f));
 		}
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
-		return new ProgramAST(func, visitStat(ctx.stat()), filePos);
+		return new ProgramAST(func, (StatAST)ctx.stat().accept(this), filePos);
 	}
 
 	@Override
@@ -540,7 +588,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public FuncAST visitFunc(FuncContext ctx) {
-		List<Param> paramList = null;
+		List<Param> paramList = new LinkedList<>();
 		List<Type> paramTypes = new LinkedList<>();
 		
 		
@@ -567,7 +615,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		FuncAST f = new FuncAST(returnType,
 				currentFunction,
 				paramList,
-				visitStat(ctx.stat()), filePos);
+				(StatAST)ctx.stat().accept(this), filePos);
 		scope = scope.popScope();
 		currentFunction = null;
 		return f;
