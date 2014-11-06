@@ -14,8 +14,13 @@ import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArgList;
+import wacc.slack.AST.literals.BoolLiter;
 import wacc.slack.AST.literals.IntLiter;
 import wacc.slack.AST.literals.StringLiter;
+import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.SkipStatementAST;
+import wacc.slack.AST.statements.StatAST;
+import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.symbolTable.FuncIdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
@@ -104,4 +109,38 @@ public class ErrorObjectsTest {
 		
 		assertThat(records.isErrorFree(),is(false));	
 	}
+	
+	@Test
+	public void canCheckWhileCondIsNotBool() {
+
+		new WhileStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), null);
+		
+		assertThat(records.isErrorFree(), is(false));
+	}
+	
+	@Test
+	public void canCheckWhileCondIsBool() {
+
+		new WhileStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), null);
+		
+		assertThat(records.isErrorFree(), is(true));
+	}
+	
+	@Test
+	public void canCheckIfStatementCondIsNotBool() {
+		
+		new IfStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
+		
+		assertThat(records.isErrorFree(), is(false));
+	}
+	
+	@Test
+	public void canCheckIfStatementCondIsBool() {
+		
+		new IfStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
+		
+		assertThat(records.isErrorFree(), is(true));
+	}
+	
+	
 }

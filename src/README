@@ -33,8 +33,8 @@ Semantics that is implemented to be checked (write " - TESTED" for the ones test
 - expression types should check
 - variables can't be redeclared in scope
 - variables are declared before use
-- if statments's expr should be bool
-- while statments's cond should be bool
+- if statments's expr should be bool - TESTED
+- while statments's cond should be bool - TESTED
 - return gets called only in a function
 - return must return the type the function sginature requires
 
