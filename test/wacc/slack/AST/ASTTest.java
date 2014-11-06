@@ -24,19 +24,17 @@ public class ASTTest {
 	protected void statementTestAssert(String in, String expectedOut) {
 		WaccAST ast = getStat(in);
 		PrintingVisitor p = new PrintingVisitor();
-		ast.accept(p);
+		String s = ast.accept(p);
 		
-		System.out.println(p);
-		assertEquals(expectedOut, p.toString());
+		assertEquals(expectedOut, s);
 	}
 	
 	protected void exprTestAssert(String in, String expectedOut) {
 		WaccAST ast = getExpr(in);
 		PrintingVisitor p = new PrintingVisitor();
-		ast.accept(p);
+		String s = ast.accept(p);
 		
-		System.out.println(p);
-		assertEquals(expectedOut, p.toString());
+		assertEquals(expectedOut, s);
 	}
 	
 	protected void programTestAssert(String in, String expectedOut) {
@@ -44,17 +42,15 @@ public class ASTTest {
 		PrintingVisitor p = new PrintingVisitor();
 		String s = ast.accept(p);
 		
-		System.out.println(s);
 		assertEquals(expectedOut, s);
 	}
 	
 	protected void functionTestAssert(String in, String expectedOut) {
 		WaccAST ast = getFunc(in);
 		PrintingVisitor p = new PrintingVisitor();
-		ast.accept(p);
+		String s = ast.accept(p);
 		
-		System.out.println(p);
-		assertEquals(expectedOut, p.toString());
+		assertEquals(expectedOut, s);
 	}
 
 	protected ASTBuilder astBuilder = new ASTBuilder();

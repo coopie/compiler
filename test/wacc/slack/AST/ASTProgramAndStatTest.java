@@ -50,12 +50,25 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void IfWithListsOfStatsAST() {
-		programTestAssert("begin if true then skip;exit 7 else skip; exit 7 fi end", "start:\n\tif true then  skip exit 7 else  skip exit 7\nend");
+		programTestAssert("begin if true then skip;exit 7 else skip; exit 7 fi end", 
+				"start:"
+				+ "\n\tif true"
+				+ "\n\t\tskip"
+				+ "\n\t\texit 7"
+				+ "\n\telse"
+				+ "\n\t\tskip"
+				+ "\n\t\texit 7"
+				+ "\nend");
 	}
 	
 	@Test
 	public void WhileWithMultipleStats() {
-		programTestAssert("begin while true do skip;exit 7 done end", "start:\n\twhile (true)\n\t\tskip\n\t\texit 7\nend");
+		programTestAssert("begin while true do skip;exit 7 done end",
+				  "start:"
+				+ "\n\twhile (true)"
+				+ "\n\t\tskip"
+				+ "\n\t\texit 7"
+				+ "\nend");
 	}
 
 	@Test

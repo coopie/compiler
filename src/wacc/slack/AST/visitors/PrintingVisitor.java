@@ -43,12 +43,9 @@ public class PrintingVisitor implements ASTVisitor<String> {
 		for(int i = 0; i < indent; i++) {
 			newLine += "\t";
 		}
-		output += newLine;
 		return newLine;
 	}
-	public void clear() {
-		output = "";
-	}
+	
 	@Override
 	public String visit(ProgramAST program) {
 		String r = "";
