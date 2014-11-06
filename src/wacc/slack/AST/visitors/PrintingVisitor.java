@@ -13,6 +13,7 @@ import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
+import wacc.slack.AST.literals.PairLiter;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExprStatementAST;
@@ -24,7 +25,7 @@ import wacc.slack.AST.statements.WhileStatementAST;
 
 public class PrintingVisitor implements ASTVisitor<String> {
 
-	private String output = "";
+	//private String output = "";
 	
 	private int indent = 0;
 	
@@ -43,12 +44,9 @@ public class PrintingVisitor implements ASTVisitor<String> {
 		for(int i = 0; i < indent; i++) {
 			newLine += "\t";
 		}
-		output += newLine;
 		return newLine;
 	}
-	public void clear() {
-		output = "";
-	}
+	
 	@Override
 	public String visit(ProgramAST program) {
 		String r = "";
@@ -56,27 +54,23 @@ public class PrintingVisitor implements ASTVisitor<String> {
 		r += "start:";
 		indent();
 		for(FuncAST f : program.getFunctions()) {
-			r += newLine();
 			r += f.accept(this);
 		}
-		r += newLine();
 		r += program.getStatements().accept(this);
 
 		endIndent();
 		r += newLine();
 		r += "end";
-		output = r;
 		return r;
 	}
 	
 	@Override
 	public String visit(FuncAST func) {
-		output += func.getType() + " " + func.getIdent() + "()";
+		String s = func.getType() + " " + func.getIdent() + "()";
 		indent();
-		output += newLine();
-		output += func.getStat().accept(this);
+		s += func.getStat().accept(this);
 		endIndent();
-		return output;
+		return s;
 	}
 
 	@Override
@@ -92,44 +86,39 @@ public class PrintingVisitor implements ASTVisitor<String> {
 		r += beginEnd.getBody().accept(this);
 		endIndent();
 		
-		output = r;
 		return r;
 	}
 
 	@Override
 	public String visit(IfStatementAST ifStat) {
-		String r = "";
+		String r = newLine();
 		
 		r += "if " + ifStat.getCond().accept(this);
 		indent();
-		r += newLine();
 		r += ifStat.getTrueStats().accept(this);
 		endIndent();
 		r += newLine() + "else";
 		indent();
-		r += newLine() + ifStat.getFalseStats().accept(this);
+		r += ifStat.getFalseStats().accept(this);
 		endIndent();
 		
-		output = r;
 		return r;
 	}
 
 	@Override
 	public String visit(SkipStatementAST skipStat) {
-		output = skipStat.toString();
-		return output;
+		return newLine() + skipStat.toString();
 	}
 
 	@Override
 	public String visit(WhileStatementAST whileStat) {
-		String r = "";
+		String r = newLine();
 		
 		r += "while (" + whileStat.getCond().accept(this) + ")";
 		indent();
 		r += whileStat.getBody().accept(this);
 		endIndent();
 		
-		output = r;
 		return r;
 	}
 
@@ -176,52 +165,45 @@ public class PrintingVisitor implements ASTVisitor<String> {
 				+ binExpr + " "
 				+ binExpr.getExprR().accept(this) +
 				")";
-		
-		output = r;
 		return r;
 	}
 
 	@Override
 	public String visit(UnaryExprAST unExpr) {
 		String r = unExpr + "(" + unExpr.getExpr() + ")"; 
-		output += r;		
 		return r;
 	}
 
 	@Override
 	public String visit(ValueExprAST valueExpr) {
-		output = valueExpr.getValue();
 		return valueExpr.getValue();
 	}
 
 	@Override
 	public String visit(VariableAST variable) {
-		output = variable.getName();
-		return output;
+		return variable.getName();
 	}
 	
 	@Override
 	public String visit(StatListAST statAST) {
-		output = "";
+		String r  = "";
 		for(WaccAST a : statAST.getChildren()) {
-			output += newLine();
-			output += a.accept(this);
+			r += a.accept(this);
 		}
-		return output;
+		return r;
+	}
+	
+	@Override
+	public String visit(ExprStatementAST exprStat) {
+		 return newLine() + exprStat.getName() + " " + exprStat.getExpr().accept(this);
+	}
+	@Override
+	public String visit(ReadStatementAST readStatementAST) {
+		return  "read " +  readStatementAST.getAssignable().accept(this);
 	}
 	
 	@Override
 	public String toString() {
-		return output;
-	}
-	@Override
-	public String visit(ExprStatementAST exprStat) {
-		output = exprStat.getName() + " " + exprStat.getExpr().accept(this);
-		return output;
-	}
-	@Override
-	public String visit(ReadStatementAST readStatementAST) {
-		output = "read " +  readStatementAST.getAssignable().accept(this);
-		return output;
+		return "This should never be called now, the visitor can return things now";
 	}
 }

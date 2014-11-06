@@ -10,7 +10,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simpleSkipAST() {
-		statementTestAssert("skip", "skip");
+		statementTestAssert("skip", "\nskip");
 	}
 	
 	@Test
@@ -20,42 +20,59 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simpleExitAST() {
-		statementTestAssert("exit 7", "exit 7");
+		statementTestAssert("exit 7", "\nexit 7");
 	}
 	
 	@Test
 	public void simpleFreeAST() {
-		statementTestAssert("free 6", "free 6");
+		statementTestAssert("free 6", "\nfree 6");
 	}
 
 	@Test
 	public void simpleReturnAST() {
-		statementTestAssert("return 6", "return 6");
+		statementTestAssert("return 6", "\nreturn 6");
 	}
 	
 	@Test
 	public void simplePrintAST() {
-		statementTestAssert("print 6", "print 6");
+		statementTestAssert("print 6", "\nprint 6");
 	}
 	
 	@Test
 	public void simplePrintlnAST() {
-		statementTestAssert("println 6", "println 6");
+		statementTestAssert("println 6", "\nprintln 6");
 	}
 	
 	@Test
 	public void simpleIfAST() {
-		statementTestAssert("if true then skip else skip fi", "if true\n\tskip\nelse\n\tskip");
+		statementTestAssert("if true then skip else skip fi",
+				  "\nif true"
+				+ "\n\tskip"
+				+ "\nelse"
+				+ "\n\tskip");
 	}
 	
 	@Test
 	public void IfWithListsOfStatsAST() {
-		programTestAssert("begin if true then skip;exit 7 else skip; exit 7 fi end", "start:\n\tif true then  skip exit 7 else  skip exit 7\nend");
+		programTestAssert("begin if true then skip;exit 7 else skip; exit 7 fi end", 
+				"start:"
+				+ "\n\tif true"
+				+ "\n\t\tskip"
+				+ "\n\t\texit 7"
+				+ "\n\telse"
+				+ "\n\t\tskip"
+				+ "\n\t\texit 7"
+				+ "\nend");
 	}
 	
 	@Test
 	public void WhileWithMultipleStats() {
-		programTestAssert("begin while true do skip;exit 7 done end", "start:\n\twhile (true)\n\t\tskip\n\t\texit 7\nend");
+		programTestAssert("begin while true do skip;exit 7 done end",
+				  "start:"
+				+ "\n\twhile (true)"
+				+ "\n\t\tskip"
+				+ "\n\t\texit 7"
+				+ "\nend");
 	}
 
 	@Test
@@ -104,6 +121,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	// TODO: Implement PairLiter class properly and implement test - look at spec, it's just null
 	@Test
 	public void simplePairLiter() {
+		exprTestAssert("null", "null");
 	}
 	
 	// TODO: Implement Ident class properly and implement test
