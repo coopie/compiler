@@ -80,9 +80,9 @@ PAIR : 'pair' ;
 TRUE : 'true' ;
 FALSE : 'false' ;
 
-IDENT : [_a-zA-Z][_a-zA-Z0-9]* ;//(‘_’|‘a’-‘z’|‘A’-‘Z’)(‘_’|‘a’-‘z’|‘A’-‘Z’|‘0’-‘9’)* ;
-
 NULL : 'null';
+
+IDENT : [_a-zA-Z][_a-zA-Z0-9]* ;//(‘_’|‘a’-‘z’|‘A’-‘Z’)(‘_’|‘a’-‘z’|‘A’-‘Z’|‘0’-‘9’)* ;
 
 //square brackets
 OPEN_SQ_PARENTHESES : '[' ;

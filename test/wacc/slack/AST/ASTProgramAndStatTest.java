@@ -121,6 +121,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	// TODO: Implement PairLiter class properly and implement test - look at spec, it's just null
 	@Test
 	public void simplePairLiter() {
+		exprTestAssert("null", "null");
 	}
 	
 	// TODO: Implement Ident class properly and implement test

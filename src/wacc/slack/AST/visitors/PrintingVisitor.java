@@ -13,6 +13,7 @@ import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
+import wacc.slack.AST.literals.PairLiter;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExprStatementAST;
@@ -193,16 +194,16 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	}
 	
 	@Override
-	public String toString() {
-		return "This should never be called now, the visitor can return things now";
-	}
-	
-	@Override
 	public String visit(ExprStatementAST exprStat) {
 		 return newLine() + exprStat.getName() + " " + exprStat.getExpr().accept(this);
 	}
 	@Override
 	public String visit(ReadStatementAST readStatementAST) {
 		return  "read " +  readStatementAST.getAssignable().accept(this);
+	}
+	
+	@Override
+	public String toString() {
+		return "This should never be called now, the visitor can return things now";
 	}
 }

@@ -19,8 +19,7 @@ public class PairLiter implements Liter {
 
 	@Override
 	public String getValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return "null";
 	}
 
 	@Override
