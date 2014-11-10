@@ -31,8 +31,8 @@ Semantics that is implemented to be checked (write " - TESTED" for the ones test
 - return type of function called should match the assignable it is matched to
 - arguments of function call should match the params of the function
 - expression types should check
-- variables can't be redeclared in scope
-- variables are declared before use
+- variables can't be redeclared in scope - TESTED
+- variables are declared before use 
 - if statments's expr should be bool - TESTED
 - while statments's cond should be bool - TESTED
 - return gets called only in a function

@@ -22,6 +22,7 @@ import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.symbolTable.FuncIdentInfo;
+import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
@@ -142,5 +143,14 @@ public class ErrorObjectsTest {
 		assertThat(records.isErrorFree(), is(true));
 	}
 	
+	@Test
+	public void canCheckVariablesAreNotRedeclaredInScope() {
+		
+		IdentInfo x = new IdentInfo(BaseType.T_int, null);
+		records.scope.insert("x", x);
+		records.scope.insert("x", x);
+		
+		assertThat(records.isErrorFree(), is(false));
+	}
 	
 }

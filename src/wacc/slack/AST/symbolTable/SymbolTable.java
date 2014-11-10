@@ -3,6 +3,11 @@ package wacc.slack.AST.symbolTable;
 import java.util.HashMap;
 import java.util.Map;
 
+import wacc.slack.AST.types.BaseType;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.RedeclaredVariable;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
+
 //DO TDD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 public class SymbolTable<T> {
 	
@@ -19,7 +24,12 @@ public class SymbolTable<T> {
 	}
 	
 	public void insert(String s, T s1) {
-		table.put(s, s1);
+		if (table.containsKey(s)) {
+			// Need to work out way to get FilePosition (rather than using null)
+			ErrorRecords.getInstance().record(new RedeclaredVariable(null, s));
+		} else {
+			table.put(s, s1);
+		}
 	}
 	
 	
