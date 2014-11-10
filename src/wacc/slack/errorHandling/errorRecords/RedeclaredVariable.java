@@ -4,7 +4,7 @@ import wacc.slack.FilePosition;
 
 // to be used with UndeclaredVariable in symbol Table
 public class RedeclaredVariable extends ErrorRecord {
-
+	
 	private final String ident;
 	
 	public RedeclaredVariable(FilePosition fp, String ident) {
@@ -16,9 +16,10 @@ public class RedeclaredVariable extends ErrorRecord {
 	public String getMessage() {
 		return "Variable redeclared in same scope: " + ident;
 	}
-
 	
-
+	@Override
+	public ErrorType getType() {
+		return ErrorType.RedeclaredVariableError;
+	}
 	
-
 }

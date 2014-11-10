@@ -1,7 +1,6 @@
 package wacc.slack.errorHandling.errorRecords;
 
 import wacc.slack.FilePosition;
-import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.types.Type;
 
 public class TypeMismatchError extends ErrorRecord {
@@ -27,6 +26,11 @@ public class TypeMismatchError extends ErrorRecord {
 	@Override
 	public FilePosition getFilePosition() {
 		return fp;
+	}
+	
+	@Override
+	public ErrorType getType() {
+		return ErrorType.TypeMismatchError;
 	}
 
 }
