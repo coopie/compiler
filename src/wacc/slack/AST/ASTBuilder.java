@@ -421,7 +421,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		scope = scope.initializeNewScope();
 		StatAST stat = new WhileStatementAST(visitExpr(ctx.expr()),
-				(StatAST)ctx.stat().accept(this), filePos);
+				visitStat(ctx.stat()), filePos);
 		scope = scope.popScope();
 		return stat;
 	}
@@ -437,7 +437,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		scope = scope.initializeNewScope();
 		StatAST stat = new IfStatementAST(visitExpr(ctx.expr()),
-				(StatAST)ctx.stat(0).accept(this), (StatAST)ctx.stat(1).accept(this), filePos);
+				visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), filePos);
 		scope = scope.popScope();
 		return stat;
 	}
@@ -458,11 +458,19 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public StatAST visitBeginStat(BeginStatContext ctx) {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		scope = scope.initializeNewScope();
-		StatAST stat = new BeginEndAST((StatAST)ctx.stat().accept(this), filePos); //TODO: improve this
+		StatAST stat = new BeginEndAST(visitStat(ctx.stat()), filePos); //TODO: improve this
 		scope = scope.popScope();
 		return stat;
 	}
 
+	private StatAST visitStat(StatContext ctx) {
+		if(ctx == null) {
+		//	ErrorRecords.getInstance().record(); //TODO: might not be a problem to record
+			return new StatListAST(new FilePosition(-1,-1));
+		}
+		return (StatAST)ctx.accept(this);
+	}
+	
 	@Override
 	public Liter visitBoolLiter(BoolLiterContext ctx) {
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
