@@ -54,13 +54,13 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
-import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
 import wacc.slack.errorHandling.errorRecords.UndeclaredVariableError;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import antlr.WaccParser.ArgListContext;
 import antlr.WaccParser.ArrayElemContext;
+import antlr.WaccParser.ArrayElemExprContext;
 import antlr.WaccParser.ArrayLiterContext;
 import antlr.WaccParser.ArrayTypeContext;
 import antlr.WaccParser.AssignLhsContext;
@@ -68,17 +68,24 @@ import antlr.WaccParser.AssignRhsContext;
 import antlr.WaccParser.AssignStatContext;
 import antlr.WaccParser.BaseTypeContext;
 import antlr.WaccParser.BeginStatContext;
+import antlr.WaccParser.BinaryOpContext;
 import antlr.WaccParser.BoolLiterContext;
+import antlr.WaccParser.BoolLiterExprContext;
+import antlr.WaccParser.CharLiterExprContext;
 import antlr.WaccParser.ExitStatContext;
 import antlr.WaccParser.ExprContext;
+import antlr.WaccParser.ExprInParenthesesExprContext;
 import antlr.WaccParser.FreeStatContext;
 import antlr.WaccParser.FuncContext;
+import antlr.WaccParser.IdentExprContext;
 import antlr.WaccParser.IfStatContext;
 import antlr.WaccParser.IntLiterContext;
+import antlr.WaccParser.IntLiterExprContext;
 import antlr.WaccParser.IntSignContext;
 import antlr.WaccParser.PairElemContext;
 import antlr.WaccParser.PairElemTypeContext;
 import antlr.WaccParser.PairLiterContext;
+import antlr.WaccParser.PairLiterExprContext;
 import antlr.WaccParser.PairTypeContext;
 import antlr.WaccParser.ParamContext;
 import antlr.WaccParser.ParamListContext;
@@ -90,7 +97,9 @@ import antlr.WaccParser.ReturnStatContext;
 import antlr.WaccParser.SkipStatContext;
 import antlr.WaccParser.StatContext;
 import antlr.WaccParser.StatListContext;
+import antlr.WaccParser.StringLiterExprContext;
 import antlr.WaccParser.TypeContext;
+import antlr.WaccParser.UnaryExprContext;
 import antlr.WaccParser.UnaryOperContext;
 import antlr.WaccParser.WhileStatContext;
 import antlr.WaccParserVisitor;
@@ -137,6 +146,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public AssignRHS visitAssignRhs(AssignRhsContext ctx) {
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		
 	    if (ctx.arrayLiter() != null) {
 			return visitArrayLiter(ctx.arrayLiter());
 		} else if (ctx.pairElem() != null) {
@@ -259,7 +269,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		return new ParamList(paramList, filePos);
 	}
 
-	@Override
+	/*@Override
 	public ExprAST visitExpr(ExprContext ctx) {
 		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		if (ctx.intLiter() != null) {
@@ -308,11 +318,104 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else {
 			return visitExpr(ctx.expr(0));
 		}
+	}*/
+	
+	private ExprAST visitExpr(ExprContext ctx) {
+		if(ctx == null) {
+		    //	ErrorRecords.getInstance().record(); //TODO: might not be a problem to record
+			return new ValueExprAST(new IntLiter(0, new FilePosition(-1,-1)), new FilePosition(-1,-1));
+		}
+		return (ExprAST)ctx.accept(this);
 	}
 	
-	private BinaryExprAST retBinOP(ExprContext ctx, BinaryOp op) {
-		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+	@Override
+	public ExprAST visitCharLiterExpr(CharLiterExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()), filePos);
+	}
+
+	@Override
+	public ExprAST visitIdentExpr(IdentExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new VariableAST(ctx.IDENT().getText(), scope, filePos);
+	}
+
+	@Override
+	public ExprAST visitStringLiterExpr(StringLiterExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ValueExprAST(new StringLiter(ctx.STRING_LTR().getText(),filePos), filePos);
+	}
+
+	@Override
+	public ExprAST visitBinaryOp(BinaryOpContext ctx) {
+		BinaryOp op = BinaryOp.MUL;
+		if (ctx.MUL() != null) {
+			op = BinaryOp.MUL;
+		} else if (ctx.DIV()!= null) {
+			op = BinaryOp.DIV;
+		} else if (ctx.PLUS() != null) {
+			op = BinaryOp.PLUS;
+		} else if (ctx.MINUS() != null) {
+			op = BinaryOp.MINUS;
+		} else if (ctx.MOD() != null) {
+			op = BinaryOp.MOD;
+		} else if (ctx.EQ() != null) {
+			op = BinaryOp.EQ;
+		} else if (ctx.NEQ() != null) {
+			op = BinaryOp.NEQ;
+		} else if (ctx.LT() != null) {
+			op = BinaryOp.LT;
+		} else if (ctx.LTE() != null) {
+			op = BinaryOp.LTE;
+		} else if (ctx.GT() != null) {
+			op = BinaryOp.GT;
+		} else if (ctx.GTE() != null) {
+			op = BinaryOp.GTE;
+		} else if (ctx.AND() != null) {
+			op = BinaryOp.AND;
+		} else if (ctx.OR() != null) {
+			op = BinaryOp.OR;
+		} else {
+			assert false : "should not happen, one of the types should be recognized";
+		}
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
 		return new BinaryExprAST(op, visitExpr(ctx.expr(0)), visitExpr(ctx.expr(1)), filePos);
+	}
+	
+	@Override
+	public ExprAST visitBoolLiterExpr(BoolLiterExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ValueExprAST(visitBoolLiter(ctx.boolLiter()), filePos);
+	}
+
+	@Override
+	public ExprAST visitArrayElemExpr(ArrayElemExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ValueExprAST(visitArrayElem(ctx.arrayElem()), filePos);
+	}
+
+	@Override
+	public ExprAST visitIntLiterExpr(IntLiterExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ValueExprAST(visitIntLiter(ctx.intLiter()), filePos);
+	}
+
+	@Override
+	public ExprAST visitExprInParenthesesExpr(
+			ExprInParenthesesExprContext ctx) {
+		return visitExpr(ctx.expr());
+	}
+
+	@Override
+	public ExprAST visitUnaryExpr(UnaryExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new UnaryExprAST(visitUnaryOper(ctx.unaryOper()), visitExpr(ctx.expr()), filePos);
+	}
+
+	@Override
+	public ExprAST visitPairLiterExpr(PairLiterExprContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		return new ValueExprAST(visitPairLiter(ctx.pairLiter()), filePos);
 	}
 
 	@Override

@@ -1247,52 +1247,138 @@ public class WaccParser extends Parser {
 	}
 
 	public static class ExprContext extends ParserRuleContext {
-		public BoolLiterContext boolLiter() {
-			return getRuleContext(BoolLiterContext.class,0);
-		}
-		public TerminalNode MUL() { return getToken(WaccParser.MUL, 0); }
-		public TerminalNode AND() { return getToken(WaccParser.AND, 0); }
-		public TerminalNode OPEN_PARENTHESES() { return getToken(WaccParser.OPEN_PARENTHESES, 0); }
-		public IntLiterContext intLiter() {
-			return getRuleContext(IntLiterContext.class,0);
-		}
-		public TerminalNode EQ() { return getToken(WaccParser.EQ, 0); }
-		public List<ExprContext> expr() {
-			return getRuleContexts(ExprContext.class);
-		}
-		public TerminalNode CLOSE_PARENTHESES() { return getToken(WaccParser.CLOSE_PARENTHESES, 0); }
-		public ExprContext expr(int i) {
-			return getRuleContext(ExprContext.class,i);
-		}
-		public TerminalNode CHAR_LTR() { return getToken(WaccParser.CHAR_LTR, 0); }
-		public TerminalNode PLUS() { return getToken(WaccParser.PLUS, 0); }
-		public TerminalNode IDENT() { return getToken(WaccParser.IDENT, 0); }
-		public PairLiterContext pairLiter() {
-			return getRuleContext(PairLiterContext.class,0);
-		}
-		public TerminalNode GTE() { return getToken(WaccParser.GTE, 0); }
-		public TerminalNode OR() { return getToken(WaccParser.OR, 0); }
-		public ArrayElemContext arrayElem() {
-			return getRuleContext(ArrayElemContext.class,0);
-		}
-		public TerminalNode MINUS() { return getToken(WaccParser.MINUS, 0); }
-		public TerminalNode LTE() { return getToken(WaccParser.LTE, 0); }
-		public TerminalNode NEQ() { return getToken(WaccParser.NEQ, 0); }
-		public TerminalNode DIV() { return getToken(WaccParser.DIV, 0); }
-		public TerminalNode LT() { return getToken(WaccParser.LT, 0); }
-		public TerminalNode STRING_LTR() { return getToken(WaccParser.STRING_LTR, 0); }
-		public TerminalNode GT() { return getToken(WaccParser.GT, 0); }
-		public UnaryOperContext unaryOper() {
-			return getRuleContext(UnaryOperContext.class,0);
-		}
-		public TerminalNode MOD() { return getToken(WaccParser.MOD, 0); }
 		public ExprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_expr; }
+	 
+		public ExprContext() { }
+		public void copyFrom(ExprContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class IntLiterExprContext extends ExprContext {
+		public IntLiterContext intLiter() {
+			return getRuleContext(IntLiterContext.class,0);
+		}
+		public IntLiterExprContext(ExprContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitExpr(this);
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitIntLiterExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class ExprInParenthesesExprContext extends ExprContext {
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public TerminalNode CLOSE_PARENTHESES() { return getToken(WaccParser.CLOSE_PARENTHESES, 0); }
+		public TerminalNode OPEN_PARENTHESES() { return getToken(WaccParser.OPEN_PARENTHESES, 0); }
+		public ExprInParenthesesExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitExprInParenthesesExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class CharLiterExprContext extends ExprContext {
+		public TerminalNode CHAR_LTR() { return getToken(WaccParser.CHAR_LTR, 0); }
+		public CharLiterExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitCharLiterExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class IdentExprContext extends ExprContext {
+		public TerminalNode IDENT() { return getToken(WaccParser.IDENT, 0); }
+		public IdentExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitIdentExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class UnaryExprContext extends ExprContext {
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public UnaryOperContext unaryOper() {
+			return getRuleContext(UnaryOperContext.class,0);
+		}
+		public UnaryExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitUnaryExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class StringLiterExprContext extends ExprContext {
+		public TerminalNode STRING_LTR() { return getToken(WaccParser.STRING_LTR, 0); }
+		public StringLiterExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitStringLiterExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class BoolLiterExprContext extends ExprContext {
+		public BoolLiterContext boolLiter() {
+			return getRuleContext(BoolLiterContext.class,0);
+		}
+		public BoolLiterExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitBoolLiterExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class BinaryOpContext extends ExprContext {
+		public TerminalNode MUL() { return getToken(WaccParser.MUL, 0); }
+		public TerminalNode GTE() { return getToken(WaccParser.GTE, 0); }
+		public TerminalNode AND() { return getToken(WaccParser.AND, 0); }
+		public TerminalNode OR() { return getToken(WaccParser.OR, 0); }
+		public TerminalNode MINUS() { return getToken(WaccParser.MINUS, 0); }
+		public TerminalNode LTE() { return getToken(WaccParser.LTE, 0); }
+		public TerminalNode EQ() { return getToken(WaccParser.EQ, 0); }
+		public TerminalNode NEQ() { return getToken(WaccParser.NEQ, 0); }
+		public TerminalNode DIV() { return getToken(WaccParser.DIV, 0); }
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public TerminalNode LT() { return getToken(WaccParser.LT, 0); }
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public TerminalNode PLUS() { return getToken(WaccParser.PLUS, 0); }
+		public TerminalNode GT() { return getToken(WaccParser.GT, 0); }
+		public TerminalNode MOD() { return getToken(WaccParser.MOD, 0); }
+		public BinaryOpContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitBinaryOp(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class PairLiterExprContext extends ExprContext {
+		public PairLiterContext pairLiter() {
+			return getRuleContext(PairLiterContext.class,0);
+		}
+		public PairLiterExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitPairLiterExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class ArrayElemExprContext extends ExprContext {
+		public ArrayElemContext arrayElem() {
+			return getRuleContext(ArrayElemContext.class,0);
+		}
+		public ArrayElemExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof WaccParserVisitor ) return ((WaccParserVisitor<? extends T>)visitor).visitArrayElemExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1316,47 +1402,75 @@ public class WaccParser extends Parser {
 			switch ( getInterpreter().adaptivePredict(_input,15,_ctx) ) {
 			case 1:
 				{
+				_localctx = new UnaryExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
+
 				setState(209); unaryOper();
 				setState(210); expr(15);
 				}
 				break;
 			case 2:
 				{
+				_localctx = new IntLiterExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(212); intLiter();
 				}
 				break;
 			case 3:
 				{
+				_localctx = new BoolLiterExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(213); boolLiter();
 				}
 				break;
 			case 4:
 				{
+				_localctx = new CharLiterExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(214); match(CHAR_LTR);
 				}
 				break;
 			case 5:
 				{
+				_localctx = new StringLiterExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(215); match(STRING_LTR);
 				}
 				break;
 			case 6:
 				{
+				_localctx = new PairLiterExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(216); pairLiter();
 				}
 				break;
 			case 7:
 				{
+				_localctx = new IdentExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(217); match(IDENT);
 				}
 				break;
 			case 8:
 				{
+				_localctx = new ArrayElemExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(218); arrayElem();
 				}
 				break;
 			case 9:
 				{
+				_localctx = new ExprInParenthesesExprContext(_localctx);
+				_ctx = _localctx;
+				_prevctx = _localctx;
 				setState(219); match(OPEN_PARENTHESES);
 				setState(220); expr(0);
 				setState(221); match(CLOSE_PARENTHESES);
@@ -1376,7 +1490,7 @@ public class WaccParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,16,_ctx) ) {
 					case 1:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(225);
 						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
@@ -1386,7 +1500,7 @@ public class WaccParser extends Parser {
 						break;
 					case 2:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(228);
 						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
@@ -1396,7 +1510,7 @@ public class WaccParser extends Parser {
 						break;
 					case 3:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(231);
 						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
@@ -1406,7 +1520,7 @@ public class WaccParser extends Parser {
 						break;
 					case 4:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(234);
 						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
@@ -1416,7 +1530,7 @@ public class WaccParser extends Parser {
 						break;
 					case 5:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(237);
 						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
@@ -1426,7 +1540,7 @@ public class WaccParser extends Parser {
 						break;
 					case 6:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(240);
 						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
@@ -1436,7 +1550,7 @@ public class WaccParser extends Parser {
 						break;
 					case 7:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(243);
 						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
@@ -1446,7 +1560,7 @@ public class WaccParser extends Parser {
 						break;
 					case 8:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(246);
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
@@ -1456,7 +1570,7 @@ public class WaccParser extends Parser {
 						break;
 					case 9:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(249);
 						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
@@ -1466,7 +1580,7 @@ public class WaccParser extends Parser {
 						break;
 					case 10:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(252);
 						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
@@ -1476,7 +1590,7 @@ public class WaccParser extends Parser {
 						break;
 					case 11:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(255);
 						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
@@ -1486,7 +1600,7 @@ public class WaccParser extends Parser {
 						break;
 					case 12:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(258);
 						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
@@ -1496,7 +1610,7 @@ public class WaccParser extends Parser {
 						break;
 					case 13:
 						{
-						_localctx = new ExprContext(_parentctx, _parentState);
+						_localctx = new BinaryOpContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(261);
 						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
