@@ -6,6 +6,7 @@ import java.util.List;
 
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
+import wacc.slack.errorHandling.errorRecords.ErrorObject.ErrorType;
 import wacc.slack.errorHandling.expectations.WaccExpectation;
 
 public class ErrorRecords implements Iterable<ErrorObject> {
@@ -51,6 +52,26 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 		}
 		
 		return ans;
+	}
+	
+	public int getExitCode() {
+		for(ErrorObject e : records) {
+			if(e.getType().equals(ErrorType.SyntaxError)) {
+				return 100;
+			}
+		}
+		
+		return 200;
+	}
+	
+	public int containsError(ErrorType t) {
+		int numOfErrors = 0;
+		for (ErrorObject e : records) {
+			if (e.getType().equals(t)) {
+				numOfErrors++;
+			}
+		}
+		return numOfErrors;
 	}
 	
 	@Override

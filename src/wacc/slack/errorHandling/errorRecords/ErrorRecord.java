@@ -17,5 +17,9 @@ public abstract class ErrorRecord implements ErrorObject {
 	public FilePosition getFilePosition() {
 		return fp;
 	}
+	
+	public ErrorType getType() {
+		return ErrorType.ErrorRecord;
+	}
 
 }

@@ -68,15 +68,5 @@ public class SemanticAnalysisTest {
 		
 		assertThat(records.isErrorFree(), is(true));
 	}
-	
-	@Test
-	public void canCheckVariablesAreNotRedeclaredInScope() {
-		
-		IdentInfo x = new IdentInfo(BaseType.T_int, null);
-		records.scope.insert("x", x);
-		records.scope.insert("x", x);
-		
-		assertThat(records.isErrorFree(), is(false));
-	}
 
 }
