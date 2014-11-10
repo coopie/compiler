@@ -29,6 +29,7 @@ import wacc.slack.AST.types.Type;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 
+// This is for testing the use if ErrorObjects ONLY
 public class ErrorObjectsTest {
 
 	ErrorRecords records = ErrorRecords.getInstance(true);
@@ -111,46 +112,6 @@ public class ErrorObjectsTest {
 		assertThat(records.isErrorFree(),is(false));	
 	}
 	
-	@Test
-	public void canCheckWhileCondIsNotBool() {
-
-		new WhileStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), null);
-		
-		assertThat(records.isErrorFree(), is(false));
-	}
 	
-	@Test
-	public void canCheckWhileCondIsBool() {
-
-		new WhileStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), null);
-		
-		assertThat(records.isErrorFree(), is(true));
-	}
-	
-	@Test
-	public void canCheckIfStatementCondIsNotBool() {
-		
-		new IfStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
-		
-		assertThat(records.isErrorFree(), is(false));
-	}
-	
-	@Test
-	public void canCheckIfStatementCondIsBool() {
-		
-		new IfStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
-		
-		assertThat(records.isErrorFree(), is(true));
-	}
-	
-	@Test
-	public void canCheckVariablesAreNotRedeclaredInScope() {
-		
-		IdentInfo x = new IdentInfo(BaseType.T_int, null);
-		records.scope.insert("x", x);
-		records.scope.insert("x", x);
-		
-		assertThat(records.isErrorFree(), is(false));
-	}
 	
 }
