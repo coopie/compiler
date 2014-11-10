@@ -53,6 +53,10 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 		return ans;
 	}
 	
+	public int getExitCode() {
+		return 100;
+	}
+	
 	@Override
 	public Iterator<ErrorObject> iterator() {
 		return records.iterator();

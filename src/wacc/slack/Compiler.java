@@ -1,12 +1,17 @@
 package wacc.slack;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.ParseTree;
-
-import antlr.WaccLexer;
-import antlr.WaccParser;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
+
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import wacc.slack.AST.ASTBuilder;
+import wacc.slack.AST.WaccAST;
+import wacc.slack.errorHandling.WaccSyntaxtErrorListner;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import antlr.WaccLexer;
+import antlr.WaccParser;
 
 public class Compiler {
 
@@ -23,8 +28,16 @@ public class Compiler {
 		WaccLexer lexer = new WaccLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		WaccParser parser = new WaccParser(tokens);
+		parser.removeErrorListeners();
+		parser.addErrorListener(new WaccSyntaxtErrorListner());
 		ParseTree tree = parser.program();
-		System.out.println(tree.toStringTree(parser));
+		WaccAST ast = (WaccAST)tree.accept(new ASTBuilder());
+		
+		if(!ErrorRecords.getInstance().isErrorFree()) {
+			System.exit(ErrorRecords.getInstance().getExitCode());
+		}
+		
+		System.exit(0);
 	}
 
 }
