@@ -161,12 +161,18 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public ArgList visitArgList(ArgListContext ctx) {
 		List<ExprAST> exprList = new LinkedList<>();
+		FilePosition filePos;
 
-		for (ExprContext e : ctx.expr()) {
-			exprList.add(visitExpr(e));
+		if(ctx != null) { //if no arguments
+			filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+			for (ExprContext e : ctx.expr()) {
+				exprList.add(visitExpr(e));
+			}
+		} else {
+			filePos = new FilePosition(-1,-1);
 		}
 
-		FilePosition filePos = new FilePosition(ctx.start.getLine(), ctx.start.getCharPositionInLine());
+		
 		return new ArgList(exprList, filePos);
 	}
 
@@ -616,7 +622,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		if(ctx.intSign() != null) {
 			sign = visitIntSign(ctx.intSign());
 		}
-		int intLiter = Integer.parseInt(ctx.INTEGER().getText());
+		long intLiter = Long.parseLong(ctx.INTEGER().getText());
 		return new IntLiter(intLiter * sign.getInt(), filePos);
 	}
 
@@ -637,5 +643,9 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	//for mocking symbol table
 	void setSymbolTable(SymbolTable<IdentInfo> t) {
 		scope = t;
+	}
+	
+	public SymbolTable<IdentInfo> getScope() {
+		return scope;
 	}
 }

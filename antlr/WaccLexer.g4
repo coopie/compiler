@@ -88,8 +88,11 @@ IDENT : [_a-zA-Z][_a-zA-Z0-9]* ;//(‘_’|‘a’-‘z’|‘A’-‘Z’)(‘_
 OPEN_SQ_PARENTHESES : '[' ;
 CLOSE_SQ_PARENTHESES : ']' ;
 
-STRING_LTR: '"' .*? '"';
-CHAR_LTR: '\'' .*? '\'';
+fragment STR_FRAG : '\\\"' | .;
+fragment CHR_FRAG : '\\\'' | .;
+
+STRING_LTR: '"' STR_FRAG*? '"';
+CHAR_LTR: '\'' CHR_FRAG*? '\'';
 
 
 WS : [ \n\t\r] -> skip ;

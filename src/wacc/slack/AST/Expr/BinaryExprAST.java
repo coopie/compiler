@@ -86,4 +86,5 @@ public class BinaryExprAST implements ExprAST {
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(exprL,exprR));
 	}
+
 }

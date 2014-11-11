@@ -31,7 +31,9 @@ public class Compiler {
 		parser.removeErrorListeners();
 		parser.addErrorListener(new WaccSyntaxtErrorListner());
 		ParseTree tree = parser.program();
-		WaccAST ast = (WaccAST)tree.accept(new ASTBuilder());
+		ASTBuilder builder = new ASTBuilder();
+		WaccAST ast = (WaccAST)tree.accept(builder);
+		ErrorRecords.getInstance().setScope(builder.getScope());
 		
 		if(!ErrorRecords.getInstance().isErrorFree()) {
 			System.exit(ErrorRecords.getInstance().getExitCode());

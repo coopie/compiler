@@ -39,11 +39,15 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 		
 		return INSTANCE;
 	}
-
+	
+	public void setScope(SymbolTable<IdentInfo> scope) {
+		this.scope = scope;
+	}
 	public boolean isErrorFree() {
 		boolean ans =  records.size() == 0;
 		
 		for(WaccExpectation e : expectations) {
+			assert scope != null : "scope must be set";
 			IdentInfo i = scope.lookup(e.getIdent());
 			if(i == null) return false;
 			e.setScope(scope);

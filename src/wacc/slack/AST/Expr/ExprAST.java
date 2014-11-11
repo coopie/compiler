@@ -6,6 +6,6 @@ import wacc.slack.AST.types.Type;
 
 public interface ExprAST extends WaccAST, AssignRHS {
 
-	public Type getType();
+	Type getType();
 	
 }
