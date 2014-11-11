@@ -11,6 +11,7 @@ import wacc.slack.AST.assignables.Assignable;
 import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 
 public class AssignStatAST extends StatAST implements WaccAST {
@@ -21,8 +22,12 @@ public class AssignStatAST extends StatAST implements WaccAST {
 		this.lhs = lhs;
 		this.rhs = rhs;
 		
+		// adding function expectations here
 		if(rhs instanceof CallAST) {
-			ErrorRecords.getInstance().addExpectation(new FunctionReturnTypeExpectation(((CallAST) rhs).getIdent(),lhs.getType(),filePos));
+			ErrorRecords.getInstance().addExpectation(
+					new FunctionReturnTypeExpectation(((CallAST) rhs).getIdent(),lhs.getType(),filePos));
+		} else if(!lhs.getType().equals(rhs.getType())) {
+			ErrorRecords.getInstance().record(new TypeMismatchError(filePos, rhs.getType(), lhs.getType()));
 		}
 	}
 

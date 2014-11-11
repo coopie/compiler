@@ -56,6 +56,7 @@ import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
+import wacc.slack.errorHandling.errorRecords.RedeclaredVariableError;
 import wacc.slack.errorHandling.errorRecords.UndeclaredVariableError;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import antlr.WaccParser.ArgListContext;
@@ -224,9 +225,9 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 				ctx.start.getCharPositionInLine());
 		if (ctx.FST() != null) {
 			//TODO: remove the Assignable cast in the lines below somehow
-			return new FstAST((Assignable)visitExpr(ctx.expr()), filePos);
+			return new FstAST((Assignable)visitExpr(ctx.expr()), filePos, scope);
 		} else if (ctx.SND() != null) {
-			return new SndAST((Assignable)visitExpr(ctx.expr()), filePos);
+			return new SndAST((Assignable)visitExpr(ctx.expr()), filePos, scope);
 		} else {
 			assert false : "should not happen, can only start with fst or snd";
 		}
@@ -465,9 +466,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
 		if (ctx.type() != null && ctx.IDENT() != null) {
 			final String id = ctx.IDENT().getText();
+			
 			if (scope.lookupCurrentScope(id) != null) {
 				ErrorRecords.getInstance().record(
-						new UndeclaredVariableError(filePos, id));
+						new RedeclaredVariableError(filePos, id));
 			}
 			scope.insert(id, new IdentInfo(visitType(ctx.type()), filePos));// TODO:
 																			// check

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
-import wacc.slack.errorHandling.errorRecords.RedeclaredVariable;
+import wacc.slack.errorHandling.errorRecords.RedeclaredVariableError;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 //DO TDD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

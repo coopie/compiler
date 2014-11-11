@@ -7,6 +7,8 @@ import java.util.List;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
+import wacc.slack.AST.types.PairType;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class NewPairAST implements AssignRHS {
@@ -46,5 +48,10 @@ public class NewPairAST implements AssignRHS {
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(exprL,exprR));
+	}
+
+	@Override
+	public Type getType() {
+		return new PairType(exprL.getType(), exprR.getType(), filePos);
 	}
 }

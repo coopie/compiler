@@ -6,6 +6,8 @@ import java.util.List;
 
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.symbolTable.IdentInfo;
+import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
@@ -17,12 +19,15 @@ public class FstAST implements Assignable {
 	
 	private final Assignable expr;
 	private final FilePosition filePos;
+	private final SymbolTable<IdentInfo> scope;
+	private boolean validExpression;
 	
-	public FstAST(Assignable expr, FilePosition filePos) {
+	public FstAST(Assignable expr, FilePosition filePos, SymbolTable<IdentInfo> scope) {
 		this.expr = expr;
 		this.filePos = filePos;
+		this.scope = scope;
 		
-		checkType();
+		validExpression = checkType();
 	}
 
 	@Override
@@ -40,11 +45,14 @@ public class FstAST implements Assignable {
 		return expr.getName();
 	}
 	
-	private void checkType() {
+	//TODO: this needs changing
+	private boolean checkType() {
 		if (!(expr.getType() instanceof PairType)) {
 			ErrorRecords.getInstance().record(
 					new TypeMismatchError(filePos, expr.getType(), BaseType.T_pair));
-		}
+			return false;
+		} 
+		return true;
 	}
 
 	@Override
@@ -54,6 +62,11 @@ public class FstAST implements Assignable {
 
 	@Override
 	public Type getType() {
-		return ((PairType)expr.getType()).getFst();
+		//TODO: sort this out, this could blow up in our face really bad
+		if(validExpression) {
+			return ((PairType)scope.lookup(expr.getName()).getType()).getSnd();
+		} else {
+			return BaseType.T_int;
+		}
 	}
 }

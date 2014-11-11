@@ -5,6 +5,7 @@ import java.util.List;
 
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class CallAST implements AssignRHS {
@@ -40,6 +41,11 @@ public class CallAST implements AssignRHS {
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>();
+	}
+
+	@Override
+	public Type getType() {
+		throw new RuntimeException("call does not curretnly know the type of this function");
 	}
 
 }

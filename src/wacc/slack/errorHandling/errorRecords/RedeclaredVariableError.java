@@ -3,11 +3,11 @@ package wacc.slack.errorHandling.errorRecords;
 import wacc.slack.FilePosition;
 
 // to be used with UndeclaredVariable in symbol Table
-public class RedeclaredVariable extends ErrorRecord {
+public class RedeclaredVariableError extends ErrorRecord {
 	
 	private final String ident;
 	
-	public RedeclaredVariable(FilePosition fp, String ident) {
+	public RedeclaredVariableError(FilePosition fp, String ident) {
 		super(fp);
 		this.ident = ident;
 	}

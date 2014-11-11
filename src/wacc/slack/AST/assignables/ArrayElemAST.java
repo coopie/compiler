@@ -78,7 +78,11 @@ public class ArrayElemAST implements Assignable, Liter {
 	
 	@Override
 	public String toString() {
-		return getIdent() + "[" + getExprs() + "]";
+		String s = getIdent();
+		for(ExprAST expr : getExprs()) {
+			s += "[" + expr + "]";
+		}
+		return s;
 	}
 	
 	
