@@ -42,6 +42,11 @@ Error Handling:
 This is done by creating an ErrorRecord Object,(implentation tbd)
 
 
+ERROR NODE HANDLING:
+STAT - DONE
+EXPR - DONE
+
+
 Interfaces
 Assignable - For identifiers, pair-elems, array-elems (able to be found in the symbol table)
 

@@ -15,4 +15,9 @@ public class SyntaxError extends ErrorRecord  {
 	public String getMessage() {
 		return message;
 	}
+	
+	@Override
+	public ErrorType getType() {
+		return ErrorType.SyntaxError;
+	}
 }

@@ -55,6 +55,11 @@ public class ErrorObjectsTest {
 			public FilePosition getFilePosition() {
 				return null;
 			}
+
+			@Override
+			public ErrorType getType() {
+				return ErrorType.ErrorRecord;
+			}
 		
 		});
 		

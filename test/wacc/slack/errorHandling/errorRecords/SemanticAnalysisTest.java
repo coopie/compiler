@@ -21,6 +21,7 @@ import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.errorHandling.errorRecords.ErrorObject.ErrorType;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 
 public class SemanticAnalysisTest {
@@ -42,13 +43,14 @@ public class SemanticAnalysisTest {
 
 		new WhileStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), null);
 		
-		assertThat(records.isErrorFree(), is(false));
+		assertThat(records.containsError(ErrorType.TypeMismatchError), is(1));
 	}
 	
 	@Test
 	public void canCheckWhileCondIsBool() {
 
-		new WhileStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), null);
+		new WhileStatementAST(new ValueExprAST(
+				new BoolLiter("true", null), null), new SkipStatementAST(null), null);
 		
 		assertThat(records.isErrorFree(), is(true));
 	}
@@ -56,27 +58,19 @@ public class SemanticAnalysisTest {
 	@Test
 	public void canCheckIfStatementCondIsNotBool() {
 		
-		new IfStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
+		new IfStatementAST(new ValueExprAST(
+				new IntLiter(1, null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
 		
-		assertThat(records.isErrorFree(), is(false));
+		assertThat(records.containsError(ErrorType.TypeMismatchError), is(1));
 	}
 	
 	@Test
 	public void canCheckIfStatementCondIsBool() {
 		
-		new IfStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
+		new IfStatementAST(new ValueExprAST(
+				new BoolLiter("true", null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
 		
 		assertThat(records.isErrorFree(), is(true));
-	}
-	
-	@Test
-	public void canCheckVariablesAreNotRedeclaredInScope() {
-		
-		IdentInfo x = new IdentInfo(BaseType.T_int, null);
-		records.scope.insert("x", x);
-		records.scope.insert("x", x);
-		
-		assertThat(records.isErrorFree(), is(false));
 	}
 
 }
