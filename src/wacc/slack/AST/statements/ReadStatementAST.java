@@ -6,8 +6,14 @@ import java.util.List;
 
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.assignables.ArrayElemAST;
 import wacc.slack.AST.assignables.Assignable;
+import wacc.slack.AST.assignables.FstAST;
+import wacc.slack.AST.assignables.SndAST;
+import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.visitors.ASTVisitor;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
 
 public class ReadStatementAST extends StatAST{
 	
@@ -16,6 +22,13 @@ public class ReadStatementAST extends StatAST{
 	public ReadStatementAST(Assignable assignable, FilePosition filePos) {
 		super(filePos);
 		this.assignable = assignable;
+		if (!(assignable instanceof ArrayElemAST) && 
+			!(assignable instanceof FstAST) &&
+			!(assignable instanceof SndAST) &&
+			!(assignable instanceof VariableAST)) {
+			ErrorRecords.getInstance().record(
+					new IllegalOperationError(filePos));
+		}
 	}
 
 	@Override
