@@ -169,7 +169,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			String ident = ctx.IDENT().getText();
 			ArgList argList = visitArgList(ctx.argList());
 			ErrorRecords.getInstance().addExpectation(
-					new FunctionCallExpectation(ident, argList));
+					new FunctionCallExpectation(ident, argList,filePos));
 			return new CallAST(ident, argList, filePos);
 		} else if (ctx.expr() != null) {
 			return visitExpr(ctx.expr(0));

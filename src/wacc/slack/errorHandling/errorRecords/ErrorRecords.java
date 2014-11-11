@@ -14,6 +14,7 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 	private static ErrorRecords INSTANCE;
 	
 	private final List<ErrorObject> records = new LinkedList<>();
+	private final List<ErrorObject> warningRecords = new LinkedList<>();
 	private final List<WaccExpectation> expectations = new LinkedList<>();
 	SymbolTable<IdentInfo> scope;
 	
@@ -23,6 +24,10 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 	
 	public void record(ErrorObject e) {
 		records.add(e);
+	}
+	
+	public void recordWarning(ErrorObject e) {
+		warningRecords.add(e);
 	}
 	
 	public static ErrorRecords getInstance() {
@@ -52,7 +57,11 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 			IdentInfo i = scope.lookup(e.getIdent());
 			if(i == null) return false;
 			e.setScope(scope);
-			ans &= e.check();
+			if(!e.check()) {
+				records.add(e);
+				ans = false;
+			}
+			
 		}
 		
 		return ans;
