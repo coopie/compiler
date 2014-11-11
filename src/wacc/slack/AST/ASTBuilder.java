@@ -269,7 +269,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public ExprAST visitIdentExpr(IdentExprContext ctx) {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
-		return new VariableAST(ctx.IDENT().getText(), scope, filePos);
+		if (scope.lookup(ctx.IDENT().getText()) != null) {
+			return new VariableAST(ctx.IDENT().getText(), scope, filePos);
+		} else {
+			ErrorRecords.getInstance().record(
+					new UndeclaredVariableError(filePos, ctx.IDENT().getText()));
+			return new ValueExprAST(new IntLiter(0, filePos), filePos);
+		}
 	}
 
 	@Override
