@@ -11,8 +11,9 @@ public class CharLiter implements Liter {
 	private final char text;
 	private final FilePosition filePos;
 
-	public CharLiter(char text, FilePosition filePos) {
-		this.text = text;
+	public CharLiter(String text, FilePosition filePos) {
+		// TODO: Need to check that this is fine
+		this.text = text.charAt(0);
 		this.filePos = filePos;
 
 		checkEscapedChars();
