@@ -21,6 +21,7 @@ import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.errorHandling.errorRecords.ErrorObject.ErrorType;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 
 public class SemanticAnalysisTest {
@@ -42,7 +43,7 @@ public class SemanticAnalysisTest {
 
 		new WhileStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), null);
 		
-		assertThat(records.isErrorFree(), is(false));
+		assertThat(records.containsError(ErrorType.TypeMismatchError), is(1));
 	}
 	
 	@Test
@@ -58,7 +59,7 @@ public class SemanticAnalysisTest {
 		
 		new IfStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
 		
-		assertThat(records.isErrorFree(), is(false));
+		assertThat(records.containsError(ErrorType.TypeMismatchError), is(1));
 	}
 	
 	@Test
