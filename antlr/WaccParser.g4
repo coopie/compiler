@@ -100,7 +100,7 @@ expr :
 
 unaryOper : NOT | MINUS | LEN | ORD | CHR ;
 
-arrayElem : IDENT OPEN_SQ_PARENTHESES expr CLOSE_SQ_PARENTHESES ;
+arrayElem : IDENT (OPEN_SQ_PARENTHESES expr CLOSE_SQ_PARENTHESES)+ ;
 
 intLiter : intSign? INTEGER ;
 
