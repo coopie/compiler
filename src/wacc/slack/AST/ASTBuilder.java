@@ -319,15 +319,15 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 		ExprAST expr1 = visitExpr(ctx.expr(0));
 		ExprAST expr2 = visitExpr(ctx.expr(1));
-		ValueExprAST softFailExpr = new ValueExprAST(new IntLiter(0,
-				new FilePosition(-1, -1)), new FilePosition(-1, -1));
 
 		if (expr1 == null) {
-			expr1 = softFailExpr;
+			expr1 = new ValueExprAST(new IntLiter(0,
+					new FilePosition(-1, -1)), new FilePosition(-1, -1));
 		}
 
 		if (expr2 == null) {
-			expr2 = softFailExpr;
+			expr2 = new ValueExprAST(new IntLiter(0,
+					new FilePosition(-1, -1)), new FilePosition(-1, -1));
 		}
 
 		return new BinaryExprAST(op, expr1, expr2, filePos);
