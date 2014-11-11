@@ -10,6 +10,8 @@ import wacc.slack.AST.literals.BinaryOp;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class BinaryExprAST implements ExprAST {
 
@@ -25,6 +27,10 @@ public class BinaryExprAST implements ExprAST {
 		this.exprR = exprR;
 		this.typesCheck = checkTypes();
 		this.filePos = filePos;
+		
+		if(!typesCheck) {
+			ErrorRecords.getInstance().record(new TypeMismatchError(exprL.getType(),exprR.getType(), filePos));
+		}	
 	}
 	
 	@Override

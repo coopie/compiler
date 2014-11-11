@@ -21,7 +21,6 @@ public class UnaryExprAST implements ExprAST {
 	private final FilePosition filePos;
 	private final boolean correctSubExpresions;
 	private final ErrorRecords errors = ErrorRecords.getInstance();
-	private int intValue ;
 	
 
 	public UnaryExprAST(UnaryOp unOp, ExprAST expr, final FilePosition filePos) {

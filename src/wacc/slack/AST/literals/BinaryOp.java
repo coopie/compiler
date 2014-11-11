@@ -20,13 +20,13 @@ public enum BinaryOp implements Liter {
 		case MINUS:
 			return BaseType.T_int;
 		case GT:
-			return BaseType.T_int;
+			return BaseType.T_bool;
 		case GTE:
-			return BaseType.T_int;
+			return BaseType.T_bool;
 		case LT:
-			return BaseType.T_int;
+			return BaseType.T_bool;
 		case LTE:
-			return BaseType.T_int;
+			return BaseType.T_bool;
 		case EQ:
 			return BaseType.T_bool;
 		case NEQ:
