@@ -235,10 +235,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public ArrayElemAST visitArrayElem(ArrayElemContext ctx) {
 		String ident = ctx.IDENT().getText();
-		ExprAST expr = visitExpr(ctx.expr());
+		List<ExprAST> exprs = new LinkedList<>();
+		for(ExprContext ctxx : ctx.expr()) {
+			exprs.add(visitExpr(ctxx));
+		}
+
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
-		return new ArrayElemAST(ident, expr, scope, filePos);
+		return new ArrayElemAST(ident, exprs, scope, filePos);
 	}
 
 	@Override
