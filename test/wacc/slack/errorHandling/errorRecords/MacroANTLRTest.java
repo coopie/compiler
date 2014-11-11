@@ -17,6 +17,7 @@ import antlr.WaccParser;
 
 
 // class for making antlr parser/lexer crunch all of the waccExamples folder
+// we are now using labts for this
 public class MacroANTLRTest {
 
 	//TODO - make sure that all the different files have separate errorrecord
@@ -27,13 +28,6 @@ public class MacroANTLRTest {
 	public void noErrorsShouldHappenWhenParsingValidFolder() {
 		testAntlrRecursively("examples/valid");
 		assertThat(ers.isErrorFree(), is(true));
-	}
-	
-	@Test
-	public void allInvalidFilesShouldFail() {
-		testAntlrRecursively("examples/invalid");
-		//this should be changed
-		assertThat(ers.isErrorFree(), is(false));
 	}
 	
 	// uses antlr to parse every file found in the directory recursively

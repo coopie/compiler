@@ -496,18 +496,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if(ctx.assignLhs() != null) {
 			final Assignable a = visitAssignLhs(ctx.assignLhs());
 			if(scope.lookup(a.getName()) ==  null) {
-		/*	TODO:	ErrorRecords.getInstance().record(new ErrorRecord(){
-
-					@Override
-					public String getMessage() {
-						return "variable: " + a.getName() + "not defined in scope";
-					}
-
-					@Override
-					public FilePosition getFilePosition() {
-						return filePos;
-					}
-				});*/
+		    ErrorRecords.getInstance().record(new UndeclaredVariableError(filePos, a.getName()));
 			}
 			return new AssignStatAST(a, rhs, filePos);
 		}else {throw new RuntimeException("shouldn't happen, can't recognize Assign stat rule");}	
