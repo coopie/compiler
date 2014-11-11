@@ -80,7 +80,7 @@ public class ErrorObjectsTest {
 		
 		records.scope.insert("intStringFunc", new FuncIdentInfo(BaseType.T_int,params,null));
 		
-		records.addExpectation(new FunctionCallExpectation("intStringFunc", args));
+		records.addExpectation(new FunctionCallExpectation("intStringFunc", args,new FilePosition(-1,-1)));
 		
 		assertThat(records.isErrorFree(),is(false));	
 	}
@@ -94,7 +94,7 @@ public class ErrorObjectsTest {
 		
 		records.scope.insert("intStringFunc", new FuncIdentInfo(BaseType.T_int,params,null));
 		
-		records.addExpectation(new FunctionCallExpectation("intStringFunc", args));
+		records.addExpectation(new FunctionCallExpectation("intStringFunc", args,new FilePosition(-1,-1)));
 		
 		assertThat(records.isErrorFree(),is(true));	
 	}
@@ -103,7 +103,7 @@ public class ErrorObjectsTest {
 	public void canCheckTrueReturnType() {
 		
 		records.scope.insert("intStringFunc", new FuncIdentInfo(BaseType.T_int,new LinkedList<Type>(),null));
-		records.addExpectation(new FunctionReturnTypeExpectation("intStringFunc", BaseType.T_int));
+		records.addExpectation(new FunctionReturnTypeExpectation("intStringFunc", BaseType.T_int,new FilePosition(-1,-1)));
 		
 		assertThat(records.isErrorFree(),is(true));	
 	}
@@ -112,7 +112,7 @@ public class ErrorObjectsTest {
 	public void canCheckFalseReturnType() {
 		
 		records.scope.insert("intStringFunc", new FuncIdentInfo(BaseType.T_int,new LinkedList<Type>(),null));
-		records.addExpectation(new FunctionReturnTypeExpectation("intStringFunc", BaseType.T_char));
+		records.addExpectation(new FunctionReturnTypeExpectation("intStringFunc", BaseType.T_char,new FilePosition(-1,-1)));
 		
 		assertThat(records.isErrorFree(),is(false));	
 	}

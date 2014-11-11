@@ -22,7 +22,7 @@ public class AssignStatAST extends StatAST implements WaccAST {
 		this.rhs = rhs;
 		
 		if(rhs instanceof CallAST) {
-			ErrorRecords.getInstance().addExpectation(new FunctionReturnTypeExpectation(((CallAST) rhs).getIdent(),lhs.getType()));
+			ErrorRecords.getInstance().addExpectation(new FunctionReturnTypeExpectation(((CallAST) rhs).getIdent(),lhs.getType(),filePos));
 		}
 	}
 

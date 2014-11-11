@@ -36,7 +36,10 @@ Semantics that is implemented to be checked (write " - TESTED" for the ones test
 - if statments's expr should be bool - TESTED
 - while statments's cond should be bool - TESTED
 - return gets called only in a function
-- return must return the type the function sginature requires
+- return must return the type the function signature requires
+
+Sematics to be implemented
+- Array bounds checking
 
 Error Handling:
 This is done by creating an ErrorRecord Object,(implentation tbd)
