@@ -1,16 +1,19 @@
 package wacc.slack.errorHandling.expectations;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.Type;
+import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 
-public class FunctionReturnTypeExpectation implements WaccExpectation {
+public class FunctionReturnTypeExpectation extends ErrorRecord implements WaccExpectation {
 
 	private final String ident;
 	private final Type returnType;
 	private SymbolTable<IdentInfo> scope;
 
-	public FunctionReturnTypeExpectation(String ident, Type returnType) {
+	public FunctionReturnTypeExpectation(String ident, Type returnType, FilePosition fp) {
+		super(fp);
 		this.ident = ident;
 		this.returnType = returnType;
 	}
@@ -28,6 +31,16 @@ public class FunctionReturnTypeExpectation implements WaccExpectation {
 	@Override
 	public String getIdent() {
 		return ident;
+	}
+
+	@Override
+	public ErrorType getType() {
+		return ErrorType.ExpectationError;
+	}
+
+	@Override
+	public String getMessage() {
+		return "return type of " +  ident + " doesn't match " + returnType.toString();
 	}
 
 }

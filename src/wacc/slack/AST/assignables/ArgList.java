@@ -30,4 +30,14 @@ public class ArgList implements ParseTreeReturnable,Iterable<ExprAST> {
 	public Iterator<ExprAST> iterator() {
 		return exprList.iterator();
 	}
+	
+	@Override
+	public String toString() {
+		String s = "";
+		for(ExprAST e : exprList) {
+			s += e.toString();
+		}
+		if(s == "")  return "void";
+		return s;
+	}
 }

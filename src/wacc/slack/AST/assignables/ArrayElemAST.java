@@ -13,20 +13,19 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
-import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class ArrayElemAST implements Assignable, Liter {
 
 	private final String ident;
-	private final ExprAST expr;
+	private final List<ExprAST> exprs;
 	private final FilePosition filePos;
 	private final SymbolTable<IdentInfo> scope;
 	
-	public ArrayElemAST(String ident, ExprAST expr, SymbolTable<IdentInfo> scope,FilePosition filePos) {
+	public ArrayElemAST(String ident, List<ExprAST> exprs, SymbolTable<IdentInfo> scope,FilePosition filePos) {
 		this.ident = ident;
-		this.expr = expr;
+		this.exprs = exprs;
 		this.scope = scope;
 		this.filePos = filePos;
 
@@ -55,9 +54,11 @@ public class ArrayElemAST implements Assignable, Liter {
 	
 
 	private void checkType() {
-		if (!expr.getType().equals(BaseType.T_int)) {
-			ErrorRecords.getInstance().record(
-					new TypeMismatchError(BaseType.T_int, expr.getType(), filePos));
+		for(ExprAST expr : exprs) {
+			if (!expr.getType().equals(BaseType.T_int)) {
+				ErrorRecords.getInstance().record(
+						new TypeMismatchError(BaseType.T_int, expr.getType(), filePos));
+			}
 		}
 	}
 	
@@ -71,13 +72,13 @@ public class ArrayElemAST implements Assignable, Liter {
 		return ident;
 	}
 	
-	public ExprAST getExpr() {
-		return expr;
+	public List<ExprAST> getExprs() {
+		return exprs;
 	}
 	
 	
 	@Override
 	public List<WaccAST> getChildren() {
-		return new LinkedList<WaccAST>(Arrays.asList(expr));
+		return new LinkedList<WaccAST>(exprs);
 	}
 }

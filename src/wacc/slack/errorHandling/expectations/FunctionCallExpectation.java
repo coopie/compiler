@@ -2,21 +2,24 @@ package wacc.slack.errorHandling.expectations;
 
 import java.util.Iterator;
 
+import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.assignables.ArgList;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.Type;
+import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 
 
-public class FunctionCallExpectation implements WaccExpectation {
+public class FunctionCallExpectation extends ErrorRecord implements WaccExpectation {
 
 	private final String ident;
 	private final ArgList args;
 	private SymbolTable<IdentInfo> scope;
 
 	
-	public FunctionCallExpectation(String ident, ArgList args) {
+	public FunctionCallExpectation(String ident, ArgList args, FilePosition fp) {
+		super(fp);
 		this.ident = ident;
 		this.args = args;
 	}
@@ -45,6 +48,16 @@ public class FunctionCallExpectation implements WaccExpectation {
 		
 		b &= !ps.hasNext() && !as.hasNext();		
 		return b;
+	}
+
+	@Override
+	public String getMessage() {
+		return "params  for " + ident + "do not match " + args;
+	}
+	
+	@Override
+	public ErrorType getType() {
+		return ErrorType.ExpectationError;
 	}
 
 }
