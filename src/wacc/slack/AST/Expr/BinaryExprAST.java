@@ -29,7 +29,8 @@ public class BinaryExprAST implements ExprAST {
 		this.filePos = filePos;
 		
 		if(!typesCheck) {
-			ErrorRecords.getInstance().record(new TypeMismatchError(exprL.getType(),exprR.getType(), filePos));
+			ErrorRecords.getInstance().record(
+					new TypeMismatchError(filePos, exprR.getType(), exprL.getType()));
 		}	
 	}
 	

@@ -58,6 +58,38 @@ public class ASTProgramAndStatTest extends ASTTest {
 	}
 	
 	@Test
+	public void fstOnLHS() {
+		statementTestAssert("pair(int, int) p = newpair(1,2);"
+				          + "fst p = 3", 
+				            "\np = newpair(1, 2)"
+				          + "\nfst p = 3");
+	}
+	
+	@Test
+	public void sndOnLHS() {
+		statementTestAssert("pair(int, int) p = newpair(1,2);"
+				          + "snd p = 3", 
+				            "\np = newpair(1, 2)"
+				          + "\nsnd p = 3");
+	}
+	
+	@Test
+	public void arrayElemTest() {
+		statementTestAssert("int[] something = [1];"
+				          + "something[0] = 2",
+				            "\nsomething = [1 ]"
+				          + "\nsomething[0] = 2");
+	}
+	
+	@Test
+	public void arrayElemWithComplicatedExpr() {
+		statementTestAssert("int[] something = [1];"
+		                  + "something[something[0] - 1] = 2",
+		                    "\nsomething = [1 ]"
+		                  + "\nsomething[(something[0] - 1)] = 2");
+	}
+	
+	@Test
 	public void IfWithListsOfStatsAST() {
 		programTestAssert("begin if true then skip;exit 7 else skip; exit 7 fi end", 
 				"start:"
@@ -125,7 +157,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simplePairLiter() {
-		exprTestAssert("null", "null");
+		exprTestAssert("null", "NULL");
 	}
 	
 	@Test

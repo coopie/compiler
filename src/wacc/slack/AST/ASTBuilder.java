@@ -223,9 +223,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		if (ctx.FST() != null) {
-			return new FstAST(visitExpr(ctx.expr()), filePos);
+			//TODO: remove the Assignable cast in the lines below somehow
+			return new FstAST((Assignable)visitExpr(ctx.expr()), filePos);
 		} else if (ctx.SND() != null) {
-			return new SndAST(visitExpr(ctx.expr()), filePos);
+			return new SndAST((Assignable)visitExpr(ctx.expr()), filePos);
 		} else {
 			assert false : "should not happen, can only start with fst or snd";
 		}

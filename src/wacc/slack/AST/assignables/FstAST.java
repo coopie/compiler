@@ -6,21 +6,19 @@ import java.util.List;
 
 import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
-import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
-import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class FstAST implements Assignable {
 	
-	private final ExprAST expr;
+	private final Assignable expr;
 	private final FilePosition filePos;
 	
-	public FstAST(ExprAST expr, FilePosition filePos) {
+	public FstAST(Assignable expr, FilePosition filePos) {
 		this.expr = expr;
 		this.filePos = filePos;
 		
@@ -39,18 +37,14 @@ public class FstAST implements Assignable {
 
 	@Override
 	public String getName() {
-		return "fst";
+		return expr.getName();
 	}
 	
 	private void checkType() {
 		if (!(expr.getType() instanceof PairType)) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(BaseType.T_pair, expr.getType(), filePos));
+					new TypeMismatchError(filePos, expr.getType(), BaseType.T_pair));
 		}
-	}
-	
-	public ExprAST getExpr() {
-		return expr;
 	}
 
 	@Override

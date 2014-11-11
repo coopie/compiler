@@ -19,7 +19,7 @@ public class PairLiter implements Liter {
 
 	@Override
 	public String getValue() {
-		return "null";
+		return "NULL";
 	}
 
 	@Override

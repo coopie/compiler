@@ -17,10 +17,10 @@ import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class SndAST implements Assignable {
 	
-	private final ExprAST expr;
+	private final Assignable expr;
 	private final FilePosition filePos;
 	
-	public SndAST(ExprAST expr, FilePosition filePos) {
+	public SndAST(Assignable expr, FilePosition filePos) {
 		this.expr = expr;
 		this.filePos = filePos;
 		
@@ -39,18 +39,14 @@ public class SndAST implements Assignable {
 
 	@Override
 	public String getName() {
-		return "snd";
+		return expr.getName();
 	}
 	
 	private void checkType() {
 		if (!(expr instanceof PairType)) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(BaseType.T_pair, expr.getType(), filePos));
+					new TypeMismatchError(filePos, expr.getType(), BaseType.T_pair));
 		}
-	}
-	
-	public ExprAST getExpr() {
-		return expr;
 	}
 	
 	
@@ -61,6 +57,6 @@ public class SndAST implements Assignable {
 	
 	@Override
 	public Type getType() {
-		return expr.getType(); //TODO: not sure about this
+		return ((PairType)expr.getType()).getSnd();
 	}
 }

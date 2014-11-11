@@ -19,6 +19,7 @@ import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 public class ArrayElemAST implements Assignable, Liter {
 
 	private final String ident;
+	// each ExprAST in exprs exits within a separate [] 
 	private final List<ExprAST> exprs;
 	private final FilePosition filePos;
 	private final SymbolTable<IdentInfo> scope;
@@ -57,15 +58,14 @@ public class ArrayElemAST implements Assignable, Liter {
 		for(ExprAST expr : exprs) {
 			if (!expr.getType().equals(BaseType.T_int)) {
 				ErrorRecords.getInstance().record(
-						new TypeMismatchError(BaseType.T_int, expr.getType(), filePos));
+						new TypeMismatchError(filePos, expr.getType(), BaseType.T_int));
 			}
 		}
 	}
 	
 	@Override
 	public String getValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return toString();
 	}
 	
 	public String getIdent() {
@@ -74,6 +74,11 @@ public class ArrayElemAST implements Assignable, Liter {
 	
 	public List<ExprAST> getExprs() {
 		return exprs;
+	}
+	
+	@Override
+	public String toString() {
+		return getIdent() + "[" + getExprs() + "]";
 	}
 	
 	

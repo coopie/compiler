@@ -31,7 +31,7 @@ public class UnaryExprAST implements ExprAST {
 		correctSubExpresions = checkTypes();	
 		
 		if(!correctSubExpresions) {
-			errors.record(new TypeMismatchError(unaryOp.getType(), expr.getType(), filePos));
+			errors.record(new TypeMismatchError(filePos, expr.getType(), unaryOp.getType()));
 		}	
 	}
 	

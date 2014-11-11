@@ -26,7 +26,7 @@ public class IfStatementAST extends StatAST implements WaccAST {
 		
 		if(!exprAST.getType().equals(BaseType.T_bool)){
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(BaseType.T_bool, exprAST.getType(), filePos));
+					new TypeMismatchError(filePos, exprAST.getType(), BaseType.T_bool));
 		}
 	}
 

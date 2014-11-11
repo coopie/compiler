@@ -125,20 +125,21 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(ArrayElemAST arrayElem) {
-		// TODO Auto-generated method stub
-		return null;
+		String s = arrayElem.getIdent();
+		for(ExprAST expr : arrayElem.getExprs()) {
+			s += "[" + expr.accept(this) + "]";
+		}
+		return s;
 	}
 
 	@Override
 	public String visit(FstAST fst) {
-		// TODO Auto-generated method stub
-		return null;
+		return "fst " + fst.getName();
 	}
 
 	@Override
 	public String visit(SndAST snd) {
-		// TODO Auto-generated method stub
-		return null;
+		return "snd " + snd.getName();
 	}
 
 	@Override

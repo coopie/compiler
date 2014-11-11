@@ -37,6 +37,11 @@ public class NewPairAST implements AssignRHS {
 	public ExprAST getExprR() {
 		return exprR;
 	}
+	
+	@Override
+	public String toString() {
+		return exprL + ", " + exprR;
+	}
 
 	@Override
 	public List<WaccAST> getChildren() {
