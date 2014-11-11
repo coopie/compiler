@@ -49,7 +49,8 @@ public class SemanticAnalysisTest {
 	@Test
 	public void canCheckWhileCondIsBool() {
 
-		new WhileStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), null);
+		new WhileStatementAST(new ValueExprAST(
+				new BoolLiter("true", null), null), new SkipStatementAST(null), null);
 		
 		assertThat(records.isErrorFree(), is(true));
 	}
@@ -57,7 +58,8 @@ public class SemanticAnalysisTest {
 	@Test
 	public void canCheckIfStatementCondIsNotBool() {
 		
-		new IfStatementAST(new ValueExprAST(new IntLiter(1, null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
+		new IfStatementAST(new ValueExprAST(
+				new IntLiter(1, null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
 		
 		assertThat(records.containsError(ErrorType.TypeMismatchError), is(1));
 	}
@@ -65,7 +67,8 @@ public class SemanticAnalysisTest {
 	@Test
 	public void canCheckIfStatementCondIsBool() {
 		
-		new IfStatementAST(new ValueExprAST(new BoolLiter("true", null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
+		new IfStatementAST(new ValueExprAST(
+				new BoolLiter("true", null), null), new SkipStatementAST(null), new SkipStatementAST(null), null);
 		
 		assertThat(records.isErrorFree(), is(true));
 	}
