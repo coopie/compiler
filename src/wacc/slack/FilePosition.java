@@ -13,5 +13,10 @@ public class FilePosition {
 	public String getFilePosInfo() {
 		return lineNo + ":" + columnNo;
 	}
+	
+	@Override
+	public String toString() {
+		return getFilePosInfo();
+	}
 
 }

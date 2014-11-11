@@ -43,7 +43,7 @@ public class FstAST implements Assignable {
 	}
 	
 	private void checkType() {
-		if (!(expr instanceof PairType)) {
+		if (!(expr.getType() instanceof PairType)) {
 			ErrorRecords.getInstance().record(
 					new TypeMismatchError(BaseType.T_pair, expr.getType(), filePos));
 		}
@@ -60,6 +60,6 @@ public class FstAST implements Assignable {
 
 	@Override
 	public Type getType() {
-		return expr.getType(); //TODO: not sure about this
+		return ((PairType)expr.getType()).getFst();
 	}
 }

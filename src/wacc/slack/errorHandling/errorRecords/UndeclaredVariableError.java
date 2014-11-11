@@ -14,7 +14,7 @@ public class UndeclaredVariableError extends ErrorRecord {
 
 	@Override
 	public String getMessage() {
-		return "undeclared variable: " + ident;
+		return "Undeclared variable: " + ident;
 	}
 	
 	@Override

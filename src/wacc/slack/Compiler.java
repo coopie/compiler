@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import wacc.slack.AST.ASTBuilder;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.errorHandling.WaccSyntaxtErrorListner;
+import wacc.slack.errorHandling.errorRecords.ErrorRecordPrinter;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import antlr.WaccLexer;
 import antlr.WaccParser;
@@ -36,6 +37,9 @@ public class Compiler {
 		ErrorRecords.getInstance().setScope(builder.getScope());
 		
 		if(!ErrorRecords.getInstance().isErrorFree()) {
+			ErrorRecordPrinter erp = new ErrorRecordPrinter(ErrorRecords.getInstance(),
+																			System.out);
+			erp.print();
 			System.exit(ErrorRecords.getInstance().getExitCode());
 		}
 		

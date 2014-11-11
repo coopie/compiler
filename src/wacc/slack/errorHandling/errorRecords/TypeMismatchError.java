@@ -16,8 +16,7 @@ public class TypeMismatchError extends ErrorRecord {
 
 	@Override
 	public String getMessage() {
-		String message =  "ERROR: line " + fp.getFilePosInfo() +
-				 "\n mismatched type, expected: " + expected +
+		String message =  "Mismatched type, expected: " + expected +
 				 ", got: " + actual;
 		
 		return message;
