@@ -136,7 +136,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public IntLiter visitIntSign(IntSignContext ctx) {
-		FilePosition filePos = new FilePosition(ctx.start.getLine(),
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		if (ctx.MINUS() != null) {
 			return new IntLiter(-1, filePos);
@@ -147,7 +147,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public AssignRHS visitAssignRhs(AssignRhsContext ctx) {
-		FilePosition filePos = new FilePosition(ctx.start.getLine(),
+		if (ctx == null) {
+			// TODO: might not be a problem to record
+			// ErrorRecords.getInstance().record();
+			return new ValueExprAST(new IntLiter(0, new FilePosition(-1, -1)),
+					new FilePosition(-1, -1));
+		}
+		
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 
 		if (ctx.arrayLiter() != null) {
@@ -175,7 +182,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public ArgList visitArgList(ArgListContext ctx) {
 		List<ExprAST> exprList = new LinkedList<>();
-		FilePosition filePos;
+		final FilePosition filePos;
 		if (ctx != null) {
 			filePos = new FilePosition(ctx.start.getLine(),
 					ctx.start.getCharPositionInLine());
@@ -206,14 +213,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public Param visitParam(ParamContext ctx) {
 		String ident = ctx.IDENT().getText();
 		Type type = visitType(ctx.type());
-		FilePosition filePos = new FilePosition(ctx.start.getLine(),
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		return new Param(ident, type, filePos);
 	}
 
 	@Override
 	public Assignable visitPairElem(PairElemContext ctx) {
-		FilePosition filePos = new FilePosition(ctx.start.getLine(),
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		if (ctx.FST() != null) {
 			return new FstAST(visitExpr(ctx.expr()), filePos);
@@ -229,7 +236,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public ArrayElemAST visitArrayElem(ArrayElemContext ctx) {
 		String ident = ctx.IDENT().getText();
 		ExprAST expr = visitExpr(ctx.expr());
-		FilePosition filePos = new FilePosition(ctx.start.getLine(),
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		return new ArrayElemAST(ident, expr, scope, filePos);
 	}
@@ -612,7 +619,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		}
 		FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
-		return new ProgramAST(func, (StatAST) ctx.stat().accept(this), filePos);
+		return new ProgramAST(func, visitStat(ctx.stat()), filePos);
 	}
 
 	@Override
