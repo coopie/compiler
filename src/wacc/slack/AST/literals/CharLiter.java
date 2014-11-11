@@ -3,13 +3,19 @@ package wacc.slack.AST.literals;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.SyntaxError;
 
 public class CharLiter implements Liter {
 
-	private final String text;
+	private final char text;
+	private final FilePosition filePos;
 
-	public CharLiter(String text) {
+	public CharLiter(char text, FilePosition filePos) {
 		this.text = text;
+		this.filePos = filePos;
+
+		checkEscapedChars();
 	}
 
 	@Override
@@ -19,11 +25,19 @@ public class CharLiter implements Liter {
 
 	@Override
 	public String getValue() {
-		return text;
+		return text + "";
 	}
-	
+
 	@Override
 	public FilePosition getFilePosition() {
-		return null;
+		return filePos;
+	}
+
+	private void checkEscapedChars() {
+		// Should be '\"'
+		if (text == '"') { 
+			ErrorRecords.getInstance().record(
+					new SyntaxError("Unescaped character error", filePos));
+		}
 	}
 }

@@ -268,7 +268,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public ExprAST visitCharLiterExpr(CharLiterExprContext ctx) {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
-		return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText()),
+		return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText(), filePos),
 				filePos);
 	}
 

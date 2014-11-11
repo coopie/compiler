@@ -21,9 +21,6 @@ NEQ : '!=' ;
 AND : '&&' ;
 OR : '||' ;
 
-//needs improvement
-
-
 SEMICOLON : ';' ;
 
 //brackets
@@ -57,9 +54,6 @@ FI : 'fi' ;
 WHILE : 'while' ;
 DO : 'do' ;
 DONE : 'done' ;
-
-
-
 
 //assign rhs
 NEWPAIR : 'newpair' ;
