@@ -488,7 +488,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 					scope, filePos), rhs, filePos);
 		} else if (ctx.assignLhs() != null) {
 			final Assignable a = visitAssignLhs(ctx.assignLhs());
-			if (scope.lookup(a.getName()) == null) {
+			if ((scope.lookup(a.getName()) == null) ||
+				(scope.lookup(a.getName()) instanceof FuncIdentInfo)) {
 				ErrorRecords.getInstance().record(
 						new UndeclaredVariableError(filePos, a.getName()));
 			}
