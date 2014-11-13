@@ -8,6 +8,7 @@ import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
+import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
@@ -24,7 +25,7 @@ public class VariableAST implements Assignable,ExprAST {
 	}
 
 	@Override
-public <T> T accept(ASTVisitor<T> visitor) {
+	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
 	}
 
@@ -40,7 +41,10 @@ public <T> T accept(ASTVisitor<T> visitor) {
 
 	@Override
 	public Type getType() {
-		return scope.lookup(id).getType();
+		if (scope.lookup(id) != null) {
+			return scope.lookup(id).getType();
+		}
+		return BaseType.T_int;
 	}
 
 	@Override
