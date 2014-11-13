@@ -35,9 +35,6 @@ public class SyntaxtErrorTests {
 		assertThat(records.isErrorFree(),is(false));
 	}
 	
-	
-	
-	
 	protected ASTBuilder astBuilder = new ASTBuilder();
 	
 	private WaccAST getAST(String s) {
