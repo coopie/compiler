@@ -29,9 +29,17 @@ public class PairType implements Type {
 	}
 	
 	public boolean equals(Type t) {
-		return t instanceof PairType &&
-				fst.equals(((PairType) t).fst) &&
-				snd.equals(((PairType) t).snd);
+		
+		// if we are checking that a pair has the same type as null:
+		if ((this.snd == null && this.snd ==  null))
+				{
+			return t instanceof PairType;
+		} else {
+			return t instanceof PairType &&
+					fst.equals(((PairType) t).fst) &&
+					snd.equals(((PairType) t).snd);
+		}
+
 	}
 	
 	public Type getFst() {

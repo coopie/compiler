@@ -15,8 +15,9 @@ public class WaccArrayType implements Type {
 		return null;
 	}
 	
-	public boolean equals(Type t) {
-		return t instanceof WaccArrayType && type.equals(((WaccArrayType) t).type); 
+	@Override
+	public boolean equals(Object t) {
+		return (t instanceof WaccArrayType) && (type == null || type.equals(((WaccArrayType) t).getType())); 
 	}
 	
 	public Type getType() {

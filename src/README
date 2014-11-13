@@ -37,6 +37,7 @@ Semantics that is implemented to be checked (write " - TESTED" for the ones test
 - while statments's cond should be bool - TESTED
 - return gets called only in a function
 - return must return the type the function signature requires
+- all elements of array liter must be of the same type
 
 Sematics to be implemented
 - Array bounds checking
