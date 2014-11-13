@@ -1,7 +1,7 @@
 package wacc.slack.AST.literals;
 
 import wacc.slack.FilePosition;
-import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 
 public class PairLiter implements Liter {
@@ -14,7 +14,7 @@ public class PairLiter implements Liter {
 
 	@Override
 	public Type getType() {
-		return BaseType.T_pair;
+		return new PairType(null,null, filePos);
 	}
 
 	@Override

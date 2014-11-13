@@ -26,7 +26,8 @@ public class AssignStatAST extends StatAST implements WaccAST {
 		if(rhs instanceof CallAST) {
 			ErrorRecords.getInstance().addExpectation(
 					new FunctionReturnTypeExpectation(((CallAST) rhs).getIdent(),lhs.getType(),filePos));
-		} else if(!lhs.getType().equals(rhs.getType())) {
+			// the order of the equals method here matters at the moment
+		} else if(!rhs.getType().equals(lhs.getType())) {
 			ErrorRecords.getInstance().record(new TypeMismatchError(filePos, rhs.getType(), lhs.getType()));
 		}
 	}

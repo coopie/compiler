@@ -8,15 +8,14 @@ import wacc.slack.errorHandling.errorRecords.SyntaxError;
 
 public class CharLiter implements Liter {
 
-	private final char text;
+	private final String text;
 	private final FilePosition filePos;
 
 	public CharLiter(String text, FilePosition filePos) {
-		// TODO: Need to check that this is fine
-		this.text = text.charAt(0);
 		this.filePos = filePos;
-
-		checkEscapedChars();
+		// Remove single quotes
+		this.text = text.substring(1, text.length() - 1);
+		checkEscapedChars(this.text);
 	}
 
 	@Override
@@ -26,7 +25,7 @@ public class CharLiter implements Liter {
 
 	@Override
 	public String getValue() {
-		return text + "";
+		return text;
 	}
 
 	@Override
@@ -34,11 +33,27 @@ public class CharLiter implements Liter {
 		return filePos;
 	}
 
-	private void checkEscapedChars() {
-		// Should be '\"'
-		if (text == '"') { 
+	private void checkEscapedChars(String s) {
+		if (s.length() == 1
+				&& (s.charAt(0) == '"' || s.charAt(0) == '\'' || s.charAt(0) == '\\')) {
 			ErrorRecords.getInstance().record(
 					new SyntaxError("Unescaped character error", filePos));
+		}
+		if (s.charAt(0) == '\\') {
+			switch (s.charAt(1)) {
+			case ('0'):
+			case ('b'):
+			case ('t'):
+			case ('n'):
+			case ('f'):
+			case ('r'):
+			case ('\''):
+			case ('\\'):
+				break;
+			default:
+				ErrorRecords.getInstance().record(
+						new SyntaxError("Bad escaped character error", filePos));
+			}
 		}
 	}
 }
