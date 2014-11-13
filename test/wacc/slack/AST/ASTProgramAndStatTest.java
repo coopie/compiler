@@ -147,7 +147,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void simpleCharLiter() {
-		exprTestAssert("'a'", "'a'");
+		exprTestAssert("'a'", "a");
 	}
 
 	@Test
@@ -172,7 +172,7 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void newPairTest() {
-		statementTestAssert("pair(int, char) a = newpair(1, 'a')", "\na = newpair(1, 'a')");
+		statementTestAssert("pair(int, char) a = newpair(1, 'a')", "\na = newpair(1, a)");
 	}
 	
 	@Test

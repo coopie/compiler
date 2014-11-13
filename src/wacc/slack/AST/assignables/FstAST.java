@@ -49,7 +49,7 @@ public class FstAST implements Assignable {
 	private boolean checkType() {
 		if (!(expr.getType() instanceof PairType)) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(filePos, expr.getType(), BaseType.T_pair));
+					new TypeMismatchError(filePos, expr.getType(), new PairType()));
 			return false;
 		} 
 		return true;

@@ -756,7 +756,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.arrayType() != null) {
 			return visitArrayType(ctx.arrayType());
 		} else if (ctx.PAIR() != null) {
-			return BaseType.T_pair;
+			return new PairType();
 		} else {
 			assert false : "should not happen, one of the pair elem types should be recognized";
 		}
