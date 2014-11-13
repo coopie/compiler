@@ -58,8 +58,10 @@ import wacc.slack.AST.visitors.CheckReturnVisitor;
 import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
+import wacc.slack.errorHandling.errorRecords.RedeclaredFunctionError;
 import wacc.slack.errorHandling.errorRecords.RedeclaredVariableError;
 import wacc.slack.errorHandling.errorRecords.SyntaxError;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 import wacc.slack.errorHandling.errorRecords.UndeclaredVariableError;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import antlr.WaccParser.ArgListContext;
@@ -712,7 +714,11 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			paramTypes.add(p.getType());
 			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));
 		}
-
+		
+		if (topScope.lookup(ctx.IDENT().getText()) instanceof FuncIdentInfo) {
+			ErrorRecords.getInstance().record(
+					new RedeclaredFunctionError(filePos, ctx.IDENT().getText()));
+		}
 		topScope.insert(ctx.IDENT().getText(), new FuncIdentInfo(returnType,
 				paramTypes, filePos));
 

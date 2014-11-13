@@ -5,7 +5,7 @@ import wacc.slack.FilePosition;
 public interface ErrorObject {
 	
 	public enum ErrorType {
-		ErrorRecord, IllegalOperationError, RedeclaredVariableError, TypeMismatchError, UndeclaredVariableError, SyntaxError, ExpectationError
+		ErrorRecord, IllegalOperationError, RedeclaredVariableError, TypeMismatchError, UndeclaredVariableError, SyntaxError, ExpectationError, RedeclaredFunctionError
 	}
 	public ErrorType getType();
 	public String getMessage();
