@@ -11,9 +11,10 @@ import wacc.slack.AST.assignables.Assignable;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
+import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
-import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class ReadStatementAST extends StatAST{
 	
@@ -22,12 +23,14 @@ public class ReadStatementAST extends StatAST{
 	public ReadStatementAST(Assignable assignable, FilePosition filePos) {
 		super(filePos);
 		this.assignable = assignable;
-		if (!(assignable instanceof ArrayElemAST) && 
+		if (!(assignable instanceof ArrayElemAST) &&
 			!(assignable instanceof FstAST) &&
 			!(assignable instanceof SndAST) &&
-			!(assignable instanceof VariableAST)) {
+			!((assignable instanceof VariableAST) && 
+			(assignable.getType() == BaseType.T_int) && 
+			(assignable.getType() == BaseType.T_char))) {
 			ErrorRecords.getInstance().record(
-					new IllegalOperationError(filePos));
+					new TypeMismatchError(filePos, assignable.getType(), BaseType.T_int, BaseType.T_char));
 		}
 	}
 
