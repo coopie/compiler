@@ -14,8 +14,11 @@ import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
-import wacc.slack.AST.statements.ExprStatementAST;
+import wacc.slack.AST.statements.ExitStatementAST;
+import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.PrintStatementAST;
+import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
@@ -24,10 +27,6 @@ import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 
 public class CheckReturnVisitor implements ASTVisitor<Boolean> {
-
-	private Boolean isReturnStat(StatAST statAST) {
-		return statAST instanceof ReturnStatementAST;
-	}
 
 	@Override
 	public Boolean visit(FuncAST func) {
@@ -44,10 +43,6 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 	public Boolean visit(StatListAST statAST) {
 		Boolean containsReturn = false;
 
-		if (isReturnStat(statAST)) {
-			return true;
-		}
-		
 		for (StatAST stat : statAST) {
 			containsReturn |= stat.accept(this);
 		}
@@ -78,11 +73,6 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 
 	@Override
 	public Boolean visit(WhileStatementAST whileStat) {
-		return false;
-	}
-
-	@Override
-	public Boolean visit(ExprStatementAST exprStat) {
 		return false;
 	}
 
@@ -138,6 +128,31 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 
 	@Override
 	public Boolean visit(VariableAST variable) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ReturnStatementAST exprStat) {
+		return true;
+	}
+
+	@Override
+	public Boolean visit(PrintlnStatementAST printlnStat) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(PrintStatementAST printStat) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(ExitStatementAST exitStat) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(FreeStatementAST freeStat) {
 		return false;
 	}
 

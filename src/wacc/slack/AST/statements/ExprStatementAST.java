@@ -34,8 +34,6 @@ public abstract class ExprStatementAST extends StatAST implements WaccAST {
 	}
 
 	@Override
-	public <T> T accept(ASTVisitor<T> visitor){
-		return visitor.visit(this);
-	}
+	public abstract <T> T accept(ASTVisitor<T> visitor);
 
 }
