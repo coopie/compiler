@@ -64,7 +64,7 @@ public class FstAST implements Assignable {
 	public Type getType() {
 		//TODO: sort this out, this could blow up in our face really bad
 		if(validExpression) {
-			return ((PairType)scope.lookup(expr.getName()).getType()).getSnd();
+			return ((PairType)scope.lookup(expr.getName()).getType()).getFst();
 		} else {
 			return BaseType.T_int;
 		}
