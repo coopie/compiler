@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+
 import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.errorHandling.errorRecords.ErrorObject.ErrorType;
@@ -23,6 +24,8 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 	}
 	
 	public void record(ErrorObject e) {
+		/*Throwable t = new Throwable();
+	    t.printStackTrace();*/		
 		records.add(e);
 	}
 	

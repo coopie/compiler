@@ -17,6 +17,7 @@ import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 public class AssignStatAST extends StatAST implements WaccAST {
 	private final Assignable lhs;
 	private final AssignRHS rhs;
+	
 	public AssignStatAST(Assignable lhs, AssignRHS rhs, FilePosition filePos) {
 		super(filePos);
 		this.lhs = lhs;

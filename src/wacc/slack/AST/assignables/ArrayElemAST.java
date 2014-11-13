@@ -1,6 +1,6 @@
 package wacc.slack.AST.assignables;
 
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +12,7 @@ import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
@@ -22,14 +23,26 @@ public class ArrayElemAST implements Assignable, Liter {
 	// each ExprAST in exprs exits within a separate [] 
 	private final List<ExprAST> exprs;
 	private final FilePosition filePos;
-	private final SymbolTable<IdentInfo> scope;
+	private final Type type;
 	
 	public ArrayElemAST(String ident, List<ExprAST> exprs, SymbolTable<IdentInfo> scope,FilePosition filePos) {
 		this.ident = ident;
 		this.exprs = exprs;
-		this.scope = scope;
 		this.filePos = filePos;
+		
+		IdentInfo info = scope.lookup(ident);
+		Type t = info.getType();
+		Iterator<ExprAST> i = exprs.iterator();
+		
+		while(i.hasNext()) {
+			if(!(t instanceof WaccArrayType)) {
+				throw new RuntimeException("array type of identifier in array elem is not valid");
+			}
+			t = ((WaccArrayType) t).getType();
+			i.next();
+		}
 
+		type = t;
 		checkType();
 	}
 
@@ -50,7 +63,7 @@ public class ArrayElemAST implements Assignable, Liter {
 
 	@Override
 	public Type getType() {
-		return scope.lookup(ident).getType();
+		return type;
 	}
 	
 
