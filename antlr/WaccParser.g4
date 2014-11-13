@@ -29,8 +29,7 @@ stat :
 | IF expr THEN stat ELSE stat FI#ifStat
 | WHILE expr DO  stat  DONE     #whileStat
 | BEGIN stat  END               #beginStat
-| stat (SEMICOLON stat)+        #statList;
-
+| stat SEMICOLON (stat SEMICOLON)* stat?       #statList;
 
 assignLhs :
   IDENT

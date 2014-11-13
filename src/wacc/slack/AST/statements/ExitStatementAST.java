@@ -3,6 +3,7 @@ package wacc.slack.AST.statements;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
 
@@ -19,6 +20,11 @@ public class ExitStatementAST extends ExprStatementAST {
 	@Override
 	public String getName() {
 		return "exit";
+	}
+
+	@Override
+	public <T> T accept(ASTVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 
 }
