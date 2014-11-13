@@ -54,6 +54,7 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
 import wacc.slack.errorHandling.errorRecords.RedeclaredVariableError;
@@ -199,11 +200,11 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public Type visitArrayType(ArrayTypeContext ctx) {
 		if (ctx.baseType() != null) {
-			return visitBaseType(ctx.baseType());
+			return new WaccArrayType(visitBaseType(ctx.baseType()));
 		} else if (ctx.pairType() != null) {
-			return visitPairType(ctx.pairType());
+			return new WaccArrayType(visitPairType(ctx.pairType()));
 		} else if (ctx.arrayType() != null) {
-			return visitArrayType(ctx.arrayType());
+			return new WaccArrayType(visitArrayType(ctx.arrayType()));
 		} else {
 			assert false : "should not happen, one of the types should be recognized";
 		}
@@ -653,8 +654,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 		FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
-		// TODO: lookup null in the symbol table to get the type
-		return new ArrayLiterAST(exprList, filePos, null);
+		return new ArrayLiterAST(exprList, filePos);
 
 	}
 

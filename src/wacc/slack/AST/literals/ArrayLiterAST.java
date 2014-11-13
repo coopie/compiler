@@ -17,10 +17,22 @@ public class ArrayLiterAST implements Liter, AssignRHS {
 	private final WaccArrayType type;
 	private final FilePosition filePos;
 	
-	public ArrayLiterAST(List<ExprAST> exprList, FilePosition filePos, WaccArrayType type) {
+	public ArrayLiterAST(List<ExprAST> exprList, FilePosition filePos) {
 		this.exprList = exprList;
 		this.filePos = filePos;
-		this.type = type;
+		
+		Type t = exprList.get(0).getType();
+		boolean allSameTypes = true;
+		
+		for(ExprAST expr : exprList) {
+			allSameTypes &= t.equals(expr.getType());
+		}
+		if(allSameTypes) {
+			type = new WaccArrayType(t);
+		} else {
+			type = new WaccArrayType(null);
+		}
+		
 	}
 	
 	public List<ExprAST> getExprList() {
@@ -29,6 +41,7 @@ public class ArrayLiterAST implements Liter, AssignRHS {
 
 	@Override
 	public Type getType() {
+		
 		return (Type)type;
 	}
 

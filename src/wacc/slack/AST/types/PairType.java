@@ -28,7 +28,8 @@ public class PairType implements Type {
 		return filePos;
 	}
 	
-	public boolean equals(Type t) {
+	@Override
+	public boolean equals(Object t) {
 		return t instanceof PairType &&
 				fst.equals(((PairType) t).fst) &&
 				snd.equals(((PairType) t).snd);
