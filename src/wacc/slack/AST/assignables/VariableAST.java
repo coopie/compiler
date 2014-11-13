@@ -24,7 +24,7 @@ public class VariableAST implements Assignable,ExprAST {
 	}
 
 	@Override
-public <T> T accept(ASTVisitor<T> visitor) {
+	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
 	}
 
