@@ -54,10 +54,12 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.AST.visitors.CheckReturnVisitor;
 import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
 import wacc.slack.errorHandling.errorRecords.RedeclaredVariableError;
+import wacc.slack.errorHandling.errorRecords.SyntaxError;
 import wacc.slack.errorHandling.errorRecords.UndeclaredVariableError;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import antlr.WaccParser.ArgListContext;
@@ -155,7 +157,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			return new ValueExprAST(new IntLiter(0, new FilePosition(-1, -1)),
 					new FilePosition(-1, -1));
 		}
-		
+
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 
@@ -171,7 +173,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			String ident = ctx.IDENT().getText();
 			ArgList argList = visitArgList(ctx.argList());
 			ErrorRecords.getInstance().addExpectation(
-					new FunctionCallExpectation(ident, argList,filePos));
+					new FunctionCallExpectation(ident, argList, filePos));
 			return new CallAST(ident, argList, filePos);
 		} else if (ctx.expr() != null) {
 			return visitExpr(ctx.expr(0));
@@ -225,10 +227,12 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		if (ctx.FST() != null) {
-			//TODO: remove the Assignable cast in the lines below somehow
-			return new FstAST((Assignable)visitExpr(ctx.expr()), filePos, scope);
+			// TODO: remove the Assignable cast in the lines below somehow
+			return new FstAST((Assignable) visitExpr(ctx.expr()), filePos,
+					scope);
 		} else if (ctx.SND() != null) {
-			return new SndAST((Assignable)visitExpr(ctx.expr()), filePos, scope);
+			return new SndAST((Assignable) visitExpr(ctx.expr()), filePos,
+					scope);
 		} else {
 			assert false : "should not happen, can only start with fst or snd";
 		}
@@ -239,7 +243,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public ArrayElemAST visitArrayElem(ArrayElemContext ctx) {
 		String ident = ctx.IDENT().getText();
 		List<ExprAST> exprs = new LinkedList<>();
-		for(ExprContext ctxx : ctx.expr()) {
+		for (ExprContext ctxx : ctx.expr()) {
 			exprs.add(visitExpr(ctxx));
 		}
 
@@ -275,8 +279,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public ExprAST visitCharLiterExpr(CharLiterExprContext ctx) {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
-		return new ValueExprAST(new CharLiter(ctx.CHAR_LTR().getText(), filePos),
-				filePos);
+		return new ValueExprAST(
+				new CharLiter(ctx.CHAR_LTR().getText(), filePos), filePos);
 	}
 
 	@Override
@@ -286,8 +290,9 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		if (scope.lookup(ctx.IDENT().getText()) != null) {
 			return new VariableAST(ctx.IDENT().getText(), scope, filePos);
 		} else {
-			ErrorRecords.getInstance().record(
-					new UndeclaredVariableError(filePos, ctx.IDENT().getText()));
+			ErrorRecords.getInstance()
+					.record(new UndeclaredVariableError(filePos, ctx.IDENT()
+							.getText()));
 			return new ValueExprAST(new IntLiter(0, filePos), filePos);
 		}
 	}
@@ -341,13 +346,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		ExprAST expr2 = visitExpr(ctx.expr(1));
 
 		if (expr1 == null) {
-			expr1 = new ValueExprAST(new IntLiter(0,
-					new FilePosition(-1, -1)), new FilePosition(-1, -1));
+			expr1 = new ValueExprAST(new IntLiter(0, new FilePosition(-1, -1)),
+					new FilePosition(-1, -1));
 		}
 
 		if (expr2 == null) {
-			expr2 = new ValueExprAST(new IntLiter(0,
-					new FilePosition(-1, -1)), new FilePosition(-1, -1));
+			expr2 = new ValueExprAST(new IntLiter(0, new FilePosition(-1, -1)),
+					new FilePosition(-1, -1));
 		}
 
 		return new BinaryExprAST(op, expr1, expr2, filePos);
@@ -467,7 +472,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		AssignRHS rhs = visitAssignRhs(ctx.assignRhs());
 		if (ctx.type() != null && ctx.IDENT() != null) {
 			final String id = ctx.IDENT().getText();
-			
+
 			if (scope.lookupCurrentScope(id) != null) {
 				ErrorRecords.getInstance().record(
 						new RedeclaredVariableError(filePos, id));
@@ -712,6 +717,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 		FuncAST f = new FuncAST(returnType, currentFunction, paramList,
 				(StatAST) ctx.stat().accept(this), filePos);
+
+		if (!f.accept(new CheckReturnVisitor())) {
+			ErrorRecords.getInstance().record(
+					new SyntaxError(
+							"Missing return statement in control flow of function "
+									+ f.getIdent() + ".", filePos));
+		}
+
 		scope = scope.popScope();
 		currentFunction = null;
 		return f;

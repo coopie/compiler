@@ -18,21 +18,6 @@ public class CharLiter implements Liter {
 		checkEscapedChars(this.text);
 	}
 
-	@Override
-	public Type getType() {
-		return BaseType.T_char;
-	}
-
-	@Override
-	public String getValue() {
-		return text;
-	}
-
-	@Override
-	public FilePosition getFilePosition() {
-		return filePos;
-	}
-
 	private void checkEscapedChars(String s) {
 		if (s.length() == 1
 				&& (s.charAt(0) == '"' || s.charAt(0) == '\'' || s.charAt(0) == '\\')) {
@@ -55,5 +40,20 @@ public class CharLiter implements Liter {
 						new SyntaxError("Bad escaped character error", filePos));
 			}
 		}
+	}
+
+	@Override
+	public Type getType() {
+		return BaseType.T_char;
+	}
+
+	@Override
+	public String getValue() {
+		return text;
+	}
+
+	@Override
+	public FilePosition getFilePosition() {
+		return filePos;
 	}
 }
