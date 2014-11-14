@@ -19,20 +19,23 @@ public class ArrayLiterAST implements Liter, AssignRHS {
 	
 	public ArrayLiterAST(List<ExprAST> exprList, FilePosition filePos) {
 		this.exprList = exprList;
-		this.filePos = filePos;
+		this.filePos = filePos;	
 		
-		Type t = exprList.get(0).getType();
-		boolean allSameTypes = true;
-		
-		for(ExprAST expr : exprList) {
-			allSameTypes &= t.equals(expr.getType());
-		}
-		if(allSameTypes) {
-			type = new WaccArrayType(t);
+		if(exprList.size() > 0) {
+			Type t = exprList.get(0).getType();
+			boolean allSameTypes = true;
+			
+			for(ExprAST expr : exprList) {
+				allSameTypes &= t.equals(expr.getType());
+			}
+			if(allSameTypes) {
+				type = new WaccArrayType(t);
+			} else {
+				type = new WaccArrayType(null);
+			}
 		} else {
 			type = new WaccArrayType(null);
 		}
-		
 	}
 	
 	public List<ExprAST> getExprList() {
