@@ -1,7 +1,11 @@
 package wacc.slack.AST;
 
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
+
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 
 
 public class ASTProgramAndStatTest extends ASTTest {
@@ -194,5 +198,12 @@ public class ASTProgramAndStatTest extends ASTTest {
 	@Test
 	public void simpleBracketsExpr() {
 		exprTestAssert("(1)", "1");
+	}
+	
+	@Test
+	public void doubleDeclarationInControlFlow() {
+		statementTestAssert("if true then bool b = true else bool b = false fi", "\nif true\n	b = true\nelse\n	b = false");
+		ErrorRecords.getInstance().setScope(astBuilder.getScope());
+		assertTrue(ErrorRecords.getInstance().isErrorFree());
 	}
 }

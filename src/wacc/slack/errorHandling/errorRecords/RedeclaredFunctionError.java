@@ -1,6 +1,7 @@
 package wacc.slack.errorHandling.errorRecords;
 
 import wacc.slack.FilePosition;
+import wacc.slack.AST.assignables.FuncAST;
 
 public class RedeclaredFunctionError extends ErrorRecord {
 
@@ -13,7 +14,7 @@ public class RedeclaredFunctionError extends ErrorRecord {
 
 	@Override
 	public String getMessage() {
-		return "Function redeclared: " + ident;
+		return "Function redeclared: " + FuncAST.decodeFuncName(ident);
 	}
 	
 	@Override

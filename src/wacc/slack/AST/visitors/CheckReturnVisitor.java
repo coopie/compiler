@@ -161,7 +161,7 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 
 	@Override
 	public Boolean visit(ExitStatementAST exitStat) {
-		return false;
+		return true;
 	}
 
 	@Override

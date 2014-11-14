@@ -540,9 +540,12 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		scope = scope.initializeNewScope();
-		StatAST stat = new IfStatementAST(visitExpr(ctx.expr()),
-				visitStat(ctx.stat(0)), visitStat(ctx.stat(1)), filePos);
+			StatAST trueAST = visitStat(ctx.stat(0));
 		scope = scope.popScope();
+		scope = scope.initializeNewScope();
+			StatAST falseAST = visitStat(ctx.stat(1));
+		scope = scope.popScope();
+		StatAST stat = new IfStatementAST(visitExpr(ctx.expr()),trueAST,falseAST, filePos);
 		return stat;
 	}
 
@@ -731,7 +734,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			ErrorRecords.getInstance().record(
 					new SyntaxError(
 							"Missing return statement in control flow of function "
-									+ f.getIdent() + ".", filePos));
+									+ FuncAST.decodeFuncName(f.getIdent()) + ".", filePos));
 		}
 
 		scope = scope.popScope();

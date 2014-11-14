@@ -15,6 +15,7 @@ import wacc.slack.AST.assignables.ArgList;
 import wacc.slack.AST.literals.BoolLiter;
 import wacc.slack.AST.literals.IntLiter;
 import wacc.slack.AST.literals.StringLiter;
+import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.IfStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.WhileStatementAST;
