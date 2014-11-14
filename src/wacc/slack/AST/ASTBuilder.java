@@ -174,8 +174,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			String ident = ctx.IDENT().getText();
 			ArgList argList = visitArgList(ctx.argList());
 			ErrorRecords.getInstance().addExpectation(
-					new FunctionCallExpectation(ident, argList, filePos));
-			return new CallAST(ident, argList, filePos);
+					new FunctionCallExpectation(FuncAST.encodeFuncName(ident), argList, filePos));
+			return new CallAST(FuncAST.encodeFuncName(ident), argList, filePos);
 		} else if (ctx.expr() != null) {
 			return visitExpr(ctx.expr(0));
 		} else {
@@ -474,8 +474,10 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			final String id = ctx.IDENT().getText();
 
 			if (scope.lookupCurrentScope(id) != null) {
-				ErrorRecords.getInstance().record(
-						new RedeclaredVariableError(filePos, id));
+				if(!(scope.lookupCurrentScope(id) instanceof FuncIdentInfo)) {
+					ErrorRecords.getInstance().record(
+							new RedeclaredVariableError(filePos, id));
+				}		
 			}
 			scope.insert(id, new IdentInfo(visitType(ctx.type()), filePos));// TODO:
 																			// check
@@ -700,7 +702,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 				ctx.start.getCharPositionInLine());
 		Type returnType = visitType(ctx.type());
 
-		currentFunction = ctx.IDENT().getText();
+		currentFunction = FuncAST.encodeFuncName(ctx.IDENT().getText());
 
 		// rembering top scope so I can add the function Identifier to it after
 		// I add the params to the function scope and extract the types of
@@ -713,12 +715,12 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));
 		}
 
-		if (topScope.lookup(ctx.IDENT().getText()) instanceof FuncIdentInfo) {
+		if (topScope.lookup(currentFunction) instanceof FuncIdentInfo) {
 			ErrorRecords.getInstance()
 					.record(new RedeclaredFunctionError(filePos, ctx.IDENT()
 							.getText()));
 		}
-		topScope.insert(ctx.IDENT().getText(), new FuncIdentInfo(returnType,
+		topScope.insert(currentFunction, new FuncIdentInfo(returnType,
 				paramTypes, filePos));
 
 		FuncAST f = new FuncAST(returnType, currentFunction, paramList,

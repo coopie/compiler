@@ -23,9 +23,7 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 		
 	}
 	
-	public void record(ErrorObject e) {
-		/*Throwable t = new Throwable();
-	    t.printStackTrace();*/		
+	public void record(ErrorObject e) {	
 		records.add(e);
 	}
 	
@@ -96,6 +94,8 @@ public class ErrorRecords implements Iterable<ErrorObject> {
 	}
 
 	public void addExpectation(WaccExpectation e) {
+		/*Throwable t = new Throwable();
+	    t.printStackTrace();	*/
 		expectations.add(e);	
 	}
 }

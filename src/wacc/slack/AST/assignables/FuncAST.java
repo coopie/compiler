@@ -74,4 +74,12 @@ public class FuncAST implements WaccAST {
 	public Type getType() {
 		return type;
 	}
+	
+	public static String encodeFuncName(String s) {
+		return "*func_*" + s;
+	}
+	
+	public static String decodeFuncName(String s) {
+		return s.replaceAll("\\*func_\\*", "");
+	}
 }
