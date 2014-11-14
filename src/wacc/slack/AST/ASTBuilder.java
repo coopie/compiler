@@ -721,10 +721,9 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		topScope.insert(ctx.IDENT().getText(), new FuncIdentInfo(returnType,
 				paramTypes, filePos));
 
-		StatAST stat = visitStat(ctx.stat());
 		FuncAST f = new FuncAST(returnType, currentFunction, paramList,
-				visitStat(ctx.stat()), filePos);
-
+				(StatAST) ctx.stat().accept(this), filePos);
+		
 		if (!f.accept(new CheckReturnVisitor())) {
 			ErrorRecords.getInstance().record(
 					new SyntaxError(
