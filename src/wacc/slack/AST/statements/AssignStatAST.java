@@ -17,19 +17,22 @@ import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 public class AssignStatAST extends StatAST implements WaccAST {
 	private final Assignable lhs;
 	private final AssignRHS rhs;
-	
+
 	public AssignStatAST(Assignable lhs, AssignRHS rhs, FilePosition filePos) {
 		super(filePos);
 		this.lhs = lhs;
 		this.rhs = rhs;
-		
+
 		// adding function expectations here
-		if(rhs instanceof CallAST) {
+		if (rhs instanceof CallAST) {
 			ErrorRecords.getInstance().addExpectation(
-					new FunctionReturnTypeExpectation(((CallAST) rhs).getIdent(),lhs.getType(),filePos));
+					new FunctionReturnTypeExpectation(((CallAST) rhs)
+							.getIdent(), lhs.getType(), filePos));
 			// the order of the equals method here matters at the moment
-		} else if(!lhs.getType().equals(rhs.getType())) {
-			ErrorRecords.getInstance().record(new TypeMismatchError(filePos, rhs.getType(), lhs.getType()));
+		} else if (!lhs.getType().equals(rhs.getType())) {
+			ErrorRecords.getInstance()
+					.record(new TypeMismatchError(filePos, rhs.getType(), lhs
+							.getType()));
 		}
 	}
 
@@ -40,10 +43,10 @@ public class AssignStatAST extends StatAST implements WaccAST {
 	public AssignRHS getRhs() {
 		return rhs;
 	}
-	
+
 	@Override
 	public List<WaccAST> getChildren() {
-		return new LinkedList<WaccAST>(Arrays.asList(lhs,rhs));
+		return new LinkedList<WaccAST>(Arrays.asList(lhs, rhs));
 	}
 
 	@Override

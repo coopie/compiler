@@ -54,14 +54,13 @@ import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
-import wacc.slack.AST.visitors.CheckReturnVisitor;
 import wacc.slack.AST.types.WaccArrayType;
+import wacc.slack.AST.visitors.CheckReturnVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
 import wacc.slack.errorHandling.errorRecords.RedeclaredFunctionError;
 import wacc.slack.errorHandling.errorRecords.RedeclaredVariableError;
 import wacc.slack.errorHandling.errorRecords.SyntaxError;
-import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 import wacc.slack.errorHandling.errorRecords.UndeclaredVariableError;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import antlr.WaccParser.ArgListContext;
@@ -442,7 +441,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public StatAST visitReturnStat(ReturnStatContext ctx) {
-
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
 		IdentInfo funcInfo = scope.lookup(currentFunction);
@@ -490,8 +488,8 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 					scope, filePos), rhs, filePos);
 		} else if (ctx.assignLhs() != null) {
 			final Assignable a = visitAssignLhs(ctx.assignLhs());
-			if ((scope.lookup(a.getName()) == null) ||
-				(scope.lookup(a.getName()) instanceof FuncIdentInfo)) {
+			if ((scope.lookup(a.getName()) == null)
+					|| (scope.lookup(a.getName()) instanceof FuncIdentInfo)) {
 				ErrorRecords.getInstance().record(
 						new UndeclaredVariableError(filePos, a.getName()));
 			}
@@ -714,16 +712,18 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			paramTypes.add(p.getType());
 			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));
 		}
-		
+
 		if (topScope.lookup(ctx.IDENT().getText()) instanceof FuncIdentInfo) {
-			ErrorRecords.getInstance().record(
-					new RedeclaredFunctionError(filePos, ctx.IDENT().getText()));
+			ErrorRecords.getInstance()
+					.record(new RedeclaredFunctionError(filePos, ctx.IDENT()
+							.getText()));
 		}
 		topScope.insert(ctx.IDENT().getText(), new FuncIdentInfo(returnType,
 				paramTypes, filePos));
 
+		StatAST stat = visitStat(ctx.stat());
 		FuncAST f = new FuncAST(returnType, currentFunction, paramList,
-				(StatAST) ctx.stat().accept(this), filePos);
+				visitStat(ctx.stat()), filePos);
 
 		if (!f.accept(new CheckReturnVisitor())) {
 			ErrorRecords.getInstance().record(
