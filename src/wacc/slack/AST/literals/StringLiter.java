@@ -3,6 +3,7 @@ package wacc.slack.AST.literals;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.AST.types.WaccArrayType;
 
 public class StringLiter implements Liter {
 
@@ -18,7 +19,7 @@ public class StringLiter implements Liter {
 
 	@Override
 	public Type getType() {
-		return BaseType.T_string;
+		return new WaccArrayType(BaseType.T_char);
 	}
 
 	@Override

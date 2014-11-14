@@ -616,7 +616,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		} else if (ctx.CHAR() != null) {
 			return BaseType.T_char;
 		} else if (ctx.STRING() != null) {
-			return BaseType.T_string;
+			return new WaccArrayType(BaseType.T_char);
 		} else {
 			assert false : "should not happen, one of the types should be recognized";
 		}
