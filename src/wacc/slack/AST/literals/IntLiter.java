@@ -13,7 +13,7 @@ public class IntLiter implements Liter {
 	
 	public IntLiter(long i, FilePosition filePos) {
 		if(i < -2147483648 || i > 2147483647) {
-			ErrorRecords.getInstance().recordWarning(new IntegerOverflow(filePos));
+			ErrorRecords.getInstance().record(new IntegerOverflow(filePos));
 		}
 		this.i = (int)i;
 		this.filePos = filePos;

@@ -97,13 +97,13 @@ expr :
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES  #exprInParenthesesExpr
 ;
 
-unaryOper : NOT | MINUS | LEN | ORD | CHR ;
-
-arrayElem : IDENT (OPEN_SQ_PARENTHESES expr CLOSE_SQ_PARENTHESES)+ ;
-
 intLiter : intSign? INTEGER ;
 
 intSign : PLUS | MINUS ;
+
+unaryOper : NOT | MINUS | LEN | ORD | CHR ;
+
+arrayElem : IDENT (OPEN_SQ_PARENTHESES expr CLOSE_SQ_PARENTHESES)+ ;
 
 boolLiter : TRUE | FALSE ;
 

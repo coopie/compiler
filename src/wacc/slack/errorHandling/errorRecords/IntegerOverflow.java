@@ -11,7 +11,7 @@ public class IntegerOverflow extends ErrorRecord {
 
 	@Override
 	public String getMessage() {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated constructor stub
 		return null;
 	}
 

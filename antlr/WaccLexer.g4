@@ -2,6 +2,8 @@ lexer grammar WaccLexer;
 
 COMMENT :'#' .*? '\n' -> skip;
 
+INTEGER : ('-' | '+')? DIGIT+ ;
+
 //operators
 PLUS : '+' ;
 MINUS : '-' ;
@@ -31,8 +33,6 @@ ASSIGN : '=' ;
 
 //numbers
 fragment DIGIT : '0'..'9' ; 
-
-INTEGER : DIGIT+ ;
 
 //prog
 BEGIN : 'begin' ;
