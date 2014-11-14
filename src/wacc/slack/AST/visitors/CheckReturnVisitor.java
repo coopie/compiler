@@ -1,5 +1,7 @@
 package wacc.slack.AST.visitors;
 
+import java.util.List;
+
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
@@ -25,11 +27,17 @@ import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
+import wacc.slack.AST.types.Type;
+import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 
+	private Type funcType;
+
 	@Override
 	public Boolean visit(FuncAST func) {
+		funcType = func.getType();
 		return func.getStat().accept(this);
 	}
 
@@ -133,6 +141,11 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 
 	@Override
 	public Boolean visit(ReturnStatementAST exprStat) {
+		if (!exprStat.getExpr().getType().equals(funcType)) {
+			ErrorRecords.getInstance().record(
+					new TypeMismatchError(exprStat.getFilePosition(), exprStat
+							.getExpr().getType(), funcType));
+		}
 		return true;
 	}
 
