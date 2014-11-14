@@ -26,6 +26,7 @@ import wacc.slack.AST.symbolTable.IdentInfo;
 import wacc.slack.AST.symbolTable.SymbolTable;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.errorHandling.expectations.FunctionCallExpectation;
 import wacc.slack.errorHandling.expectations.FunctionReturnTypeExpectation;
 
@@ -89,7 +90,7 @@ public class ErrorObjectsTest {
 	public void canCheckTrueParamsFunctionExpectations() {
 		List<Type> params = new LinkedList<Type>(Arrays.asList(
 								BaseType.T_int,
-								BaseType.T_string
+								new WaccArrayType(BaseType.T_char)
 							));
 		
 		records.scope.insert("intStringFunc", new FuncIdentInfo(BaseType.T_int,params,null));

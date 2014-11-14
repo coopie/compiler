@@ -36,7 +36,8 @@ public class ArrayElemAST implements Assignable, Liter {
 		
 		while(i.hasNext()) {
 			if(!(t instanceof WaccArrayType)) {
-				throw new RuntimeException("array type of identifier in array elem is not valid");
+				throw new RuntimeException("array type of identifier in array elem is not valid "
+											+ filePos.getFilePosInfo());
 			}
 			t = ((WaccArrayType) t).getType();
 			i.next();
