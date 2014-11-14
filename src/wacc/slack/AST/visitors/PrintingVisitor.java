@@ -158,7 +158,7 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(CallAST call) {
-		String r = call.getIdent() + "(";
+		String r = FuncAST.decodeFuncName(call.getIdent()) + "(";
 		for (ExprAST expr : call.getArgList().getExprList()) {
 			r += expr.accept(this) + " ";
 		}
