@@ -107,7 +107,7 @@ arrayElem : IDENT (OPEN_SQ_PARENTHESES expr CLOSE_SQ_PARENTHESES)+ ;
 
 boolLiter : TRUE | FALSE ;
 
-arrayLiter : OPEN_SQ_PARENTHESES ( expr (COMMA expr)* ) CLOSE_SQ_PARENTHESES ;
+arrayLiter : OPEN_SQ_PARENTHESES ( expr (COMMA expr)* )? CLOSE_SQ_PARENTHESES ;
 
 pairLiter : NULL ;
 
