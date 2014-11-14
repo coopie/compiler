@@ -702,7 +702,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 				ctx.start.getCharPositionInLine());
 		Type returnType = visitType(ctx.type());
 
-		currentFunction = ctx.IDENT().getText();
+		currentFunction = FuncAST.encodeFuncName(ctx.IDENT().getText());
 
 		// rembering top scope so I can add the function Identifier to it after
 		// I add the params to the function scope and extract the types of
@@ -715,12 +715,12 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));
 		}
 
-		if (topScope.lookup(FuncAST.encodeFuncName(ctx.IDENT().getText())) instanceof FuncIdentInfo) {
+		if (topScope.lookup(currentFunction) instanceof FuncIdentInfo) {
 			ErrorRecords.getInstance()
 					.record(new RedeclaredFunctionError(filePos, ctx.IDENT()
 							.getText()));
 		}
-		topScope.insert(FuncAST.encodeFuncName(ctx.IDENT().getText()), new FuncIdentInfo(returnType,
+		topScope.insert(currentFunction, new FuncIdentInfo(returnType,
 				paramTypes, filePos));
 
 		FuncAST f = new FuncAST(returnType, currentFunction, paramList,
