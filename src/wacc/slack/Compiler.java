@@ -33,7 +33,14 @@ public class Compiler {
 		parser.addErrorListener(new WaccSyntaxtErrorListner());
 		ParseTree tree = parser.program();
 		ASTBuilder builder = new ASTBuilder();
-		WaccAST ast = (WaccAST)tree.accept(builder);
+		try {
+			WaccAST ast = (WaccAST)tree.accept(builder);
+		} catch (NullPointerException e) {
+			ErrorRecords.getInstance().setScope(builder.getScope());
+			if(ErrorRecords.getInstance().isErrorFree()) {
+				throw e;
+			}
+		}
 		ErrorRecords.getInstance().setScope(builder.getScope());
 		
 		if(!ErrorRecords.getInstance().isErrorFree()) {
