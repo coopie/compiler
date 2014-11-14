@@ -427,7 +427,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		List<StatAST> stats = new LinkedList<>();
 
 		for (StatContext s : ctx.stat()) {
-			stats.add((StatAST) s.accept(this));
+			stats.add(visitStat(s));
 		}
 		return new StatListAST(stats, filePos);
 	}
