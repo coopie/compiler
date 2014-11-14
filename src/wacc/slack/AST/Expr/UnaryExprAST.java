@@ -9,8 +9,8 @@ import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.literals.UnaryOp;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
+import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.AST.visitors.ASTVisitor;
-import wacc.slack.errorHandling.errorRecords.ErrorRecord;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
@@ -54,7 +54,7 @@ public class UnaryExprAST implements ExprAST {
 		switch(unaryOp) {
 			case NOT: return expr.getType() == BaseType.T_bool; 
 			case MINUS: return expr.getType() == BaseType.T_int; 
-			case LEN: return expr.getType() == BaseType.T_int; 
+			case LEN: return expr.getType().equals(new WaccArrayType(null)); 
 			case ORD: return expr.getType() == BaseType.T_char; 
 			case CHR: return expr.getType() == BaseType.T_int; 
 			default: throw new RuntimeException("not suppoerted UnaryOP");

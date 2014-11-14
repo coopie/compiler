@@ -5,15 +5,16 @@ import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
-import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class FreeStatementAST extends ExprStatementAST {
 	
 	public FreeStatementAST(ExprAST exprAST, FilePosition filePos) {
 		super(exprAST, filePos);
-		if (exprAST.getType() != new PairType()) {
+		if (!exprAST.getType().equals(new PairType())) {
 			ErrorRecords.getInstance().record(
-					new IllegalOperationError(filePos));
+					new TypeMismatchError(
+							filePos, exprAST.getType(), new PairType()));
 		}
 	}
 

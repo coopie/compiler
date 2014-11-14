@@ -34,6 +34,7 @@ public class CharLiter implements Liter {
 			case ('r'):
 			case ('\''):
 			case ('\\'):
+			case ('"'):
 				break;
 			default:
 				ErrorRecords.getInstance().record(
