@@ -220,6 +220,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		Type type = visitType(ctx.type());
 		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
 				ctx.start.getCharPositionInLine());
+		if(type == null) type = BaseType.T_int;
 		return new Param(ident, type, filePos);
 	}
 
