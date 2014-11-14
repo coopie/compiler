@@ -54,7 +54,7 @@ public class UnaryExprAST implements ExprAST {
 		switch(unaryOp) {
 			case NOT: return expr.getType() == BaseType.T_bool; 
 			case MINUS: return expr.getType() == BaseType.T_int; 
-			case LEN: return expr.getType().equals(new WaccArrayType(BaseType.T_int)); 
+			case LEN: return expr.getType().equals(new WaccArrayType(null)); 
 			case ORD: return expr.getType() == BaseType.T_char; 
 			case CHR: return expr.getType() == BaseType.T_int; 
 			default: throw new RuntimeException("not suppoerted UnaryOP");
