@@ -718,7 +718,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			paramTypes.add(p.getType());
 			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));
 		}
-
+		scope = scope.initializeNewScope();
 		if (topScope.lookup(currentFunction) instanceof FuncIdentInfo) {
 			ErrorRecords.getInstance()
 					.record(new RedeclaredFunctionError(filePos, ctx.IDENT()
@@ -736,7 +736,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 							"Missing return statement in control flow of function "
 									+ FuncAST.decodeFuncName(f.getIdent()) + ".", filePos));
 		}
-
+		scope = scope.popScope();
 		scope = scope.popScope();
 		currentFunction = null;
 		return f;
