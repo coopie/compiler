@@ -5,7 +5,7 @@ import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
-import wacc.slack.errorHandling.errorRecords.IllegalOperationError;
+import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class ExitStatementAST extends ExprStatementAST {
 
@@ -13,7 +13,7 @@ public class ExitStatementAST extends ExprStatementAST {
 		super(exprAST, filePos);
 		if (exprAST.getType() != BaseType.T_int) {
 			ErrorRecords.getInstance().record(
-					new IllegalOperationError(filePos));
+					new TypeMismatchError(filePos, exprAST.getType(), BaseType.T_int));
 		}
 	}
 
