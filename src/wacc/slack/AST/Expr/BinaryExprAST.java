@@ -56,20 +56,29 @@ public class BinaryExprAST implements ExprAST {
 		case MOD:
 		case PLUS:
 		case MINUS:
+			return bothSidesHaveTypes(BaseType.T_int);
 		case GT:
 		case GTE:
 		case LT:
 		case LTE:
-			return exprL.getType() == BaseType.T_int && exprR.getType() == BaseType.T_int;
+			return bothSidesHaveTypes(BaseType.T_int, BaseType.T_char);
 		case EQ:
 		case NEQ:
-			return exprL.getType() == exprR.getType();
+			return exprL.getType().equals(exprR.getType());
 		case AND:
 		case OR:
-			return exprL.getType() == BaseType.T_bool && exprR.getType() == BaseType.T_bool;
+			return bothSidesHaveTypes(BaseType.T_bool);
 		default:
 			throw new RuntimeException("not supported BiaryOP");
 		}
+	}
+
+	private boolean bothSidesHaveTypes(Type... types) {
+		boolean typesCheck = false;
+		for (Type t : types) {
+			typesCheck |= exprL.getType().equals(t) && exprR.getType().equals(t);
+		}
+		return typesCheck;
 	}
 
 	public BinaryOp getBinaryOp() {

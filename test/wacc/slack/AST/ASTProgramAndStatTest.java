@@ -176,6 +176,12 @@ public class ASTProgramAndStatTest extends ASTTest {
 	}
 	
 	@Test
+	public void nullTest() {
+		statementTestAssert("pair(int, char) a = null",
+				"\na = NULL");
+	}
+	
+	@Test
 	public void simpleUnaryOp() {
 		exprTestAssert("-1", "-(1)");
 	}

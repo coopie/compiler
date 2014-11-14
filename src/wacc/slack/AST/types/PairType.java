@@ -40,17 +40,21 @@ public class PairType implements Type {
 		// if we are checking that a pair has the same type as null:
 		if (o instanceof PairType) {
 			PairType pt = (PairType) o;
-			// the type of null or pair is (null,null), this is checking that we are
-			// comparing to a null value
+			// when we do not care of the type of a certain member of a pair,
+			// the type is null
 
-			if ((this.fst    == null && this.snd    == null)
-			 || (pt.getFst() == null && pt.getSnd() == null)) {
-				return true;
-			}
+			return typesDoNotConflict(fst, pt.getFst())
+					&& typesDoNotConflict(snd, pt.getSnd());
 		}
+		return false;
+	}
 
-		return o instanceof PairType && fst.equals(((PairType) o).fst)
-				&& snd.equals(((PairType) o).snd);
+	private boolean typesDoNotConflict(Type t1, Type t2) {
+		if (t1 == null || t2 == null) {
+			return true;
+		} else {
+			return t1.equals(t2);
+		}
 	}
 
 	public Type getFst() {
@@ -69,16 +73,16 @@ public class PairType implements Type {
 		} else {
 			s += fst;
 		}
-		
+
 		s += ", ";
-		
+
 		if (snd == null) {
 			s += "any";
 		} else {
 			s += snd;
 		}
 		s += ")";
-		
+
 		return s;
 	}
 }
