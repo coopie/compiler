@@ -23,7 +23,7 @@ public class PairType implements Type {
 		this.filePos = filePos;
 	}
 
-	// for use of an ambiguous pairtype
+	// For use of an ambiguous pairtype
 	public PairType() {
 		this(null, null, null);
 	}
@@ -36,11 +36,10 @@ public class PairType implements Type {
 	@Override
 	// TODO: this is a problem possibly
 	public boolean equals(Object o) {
-
-		// if we are checking that a pair has the same type as null:
+		// If we are checking that a pair has the same type as null:
 		if (o instanceof PairType) {
 			PairType pt = (PairType) o;
-			// when we do not care of the type of a certain member of a pair,
+			// When we do not care of the type of a certain member of a pair,
 			// the type is null
 
 			return typesDoNotConflict(fst, pt.getFst())

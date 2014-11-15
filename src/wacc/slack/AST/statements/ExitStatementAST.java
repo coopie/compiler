@@ -13,7 +13,8 @@ public class ExitStatementAST extends ExprStatementAST {
 		super(exprAST, filePos);
 		if (exprAST.getType() != BaseType.T_int) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(filePos, exprAST.getType(), BaseType.T_int));
+					new TypeMismatchError(filePos, exprAST.getType(),
+							BaseType.T_int));
 		}
 	}
 

@@ -8,13 +8,13 @@ import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class FreeStatementAST extends ExprStatementAST {
-	
+
 	public FreeStatementAST(ExprAST exprAST, FilePosition filePos) {
 		super(exprAST, filePos);
 		if (!exprAST.getType().equals(new PairType())) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(
-							filePos, exprAST.getType(), new PairType()));
+					new TypeMismatchError(filePos, exprAST.getType(),
+							new PairType()));
 		}
 	}
 

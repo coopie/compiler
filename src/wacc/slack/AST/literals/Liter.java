@@ -5,8 +5,9 @@ import wacc.slack.AST.types.Type;
 
 public interface Liter extends ParseTreeReturnable {
 
-	// returns the type that the liter returns
+	// Returns the type that the liter returns
 	public Type getType();
+
 	public String getValue();
 
 }

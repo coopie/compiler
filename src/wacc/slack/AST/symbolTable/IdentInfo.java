@@ -22,9 +22,10 @@ public class IdentInfo {
 	public FilePosition getDeclaredAt() {
 		return declaredAt;
 	}
-	
+
 	public List<Type> getParamTypes() {
-		throw new RuntimeException("can't get params on non function identifier");
+		throw new RuntimeException(
+				"can't get params on non function identifier");
 	}
-	
+
 }

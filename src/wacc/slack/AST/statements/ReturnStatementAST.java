@@ -5,7 +5,7 @@ import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class ReturnStatementAST extends ExprStatementAST {
-	
+
 	public ReturnStatementAST(ExprAST exprAST, FilePosition filePos) {
 		super(exprAST, filePos);
 	}

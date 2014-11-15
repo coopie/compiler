@@ -20,20 +20,21 @@ public class BinaryExprAST implements ExprAST {
 	private final boolean typesCheck;
 	private final FilePosition filePos;
 
-	
-	public BinaryExprAST(BinaryOp binaryOp, ExprAST exprL, ExprAST exprR, FilePosition filePos) {
+	public BinaryExprAST(BinaryOp binaryOp, ExprAST exprL, ExprAST exprR,
+			FilePosition filePos) {
 		this.binaryOp = binaryOp;
 		this.exprL = exprL;
 		this.exprR = exprR;
 		this.typesCheck = checkTypes();
 		this.filePos = filePos;
-		
-		if(!typesCheck) {
+
+		if (!typesCheck) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(filePos, exprR.getType(), exprL.getType()));
-		}	
+					new TypeMismatchError(filePos, exprR.getType(), exprL
+							.getType()));
+		}
 	}
-	
+
 	@Override
 	public FilePosition getFilePosition() {
 		return filePos;
@@ -43,12 +44,12 @@ public class BinaryExprAST implements ExprAST {
 	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
 	}
-	
+
 	@Override
 	public Type getType() {
 		return binaryOp.getType();
 	}
-	
+
 	private boolean checkTypes() {
 		switch (binaryOp) {
 		case MUL:
@@ -76,7 +77,8 @@ public class BinaryExprAST implements ExprAST {
 	private boolean bothSidesHaveTypes(Type... types) {
 		boolean typesCheck = false;
 		for (Type t : types) {
-			typesCheck |= exprL.getType().equals(t) && exprR.getType().equals(t);
+			typesCheck |= exprL.getType().equals(t)
+					&& exprR.getType().equals(t);
 		}
 		return typesCheck;
 	}
@@ -84,23 +86,23 @@ public class BinaryExprAST implements ExprAST {
 	public BinaryOp getBinaryOp() {
 		return binaryOp;
 	}
-	
+
 	public ExprAST getExprL() {
 		return exprL;
 	}
-	
+
 	public ExprAST getExprR() {
 		return exprR;
 	}
-	
+
 	@Override
 	public String toString() {
-		return  binaryOp.toString();
+		return binaryOp.toString();
 	}
-	
+
 	@Override
 	public List<WaccAST> getChildren() {
-		return new LinkedList<WaccAST>(Arrays.asList(exprL,exprR));
+		return new LinkedList<WaccAST>(Arrays.asList(exprL, exprR));
 	}
 
 }

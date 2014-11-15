@@ -16,17 +16,18 @@ import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class FstAST implements Assignable {
-	
+
 	private final Assignable expr;
 	private final FilePosition filePos;
 	private final SymbolTable<IdentInfo> scope;
 	private boolean validExpression;
-	
-	public FstAST(Assignable expr, FilePosition filePos, SymbolTable<IdentInfo> scope) {
+
+	public FstAST(Assignable expr, FilePosition filePos,
+			SymbolTable<IdentInfo> scope) {
 		this.expr = expr;
 		this.filePos = filePos;
 		this.scope = scope;
-		
+
 		validExpression = checkType();
 	}
 
@@ -34,7 +35,7 @@ public class FstAST implements Assignable {
 	public FilePosition getFilePosition() {
 		return filePos;
 	}
-	
+
 	@Override
 	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
@@ -44,14 +45,15 @@ public class FstAST implements Assignable {
 	public String getName() {
 		return expr.getName();
 	}
-	
-	//TODO: this needs changing
+
+	// TODO: this needs changing
 	private boolean checkType() {
 		if (!(expr.getType() instanceof PairType)) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(filePos, expr.getType(), new PairType()));
+					new TypeMismatchError(filePos, expr.getType(),
+							new PairType()));
 			return false;
-		} 
+		}
 		return true;
 	}
 
@@ -62,9 +64,9 @@ public class FstAST implements Assignable {
 
 	@Override
 	public Type getType() {
-		//TODO: sort this out, this could blow up in our face really bad
-		if(validExpression) {
-			return ((PairType)scope.lookup(expr.getName()).getType()).getFst();
+		// TODO: sort this out
+		if (validExpression) {
+			return ((PairType) scope.lookup(expr.getName()).getType()).getFst();
 		} else {
 			return BaseType.T_int;
 		}

@@ -8,7 +8,7 @@ public class BoolLiter implements Liter {
 
 	private final String value;
 	private final FilePosition filePos;
-	
+
 	public BoolLiter(String value, FilePosition filePos) {
 		this.value = value;
 		this.filePos = filePos;
@@ -24,7 +24,7 @@ public class BoolLiter implements Liter {
 	public String getValue() {
 		return value;
 	}
-	
+
 	@Override
 	public FilePosition getFilePosition() {
 		return filePos;

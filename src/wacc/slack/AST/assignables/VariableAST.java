@@ -12,7 +12,7 @@ import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
-public class VariableAST implements Assignable,ExprAST {
+public class VariableAST implements Assignable, ExprAST {
 
 	private final String id;
 	private final SymbolTable<IdentInfo> scope;

@@ -16,17 +16,18 @@ import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 
 public class SndAST implements Assignable {
-	
+
 	private final Assignable expr;
 	private final FilePosition filePos;
 	private final SymbolTable<IdentInfo> scope;
 	private boolean validExpression;
-	
-	public SndAST(Assignable expr, FilePosition filePos, SymbolTable<IdentInfo> scope) {
+
+	public SndAST(Assignable expr, FilePosition filePos,
+			SymbolTable<IdentInfo> scope) {
 		this.expr = expr;
 		this.filePos = filePos;
 		this.scope = scope;
-		
+
 		this.validExpression = checkType();
 	}
 
@@ -44,29 +45,29 @@ public class SndAST implements Assignable {
 	public String getName() {
 		return expr.getName();
 	}
-	
-	// checking so that the expression
+
+	// Checking so that the expression
 	private boolean checkType() {
 		if (!(expr.getType() instanceof PairType)) {
 			ErrorRecords.getInstance().record(
-					new TypeMismatchError(filePos, expr.getType(), new PairType()));
+					new TypeMismatchError(filePos, expr.getType(),
+							new PairType()));
 			return false;
-		} 
+		}
 		return true;
-		
+
 	}
-	
-	
+
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(expr));
 	}
-	
+
 	@Override
 	public Type getType() {
-		//TODO: sort this out, this could blow up in our face really bad
-		if(validExpression) {
-			return ((PairType)scope.lookup(expr.getName()).getType()).getSnd();
+		// TODO: sort this out
+		if (validExpression) {
+			return ((PairType) scope.lookup(expr.getName()).getType()).getSnd();
 		} else {
 			return BaseType.T_int;
 		}

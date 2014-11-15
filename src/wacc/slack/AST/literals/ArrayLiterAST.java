@@ -12,23 +12,23 @@ import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class ArrayLiterAST implements Liter, AssignRHS {
-	
+
 	private final List<ExprAST> exprList;
 	private final WaccArrayType type;
 	private final FilePosition filePos;
-	
+
 	public ArrayLiterAST(List<ExprAST> exprList, FilePosition filePos) {
 		this.exprList = exprList;
-		this.filePos = filePos;	
-		
-		if(exprList.size() > 0) {
+		this.filePos = filePos;
+
+		if (exprList.size() > 0) {
 			Type t = exprList.get(0).getType();
 			boolean allSameTypes = true;
-			
-			for(ExprAST expr : exprList) {
+
+			for (ExprAST expr : exprList) {
 				allSameTypes &= t.equals(expr.getType());
 			}
-			if(allSameTypes) {
+			if (allSameTypes) {
 				type = new WaccArrayType(t);
 			} else {
 				type = new WaccArrayType(null);
@@ -37,20 +37,19 @@ public class ArrayLiterAST implements Liter, AssignRHS {
 			type = new WaccArrayType(null);
 		}
 	}
-	
+
 	public List<ExprAST> getExprList() {
 		return exprList;
 	}
 
 	@Override
 	public Type getType() {
-		
-		return (Type)type;
+
+		return (Type) type;
 	}
 
 	@Override
 	public String getValue() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

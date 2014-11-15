@@ -9,7 +9,8 @@ public class FuncIdentInfo extends IdentInfo {
 
 	private final List<Type> paramTypes;
 
-	public FuncIdentInfo(Type ident_type,List<Type> paramTypes, FilePosition declaredAt) {
+	public FuncIdentInfo(Type ident_type, List<Type> paramTypes,
+			FilePosition declaredAt) {
 		super(ident_type, declaredAt);
 		this.paramTypes = paramTypes;
 	}
@@ -18,5 +19,5 @@ public class FuncIdentInfo extends IdentInfo {
 	public List<Type> getParamTypes() {
 		return paramTypes;
 	}
-	
+
 }

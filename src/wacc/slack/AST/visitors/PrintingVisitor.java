@@ -70,7 +70,8 @@ public class PrintingVisitor implements ASTVisitor<String> {
 
 	@Override
 	public String visit(FuncAST func) {
-		String s = func.getType() + " " + FuncAST.decodeFuncName(func.getIdent()) + "()";
+		String s = func.getType() + " "
+				+ FuncAST.decodeFuncName(func.getIdent()) + "()";
 		indent();
 		s += func.getStat().accept(this);
 		endIndent();

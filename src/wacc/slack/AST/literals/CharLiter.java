@@ -37,8 +37,9 @@ public class CharLiter implements Liter {
 			case ('"'):
 				break;
 			default:
-				ErrorRecords.getInstance().record(
-						new SyntaxError("Bad escaped character error", filePos));
+				ErrorRecords.getInstance()
+						.record(new SyntaxError("Bad escaped character error",
+								filePos));
 			}
 		}
 	}

@@ -7,7 +7,7 @@ public class TypeMismatchError extends ErrorRecord {
 
 	private final Type[] expected;
 	private final Type actual;
-	
+
 	public TypeMismatchError(FilePosition fp, Type actual, Type... expected) {
 		super(fp);
 		this.actual = actual;
@@ -16,15 +16,15 @@ public class TypeMismatchError extends ErrorRecord {
 
 	@Override
 	public String getMessage() {
-		String message =  "Mismatched type, expected: " + printExpected() +
-				 ", got: " + actual;
-		
+		String message = "Mismatched type, expected: " + printExpected()
+				+ ", got: " + actual;
+
 		return message;
 	}
-	
+
 	private String printExpected() {
 		String s = "";
-		for(Type t : expected) {
+		for (Type t : expected) {
 			s += t + " ";
 		}
 		return s;
@@ -34,7 +34,7 @@ public class TypeMismatchError extends ErrorRecord {
 	public FilePosition getFilePosition() {
 		return fp;
 	}
-	
+
 	@Override
 	public ErrorType getType() {
 		return ErrorType.TypeMismatchError;

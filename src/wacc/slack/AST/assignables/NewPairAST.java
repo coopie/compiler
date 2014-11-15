@@ -12,7 +12,7 @@ import wacc.slack.AST.types.Type;
 import wacc.slack.AST.visitors.ASTVisitor;
 
 public class NewPairAST implements AssignRHS {
-	
+
 	private final ExprAST exprL, exprR;
 	private final FilePosition filePos;
 
@@ -26,12 +26,12 @@ public class NewPairAST implements AssignRHS {
 	public FilePosition getFilePosition() {
 		return filePos;
 	}
-	
+
 	@Override
 	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
 	}
-	
+
 	public ExprAST getExprL() {
 		return exprL;
 	}
@@ -39,7 +39,7 @@ public class NewPairAST implements AssignRHS {
 	public ExprAST getExprR() {
 		return exprR;
 	}
-	
+
 	@Override
 	public String toString() {
 		return exprL + ", " + exprR;
@@ -47,7 +47,7 @@ public class NewPairAST implements AssignRHS {
 
 	@Override
 	public List<WaccAST> getChildren() {
-		return new LinkedList<WaccAST>(Arrays.asList(exprL,exprR));
+		return new LinkedList<WaccAST>(Arrays.asList(exprL, exprR));
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package wacc.slack.errorHandling.errorRecords;
 
 import wacc.slack.FilePosition;
 
-//currently only used for return statements outside of function calls
+// Currently only used for return statements outside of function calls
 public class IllegalOperationError extends ErrorRecord {
 
 	public IllegalOperationError(FilePosition fp) {
@@ -13,7 +13,7 @@ public class IllegalOperationError extends ErrorRecord {
 	public String getMessage() {
 		return "Illegal use of return outside of a function";
 	}
-	
+
 	@Override
 	public ErrorType getType() {
 		return ErrorType.IllegalOperationError;

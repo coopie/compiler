@@ -1,7 +1,5 @@
 package wacc.slack.AST.visitors;
 
-import java.util.List;
-
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
@@ -43,7 +41,7 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 
 	@Override
 	public Boolean visit(ProgramAST prog) {
-		// TODO Auto-generated method stub
+		// Not visited
 		return null;
 	}
 

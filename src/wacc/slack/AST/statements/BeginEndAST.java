@@ -13,6 +13,7 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public class BeginEndAST extends StatAST implements WaccAST {
 
 	private final StatAST body;
+
 	public BeginEndAST(StatAST body, FilePosition filePos) {
 		super(filePos);
 		this.body = body;

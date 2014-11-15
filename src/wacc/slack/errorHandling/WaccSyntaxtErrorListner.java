@@ -18,12 +18,11 @@ import wacc.slack.errorHandling.errorRecords.SyntaxError;
 public class WaccSyntaxtErrorListner implements ANTLRErrorListener {
 
 	ErrorRecords records = ErrorRecords.getInstance();
-	
+
 	@Override
 	public void reportAmbiguity(@NotNull Parser arg0, @NotNull DFA arg1,
 			int arg2, int arg3, boolean arg4, @Nullable BitSet arg5,
 			@NotNull ATNConfigSet arg6) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -31,7 +30,6 @@ public class WaccSyntaxtErrorListner implements ANTLRErrorListener {
 	public void reportAttemptingFullContext(@NotNull Parser arg0,
 			@NotNull DFA arg1, int arg2, int arg3, @Nullable BitSet arg4,
 			@NotNull ATNConfigSet arg5) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -39,17 +37,16 @@ public class WaccSyntaxtErrorListner implements ANTLRErrorListener {
 	public void reportContextSensitivity(@NotNull Parser arg0,
 			@NotNull DFA arg1, int arg2, int arg3, int arg4,
 			@NotNull ATNConfigSet arg5) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void syntaxError(@NotNull Recognizer<?, ?> parser,
-			@Nullable Object offendingToken, int line, int charPos, @NotNull String defaultMessage,
-			@Nullable RecognitionException arg5) {
-		
-		records.record(new SyntaxError(defaultMessage, new FilePosition(line,charPos)));
-		
+			@Nullable Object offendingToken, int line, int charPos,
+			@NotNull String defaultMessage, @Nullable RecognitionException arg5) {
+
+		records.record(new SyntaxError(defaultMessage, new FilePosition(line,
+				charPos)));
 
 	}
 

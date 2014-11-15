@@ -1,4 +1,5 @@
 package wacc.slack;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 
@@ -34,22 +35,22 @@ public class Compiler {
 		ParseTree tree = parser.program();
 		ASTBuilder builder = new ASTBuilder();
 		try {
-			WaccAST ast = (WaccAST)tree.accept(builder);
+			WaccAST ast = (WaccAST) tree.accept(builder);
 		} catch (NullPointerException e) {
 			ErrorRecords.getInstance().setScope(builder.getScope());
-			if(ErrorRecords.getInstance().isErrorFree()) {
+			if (ErrorRecords.getInstance().isErrorFree()) {
 				throw e;
 			}
 		}
 		ErrorRecords.getInstance().setScope(builder.getScope());
-		
-		if(!ErrorRecords.getInstance().isErrorFree()) {
-			ErrorRecordPrinter erp = new ErrorRecordPrinter(ErrorRecords.getInstance(),
-																			System.out);
+
+		if (!ErrorRecords.getInstance().isErrorFree()) {
+			ErrorRecordPrinter erp = new ErrorRecordPrinter(
+					ErrorRecords.getInstance(), System.out);
 			erp.print();
 			System.exit(ErrorRecords.getInstance().getExitCode());
 		}
-		
+
 		System.exit(0);
 	}
 

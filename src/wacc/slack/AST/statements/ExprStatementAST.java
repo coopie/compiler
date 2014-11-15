@@ -12,18 +12,19 @@ import wacc.slack.AST.visitors.ASTVisitor;
 public abstract class ExprStatementAST extends StatAST implements WaccAST {
 
 	private final ExprAST expr;
+
 	public ExprStatementAST(ExprAST exprAST, FilePosition filePos) {
 		super(filePos);
 		this.expr = exprAST;
 	}
 
 	public abstract String getName();
-	
+
 	@Override
 	public String toString() {
 		return getName() + " " + getExpr().toString();
 	}
-	
+
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(Arrays.asList(getExpr()));

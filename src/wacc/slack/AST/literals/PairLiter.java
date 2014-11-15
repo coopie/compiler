@@ -7,14 +7,14 @@ import wacc.slack.AST.types.Type;
 public class PairLiter implements Liter {
 
 	private final FilePosition filePos;
-	
+
 	public PairLiter(FilePosition filePos) {
 		this.filePos = filePos;
 	}
 
 	@Override
 	public Type getType() {
-		return new PairType(null,null, filePos);
+		return new PairType(null, null, filePos);
 	}
 
 	@Override

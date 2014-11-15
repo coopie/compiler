@@ -27,34 +27,54 @@ import wacc.slack.AST.statements.WhileStatementAST;
 
 public interface ASTVisitor<T> {
 	T visit(FuncAST func);
+
 	T visit(ProgramAST prog);
 
-	// statements
+	// Statements
 	T visit(StatListAST statAST);
+
 	T visit(AssignStatAST assignStat);
+
 	T visit(BeginEndAST beginEnd);
+
 	T visit(IfStatementAST ifStat);
+
 	T visit(SkipStatementAST skipStat);
+
 	T visit(WhileStatementAST whileStat);
+
 	T visit(ReturnStatementAST exprStat);
+
 	T visit(PrintlnStatementAST printlnStat);
-	T visit(PrintStatementAST printStat);	
+
+	T visit(PrintStatementAST printStat);
+
 	T visit(ReadStatementAST readStat);
+
 	T visit(ExitStatementAST exitStat);
+
 	T visit(FreeStatementAST freeStat);
-	
-	// assignables
+
+	// Assignables
 	T visit(ArrayElemAST arrayElem);
+
 	T visit(FstAST fst);
+
 	T visit(SndAST snd);
+
 	T visit(ArrayLiterAST arrayLiter);
+
 	T visit(CallAST call);
+
 	T visit(NewPairAST newPair);
 
-	// expressions
+	// Expressions
 	T visit(BinaryExprAST binExpr);
+
 	T visit(UnaryExprAST unExpr);
+
 	T visit(ValueExprAST valueExpr);
+
 	T visit(VariableAST variable);
 
 }

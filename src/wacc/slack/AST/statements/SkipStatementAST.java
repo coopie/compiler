@@ -17,7 +17,8 @@ public class SkipStatementAST extends StatAST implements WaccAST {
 	public String toString() {
 		return "skip";
 	}
-	@Override 
+
+	@Override
 	public <T> T accept(ASTVisitor<T> v) {
 		return v.visit(this);
 	}

@@ -20,24 +20,26 @@ import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
 public class ArrayElemAST implements Assignable, Liter {
 
 	private final String ident;
-	// each ExprAST in exprs exits within a separate [] 
+	// Each ExprAST in exprs exits within a separate []
 	private final List<ExprAST> exprs;
 	private final FilePosition filePos;
 	private final Type type;
-	
-	public ArrayElemAST(String ident, List<ExprAST> exprs, SymbolTable<IdentInfo> scope,FilePosition filePos) {
+
+	public ArrayElemAST(String ident, List<ExprAST> exprs,
+			SymbolTable<IdentInfo> scope, FilePosition filePos) {
 		this.ident = ident;
 		this.exprs = exprs;
 		this.filePos = filePos;
-		
+
 		IdentInfo info = scope.lookup(ident);
 		Type t = info.getType();
 		Iterator<ExprAST> i = exprs.iterator();
-		
-		while(i.hasNext()) {
-			if(!(t instanceof WaccArrayType)) {
-				throw new RuntimeException("array type of identifier in array elem is not valid "
-											+ filePos.getFilePosInfo());
+
+		while (i.hasNext()) {
+			if (!(t instanceof WaccArrayType)) {
+				throw new RuntimeException(
+						"array type of identifier in array elem is not valid "
+								+ filePos.getFilePosInfo());
 			}
 			t = ((WaccArrayType) t).getType();
 			i.next();
@@ -51,7 +53,7 @@ public class ArrayElemAST implements Assignable, Liter {
 	public FilePosition getFilePosition() {
 		return filePos;
 	}
-	
+
 	@Override
 	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
@@ -66,40 +68,39 @@ public class ArrayElemAST implements Assignable, Liter {
 	public Type getType() {
 		return type;
 	}
-	
 
 	private void checkType() {
-		for(ExprAST expr : exprs) {
+		for (ExprAST expr : exprs) {
 			if (!expr.getType().equals(BaseType.T_int)) {
 				ErrorRecords.getInstance().record(
-						new TypeMismatchError(filePos, expr.getType(), BaseType.T_int));
+						new TypeMismatchError(filePos, expr.getType(),
+								BaseType.T_int));
 			}
 		}
 	}
-	
+
 	@Override
 	public String getValue() {
 		return toString();
 	}
-	
+
 	public String getIdent() {
 		return ident;
 	}
-	
+
 	public List<ExprAST> getExprs() {
 		return exprs;
 	}
-	
+
 	@Override
 	public String toString() {
 		String s = getIdent();
-		for(ExprAST expr : getExprs()) {
+		for (ExprAST expr : getExprs()) {
 			s += "[" + expr + "]";
 		}
 		return s;
 	}
-	
-	
+
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(exprs);

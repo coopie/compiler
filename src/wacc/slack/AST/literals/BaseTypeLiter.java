@@ -7,7 +7,7 @@ public abstract class BaseTypeLiter implements Liter {
 
 	private String value;
 	private FilePosition fp;
-	
+
 	public BaseTypeLiter(String value, FilePosition fp) {
 		this.value = value;
 		this.fp = fp;
@@ -15,19 +15,17 @@ public abstract class BaseTypeLiter implements Liter {
 
 	@Override
 	public FilePosition getFilePosition() {
-		return null;
+		return fp;
 	}
 
 	@Override
 	public Type getType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return value;
 	}
 
 }
