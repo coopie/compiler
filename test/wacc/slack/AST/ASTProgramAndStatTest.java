@@ -202,8 +202,9 @@ public class ASTProgramAndStatTest extends ASTTest {
 	
 	@Test
 	public void doubleDeclarationInControlFlow() {
-		statementTestAssert("if true then bool b = true else bool b = false fi", "\nif true\n	b = true\nelse\n	b = false");
+		programTestAssert("begin if true then bool b = true else bool b = false fi end", "start:\n	if true\n		b = true\n	else\n		b = false\nend");
 		ErrorRecords.getInstance().setScope(astBuilder.getScope());
+		//fails because some expectations are left
 		assertTrue(ErrorRecords.getInstance().isErrorFree());
 	}
 }
