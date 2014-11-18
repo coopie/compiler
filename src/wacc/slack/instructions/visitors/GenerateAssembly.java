@@ -16,25 +16,14 @@ import wacc.slack.instructions.Swi;
 
 public class GenerateAssembly implements InstructionVistor<String> {
 	
-	private int indents = 0;
-	
-	private void incIndent() {
-		indents++;
-	}
-	
-	private void decIndent() {
-		indents--;
-	}
-	
-	private String newLine() {
-		String newLine = "\n";
-		
-		for(int i = 0; i < indents; i++) {
-			newLine.concat("\t");		
+	private String newLine(int indent) {
+		String s = "\n";
+		for(int i = 0; i < indent; i++) {
+			s += "\t";
 		}
-		return newLine;
+		return s;
 	}
-
+	
 	private OperandVisitor<String> printOperand = new OperandVisitor<String>(){
 
 		@Override
@@ -50,11 +39,8 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 		@Override
 		public String visit(Label label) {
-			if(indents == 1) {
-				decIndent();
-			}
-			incIndent();
-			return "=" + label.getName() + newLine();
+			
+			return "=" + label.getName();
 		}
 
 		@Override
@@ -66,42 +52,44 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	
 	@Override
 	public String visit(Mov mov) {
-		return "MOV " + mov.getDest().accept(printOperand) + ", " + mov.getSource().accept(printOperand) + newLine();
+		return newLine(4) +"MOV " + mov.getDest().accept(printOperand) + ", " +
+				mov.getSource().accept(printOperand);
 	}
 
 	@Override
 	public String visit(Label label) {
-		return label.getName() + ":" + newLine();
+		return "\n" + newLine(2) + label.getName() + ":";
 	}
 
 	@Override
 	public String visit(AssemblerDirective assemblerDirective) {
-		return assemblerDirective.getDirective() + newLine();
+		return newLine(2) + assemblerDirective.getDirective();
 	}
 
 	@Override
 	public String visit(Swi swi) {
-		return "SWI 0" + newLine();
+		return newLine(4) + "SWI 0";
 	}
 
 	@Override
 	public String visit(Ldr ldr) {
-		return "LDR " + ldr.getDest().accept(printOperand) + ", " + ldr.getSource().accept(printOperand) + newLine();
+		return newLine(4) + "LDR " + ldr.getDest().accept(printOperand) +
+				", " + ldr.getSource().accept(printOperand);
 	}
 
 	@Override
 	public String visit(BLInstruction blInsturction) {
-		return "BL " + blInsturction.getLabel() + newLine();
+		return newLine(4) + "BL " + blInsturction.getLabel();
 	}
 
 	@Override
 	public String visit(Pop pop) {
-		return "POP {" + pop.getOperand().accept(printOperand) + "}" + newLine();
+		return newLine(4) + "POP {" + pop.getOperand().accept(printOperand) + "}";
 	}
 
 	@Override
 	public String visit(Push push) {
-		return "PUSH {" + push.getOperand().accept(printOperand) + "}" + newLine();
+		return newLine(4) + "PUSH {" + push.getOperand().accept(printOperand) + "}";
 	}
 
 	@Override
