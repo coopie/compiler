@@ -8,4 +8,6 @@ public interface InstructionVistor<T> {
 
 	T visit(Swi swi);
 
+	T accept(Label label);
+
 }

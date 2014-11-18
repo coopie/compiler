@@ -29,7 +29,10 @@ import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.instructions.PseudoInstruction;
 
-public class IntermediateCodeGenerator implements ASTVisitor<List<PseudoInstruction>> {
+// NB: use LinkedList 
+
+public class IntermediateCodeGenerator implements
+		ASTVisitor<List<PseudoInstruction>> {
 
 	@Override
 	public List<PseudoInstruction> visit(FuncAST func) {
@@ -39,7 +42,17 @@ public class IntermediateCodeGenerator implements ASTVisitor<List<PseudoInstruct
 
 	@Override
 	public List<PseudoInstruction> visit(ProgramAST prog) {
-		//TODO: functions, exit codes maybe
+		
+		List<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		// TODO: functions, exit codes maybe
+
+		// --- implementation of the "main" function, i.e. the stats after the
+		// function definitions
+		
+		// this is not 
+		instrList.addAll(prog.getStatements().accept(this));
+
 		return prog.getStatements().accept(this);
 	}
 
@@ -171,6 +184,11 @@ public class IntermediateCodeGenerator implements ASTVisitor<List<PseudoInstruct
 	@Override
 	public List<PseudoInstruction> visit(VariableAST variable) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private List<PseudoInstruction> attachLabelToFirstElement(String name,
+										List<PseudoInstruction> instrList) {
 		return null;
 	}
 
