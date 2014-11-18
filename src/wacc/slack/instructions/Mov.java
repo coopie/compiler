@@ -1,14 +1,14 @@
 package wacc.slack.instructions;
 
-import wacc.slack.assemblyOperands.Register;
+import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.instructions.visitors.InstructionVistor;
 
 public class Mov implements PseudoInstruction {
 
-	private Register dest;
-	private Register source;
+	private Operand dest;
+	private Operand source;
 	
-	public Mov(Register dest, Register source) {
+	public Mov(Operand dest, Operand source) {
 		this.setDest(dest);
 		this.setSource(source);
 	}
@@ -18,19 +18,19 @@ public class Mov implements PseudoInstruction {
 		return visitor.accept(this);
 	}
 
-	public Register getDest() {
+	public Operand getDest() {
 		return dest;
 	}
 
-	public void setDest(Register dest) {
+	public void setDest(Operand dest) {
 		this.dest = dest;
 	}
 
-	public Register getSource() {
+	public Operand getSource() {
 		return source;
 	}
 
-	public void setSource(Register source) {
+	public void setSource(Operand source) {
 		this.source = source;
 	}
 

@@ -1,5 +1,6 @@
 package wacc.slack.AST.visitors;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +28,9 @@ import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
+import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.WaccArrayType;
+import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.PseudoInstruction;
 
 // NB: use LinkedList 
@@ -34,6 +38,9 @@ import wacc.slack.instructions.PseudoInstruction;
 public class IntermediateCodeGenerator implements
 		ASTVisitor<List<PseudoInstruction>> {
 
+	
+	private List<PseudoInstruction> data = new LinkedList<>();
+	private String returnedLabel = null;
 	@Override
 	public List<PseudoInstruction> visit(FuncAST func) {
 		// TODO Auto-generated method stub
@@ -44,6 +51,8 @@ public class IntermediateCodeGenerator implements
 	public List<PseudoInstruction> visit(ProgramAST prog) {
 		
 		List<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		instrList.add(new AssemblerDirective(".data"));
 		
 		// TODO: functions, exit codes maybe
 
@@ -105,7 +114,7 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public List<PseudoInstruction> visit(PrintStatementAST printStat) {
-		// TODO Auto-generated method stub
+		printStat.getExpr().accept(this);
 		return null;
 	}
 
@@ -177,8 +186,15 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public List<PseudoInstruction> visit(ValueExprAST valueExpr) {
-		// TODO Auto-generated method stub
-		return null;
+		//if it is a string literal
+		List<PseudoInstruction> instr = new LinkedList<PseudoInstruction>();
+		PseudoInstruction literalLabel = null;
+		if(valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))){
+			instr.add(literalLabel);
+			instr.add(new AssemblerDirective(".word " + valueExpr.getValue().length()));
+			instr.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\""));
+		}
+		return instr;
 	}
 
 	@Override

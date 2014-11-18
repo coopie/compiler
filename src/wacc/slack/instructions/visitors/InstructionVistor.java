@@ -10,4 +10,6 @@ public interface InstructionVistor<T> {
 
 	T accept(Label label);
 
+	T visit(AssemblerDirective assemblerDirective);
+
 }

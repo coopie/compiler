@@ -1,14 +1,14 @@
 package wacc.slack.instructions;
 
+import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.instructions.visitors.InstructionVistor;
 
-public class Label  implements PseudoInstruction {
+public class Label  implements PseudoInstruction, Operand {
 
-	private final PseudoInstruction pi;
 	private final String name;
 	
-	public Label(String name, PseudoInstruction pi) {
-		this.pi = pi;
+	public Label(String name) {
 		this.name = name;
 	}
 
@@ -17,12 +17,13 @@ public class Label  implements PseudoInstruction {
 		return visitor.accept(this);
 	}
 
-	public PseudoInstruction getInstruction() {
-		return pi;
-	}
-	
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public <T> T accept(OperandVisitor<T> visitor) {
+		return visitor.visit(this);
 	}
 
 }
