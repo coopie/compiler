@@ -1,6 +1,6 @@
 package wacc.slack.AST.visitors;
 
-import java.util.Arrays;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,27 +30,30 @@ import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.WaccArrayType;
+import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.instructions.AssemblerDirective;
+import wacc.slack.instructions.Label;
 import wacc.slack.instructions.PseudoInstruction;
 
 // NB: use LinkedList 
 
 public class IntermediateCodeGenerator implements
-		ASTVisitor<List<PseudoInstruction>> {
+		ASTVisitor<Deque<PseudoInstruction>> {
 
 	
-	private List<PseudoInstruction> data = new LinkedList<>();
-	private String returnedLabel = null;
+	private Deque<PseudoInstruction> data = new LinkedList<>();
+	private Operand returnedOperand = null;
 	@Override
-	public List<PseudoInstruction> visit(FuncAST func) {
+	public Deque<PseudoInstruction> visit(FuncAST func) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(ProgramAST prog) {
+	public Deque<PseudoInstruction> visit(ProgramAST prog) {
 		
-		List<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
 		instrList.add(new AssemblerDirective(".data"));
 		
@@ -66,146 +69,143 @@ public class IntermediateCodeGenerator implements
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(StatListAST statAST) {
+	public Deque<PseudoInstruction> visit(StatListAST statAST) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(AssignStatAST assignStat) {
+	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(BeginEndAST beginEnd) {
+	public Deque<PseudoInstruction> visit(BeginEndAST beginEnd) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(IfStatementAST ifStat) {
+	public Deque<PseudoInstruction> visit(IfStatementAST ifStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(SkipStatementAST skipStat) {
+	public Deque<PseudoInstruction> visit(SkipStatementAST skipStat) {
 		return new LinkedList<PseudoInstruction>();
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(WhileStatementAST whileStat) {
+	public Deque<PseudoInstruction> visit(WhileStatementAST whileStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(ReturnStatementAST exprStat) {
+	public Deque<PseudoInstruction> visit(ReturnStatementAST exprStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(PrintlnStatementAST printlnStat) {
+	public Deque<PseudoInstruction> visit(PrintlnStatementAST printlnStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(PrintStatementAST printStat) {
-		printStat.getExpr().accept(this);
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(ReadStatementAST readStat) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(ExitStatementAST exitStat) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(FreeStatementAST freeStat) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(ArrayElemAST arrayElem) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(FstAST fst) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(SndAST snd) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(CallAST call) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(NewPairAST newPair) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(BinaryExprAST binExpr) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(UnaryExprAST unExpr) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<PseudoInstruction> visit(ValueExprAST valueExpr) {
-		//if it is a string literal
-		List<PseudoInstruction> instr = new LinkedList<PseudoInstruction>();
-		PseudoInstruction literalLabel = null;
-		if(valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))){
-			instr.add(literalLabel);
-			instr.add(new AssemblerDirective(".word " + valueExpr.getValue().length()));
-			instr.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\""));
-		}
+	public Deque<PseudoInstruction> visit(PrintStatementAST printStat) {
+		Deque<PseudoInstruction> instr = printStat.getExpr().accept(this);
 		return instr;
 	}
 
 	@Override
-	public List<PseudoInstruction> visit(VariableAST variable) {
+	public Deque<PseudoInstruction> visit(ReadStatementAST readStat) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	private List<PseudoInstruction> attachLabelToFirstElement(String name,
-										List<PseudoInstruction> instrList) {
+
+	@Override
+	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
+	public Deque<PseudoInstruction> visit(FreeStatementAST freeStat) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(ArrayElemAST arrayElem) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(FstAST fst) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(SndAST snd) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(CallAST call) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(NewPairAST newPair) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(BinaryExprAST binExpr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(UnaryExprAST unExpr) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(ValueExprAST valueExpr) {
+		
+		Label literalLabel = new Label(LiteralLabelGenerator.getNewUniqueLabel());
+		//if it is a string literal
+		if(valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))){
+			//literal is added to the .data section
+			data.add(literalLabel);
+			data.add(new AssemblerDirective(".word " + valueExpr.getValue().length()));
+			data.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\""));
+		}
+		//return the label of the literal
+		returnedOperand = literalLabel;
+		return new LinkedList<PseudoInstruction>();
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(VariableAST variable) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
