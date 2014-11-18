@@ -1,7 +1,9 @@
 package wacc.slack;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -22,8 +24,10 @@ public class Compiler {
 
 	public static void main(String[] args) throws Exception {
 		String inputFile = null;
+		String outputFile = null;
 		if (args.length > 0) {
 			inputFile = args[0];
+			outputFile = args[1];
 		}
 		InputStream is = System.in;
 		if (inputFile != null) {
@@ -56,10 +60,15 @@ public class Compiler {
 		}
 		
 		GenerateAssembly psuedoInstructionVisitor = new GenerateAssembly();
+	
+		PrintStream out = new PrintStream(new File(outputFile + ".s"));
+	
 		
 		for(PseudoInstruction i : ast.accept(new IntermediateCodeGenerator())) {
-			System.out.print(i.accept(psuedoInstructionVisitor));
+			out.print(i.accept(psuedoInstructionVisitor));
 		}
+		
+		out.close();
 		
 
 		System.exit(0);
