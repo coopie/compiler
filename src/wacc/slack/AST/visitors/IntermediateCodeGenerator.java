@@ -2,9 +2,9 @@ package wacc.slack.AST.visitors;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 import wacc.slack.AST.ProgramAST;
+import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
@@ -30,10 +30,14 @@ import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.WaccArrayType;
+import wacc.slack.assemblyOperands.ArmRegister;
+import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.Label;
+import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.PseudoInstruction;
 
 // NB: use LinkedList 
@@ -62,16 +66,20 @@ public class IntermediateCodeGenerator implements
 		// --- implementation of the "main" function, i.e. the stats after the
 		// function definitions
 		
-		// this is not 
+		instrList.add(new Label("main"));
 		instrList.addAll(prog.getStatements().accept(this));
 
-		return prog.getStatements().accept(this);
+		return instrList;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(StatListAST statAST) {
-		// TODO Auto-generated method stub
-		return null;
+
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		for (WaccAST stat : statAST.getChildren()) {
+			instrList.addAll(stat.accept(this));
+		}
+		return instrList;
 	}
 
 	@Override
@@ -129,8 +137,30 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) {
-		// TODO Auto-generated method stub
-		return null;
+
+//		PUSH {lr}
+//		LDR r4, =<expr>
+//		MOV r0, r4
+//		BL exit
+//		LDR r0, =0
+//		POP {pc}
+//		.ltorg
+		
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		//TODO: push instruction here
+		
+		// TODO: sill in the null here for the operand visitor of the expression
+		
+		instrList.add(new Ldr(ArmRegister.r14, null));
+		
+		instrList.add(new Mov(ArmRegister.r0, ArmRegister.r4));
+		
+		//TODO: BL instruction here
+		
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(0)));
+		
+		return instrList;
 	}
 
 	@Override

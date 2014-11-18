@@ -4,10 +4,12 @@ import wacc.slack.instructions.Label;
 
 public interface OperandVisitor<T> {
 
-	T visit(RealRegister realRegister);
+	T visit(ArmRegister realRegister);
 
 	T visit(TemporaryRegister temporaryRegister);
 
 	T visit(Label label);
+
+	T visit(ImmediateValue immediateValue);
 
 }

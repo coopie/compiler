@@ -5,7 +5,6 @@ import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.instructions.visitors.InstructionVistor;
 
 public class Label  implements PseudoInstruction, Operand {
-
 	private final String name;
 	
 	public Label(String name) {
@@ -14,7 +13,7 @@ public class Label  implements PseudoInstruction, Operand {
 
 	@Override
 	public <T> T accept(InstructionVistor<T> visitor) {
-		return visitor.accept(this);
+		return visitor.visit(this);
 	}
 
 	public String getName() {
