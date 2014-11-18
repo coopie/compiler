@@ -65,6 +65,7 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new AssemblerDirective(".data"));	
 		Deque<PseudoInstruction> d = prog.getStatements().accept(this);
 		instrList.addAll(data);
+		instrList.add(new AssemblerDirective(".global main"));	
 		// TODO: functions, exit codes maybe
 
 		// --- implementation of the "main" function, i.e. the stats after the
@@ -257,7 +258,7 @@ public class IntermediateCodeGenerator implements
 			//literal is added to the .data section
 			data.add(literalLabel);
 			data.add(new AssemblerDirective(".word " + valueExpr.getValue().length()));
-			data.add(new AssemblerDirective(".asciz \"" + valueExpr.getValue() + "\""));
+			data.add(new AssemblerDirective(".asciz " + valueExpr.getValue()));
 		}
 		//return the label of the literal
 		returnedOperand = literalLabel;
