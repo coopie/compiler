@@ -33,8 +33,11 @@ import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.assemblyOperands.OperandVisitor;
+import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.instructions.AssemblerDirective;
+import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
@@ -59,15 +62,16 @@ public class IntermediateCodeGenerator implements
 		
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
-		instrList.add(new AssemblerDirective(".data"));
-		
+		instrList.add(new AssemblerDirective(".data"));	
+		Deque<PseudoInstruction> d = prog.getStatements().accept(this);
+		instrList.addAll(data);
 		// TODO: functions, exit codes maybe
 
 		// --- implementation of the "main" function, i.e. the stats after the
 		// function definitions
 		
 		instrList.add(new Label("main"));
-		instrList.addAll(prog.getStatements().accept(this));
+		instrList.addAll(d);
 
 		return instrList;
 	}
@@ -126,6 +130,33 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(PrintStatementAST printStat) {
 		Deque<PseudoInstruction> instr = printStat.getExpr().accept(this);
+		
+		instr.add(new Ldr(ArmRegister.r0, new ImmediateValue(returnedOperand.accept(new OperandVisitor<String>(){
+
+			@Override
+			public String visit(ArmRegister realRegister) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String visit(TemporaryRegister temporaryRegister) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String visit(Label label) {
+				return label.getName();
+			}
+
+			@Override
+			public String visit(ImmediateValue immediateValue) {
+				// TODO Auto-generated method stub
+				return null;
+			}}))));
+		
+		instr.addLast(new BLInstruction("printf"));
 		return instr;
 	}
 
@@ -226,7 +257,7 @@ public class IntermediateCodeGenerator implements
 			//literal is added to the .data section
 			data.add(literalLabel);
 			data.add(new AssemblerDirective(".word " + valueExpr.getValue().length()));
-			data.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\""));
+			data.add(new AssemblerDirective(".asciz \"" + valueExpr.getValue() + "\""));
 		}
 		//return the label of the literal
 		returnedOperand = literalLabel;

@@ -15,7 +15,7 @@ public class Mov implements PseudoInstruction {
 
 	@Override
 	public <T> T accept(InstructionVistor<T> visitor) {
-		return visitor.accept(this);
+		return visitor.visit(this);
 	}
 
 	public Operand getDest() {

@@ -9,9 +9,12 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import wacc.slack.AST.ASTBuilder;
 import wacc.slack.AST.WaccAST;
+import wacc.slack.AST.visitors.IntermediateCodeGenerator;
 import wacc.slack.errorHandling.WaccSyntaxtErrorListner;
 import wacc.slack.errorHandling.errorRecords.ErrorRecordPrinter;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.instructions.PseudoInstruction;
+import wacc.slack.instructions.visitors.GenerateAssembly;
 import antlr.WaccLexer;
 import antlr.WaccParser;
 
@@ -33,9 +36,10 @@ public class Compiler {
 		parser.removeErrorListeners();
 		parser.addErrorListener(new WaccSyntaxtErrorListner());
 		ParseTree tree = parser.program();
+		WaccAST ast = null;
 		ASTBuilder builder = new ASTBuilder();
 		try {
-			WaccAST ast = (WaccAST) tree.accept(builder);
+			ast = (WaccAST) tree.accept(builder);
 		} catch (NullPointerException e) {
 			ErrorRecords.getInstance().setScope(builder.getScope());
 			if (ErrorRecords.getInstance().isErrorFree()) {
@@ -50,6 +54,13 @@ public class Compiler {
 			erp.print();
 			System.exit(ErrorRecords.getInstance().getExitCode());
 		}
+		
+		GenerateAssembly psuedoInstructionVisitor = new GenerateAssembly();
+		
+		for(PseudoInstruction i : ast.accept(new IntermediateCodeGenerator())) {
+			System.out.print(i.accept(psuedoInstructionVisitor));
+		}
+		
 
 		System.exit(0);
 	}
