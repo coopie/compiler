@@ -15,5 +15,9 @@ public interface InstructionVistor<T> {
 	T visit(Ldr ldr);
 
 	T visit(BLInstruction blInsturction);
+	
+	T visit(Pop pop);
+
+	T visit(Push push);
 
 }
