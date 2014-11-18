@@ -41,7 +41,10 @@ import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
+import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
+import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Swi;
 
 // NB: use LinkedList 
 
@@ -63,15 +66,22 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
 		instrList.add(new AssemblerDirective(".data"));	
+		
 		Deque<PseudoInstruction> d = prog.getStatements().accept(this);
 		instrList.addAll(data);
+		instrList.add(new AssemblerDirective(".global main"));	
 		// TODO: functions, exit codes maybe
 
 		// --- implementation of the "main" function, i.e. the stats after the
 		// function definitions
 		
 		instrList.add(new Label("main"));
+		
+		instrList.add(new Push(ArmRegister.lr));
+		
 		instrList.addAll(d);
+		
+		instrList.add(new Pop(ArmRegister.pc));
 
 		return instrList;
 	}
@@ -95,7 +105,7 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(BeginEndAST beginEnd) {
 		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<PseudoInstruction>();
 	}
 
 	@Override
@@ -169,27 +179,21 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) {
 
-//		PUSH {lr}
-//		LDR r4, =<expr>
-//		MOV r0, r4
-//		BL exit
-//		LDR r0, =0
-//		POP {pc}
-//		.ltorg
-		
+//		/* syscall exit(int status) */
+//	    mov     %r0, $0     /* status -> 0 */
+//	    mov     %r7, $1     /* exit is syscall #1 */
+//	    swi     $0          /* invoke syscall */
+
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
-		//TODO: push instruction here
 		
-		// TODO: sill in the null here for the operand visitor of the expression
+		// TODO: fill in the null here for the operand visitor of the expression
 		
-		instrList.add(new Ldr(ArmRegister.r14, null));
+		instrList.add(new Mov(ArmRegister.r0, null));
 		
-		instrList.add(new Mov(ArmRegister.r0, ArmRegister.r4));
+		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
 		
-		//TODO: BL instruction here
-		
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(0)));
+		instrList.add(new Swi());
 		
 		return instrList;
 	}
@@ -257,7 +261,7 @@ public class IntermediateCodeGenerator implements
 			//literal is added to the .data section
 			data.add(literalLabel);
 			data.add(new AssemblerDirective(".word " + valueExpr.getValue().length()));
-			data.add(new AssemblerDirective(".asciz \"" + valueExpr.getValue() + "\""));
+			data.add(new AssemblerDirective(".asciz " + valueExpr.getValue()));
 		}
 		//return the label of the literal
 		returnedOperand = literalLabel;
