@@ -16,4 +16,6 @@ public interface InstructionVistor<T> {
 
 	T visit(BLInstruction blInsturction);
 
+	T visit(Cmp cmp);
+
 }
