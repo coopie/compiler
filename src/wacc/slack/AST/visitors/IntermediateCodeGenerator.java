@@ -37,12 +37,14 @@ import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.generators.TemporaryRegisterGenerator;
+import wacc.slack.instructions.Add;
 import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
+import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
@@ -267,10 +269,11 @@ public class IntermediateCodeGenerator implements
 		Operand trL = trg.generate();
 		Operand trR = trg.generate();
 
-		// ldr tr exprRegL
+		// TODO: Much overhead, such bad -- check that the Ldr instruction is the best way to do it
+		// ldr trL exprRegL
 		instrList.add(new Ldr(trL, exprRegL));
 		
-		// ldr tr exprRegR
+		// ldr trR exprRegR
 		instrList.add(new Ldr(trR, exprRegR));
 		
 		Operand destReg = trg.generate();
@@ -278,15 +281,21 @@ public class IntermediateCodeGenerator implements
 		// TODO: Add instructions for each binary op
 		switch (binExpr.getBinaryOp()) {
 		case MUL:
+			// add destReg trL trR
+			instrList.add(new Add(destReg, trL, trR));
 			
 		case DIV:
 			
 		case MOD:
 		
 		case PLUS:
+			// add destReg trL trR
+			instrList.add(new Add(destReg, trL, trR));
 			
 		case MINUS:
-
+			// sub destReg trL trR
+			instrList.add(new Sub(destReg, trL, trR));
+			
 		case GT:
 			
 		case GTE:
@@ -300,9 +309,12 @@ public class IntermediateCodeGenerator implements
 		case NEQ:
 			
 		case AND:
+			// and destReg trL trR
+			instrList.add(new And(destReg, trL, trR));
 			
 		case OR:
-			
+			// and destReg trL trR
+			instrList.add(new Orr(destReg, trL, trR));
 		}
 		
 		returnedOperand = destReg;
