@@ -36,6 +36,7 @@ import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
+import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.generators.TemporaryRegisterGenerator;
@@ -90,7 +91,7 @@ public class IntermediateCodeGenerator implements
 	}
 
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
-	private Operand returnedOperand = null;
+	private Register returnedOperand = null;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
 	
 	@Override
@@ -212,21 +213,19 @@ public class IntermediateCodeGenerator implements
 		return printInstructionGenerator(expr.accept(this),returnedOperand,expr.getType());
 	}
 
-	private Deque<PseudoInstruction> printInstructionGenerator(Deque<PseudoInstruction> instr, Operand retOp, Type t) {	
+	private Deque<PseudoInstruction> printInstructionGenerator(Deque<PseudoInstruction> instr, Register retReg, Type t) {	
+		
+		instr.addLast(new Mov(ArmRegister.r1,retReg));
 		if(t.equals(BaseType.T_int)) {
-			instr.add(new Mov(ArmRegister.r1, retOp.accept(new DefaultOperandVisitor())));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(INT_FORMAT_LABEL)));
 		} else if(t.equals(new WaccArrayType(BaseType.T_char))) {
-			instr.add(new Ldr(ArmRegister.r1, retOp.accept(new DefaultOperandVisitor())));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(STRING_FORMAT_LABEL)));
 		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
-			instr.add(new Ldr(ArmRegister.r1, retOp.accept(new DefaultOperandVisitor())));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(CHAR_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_bool)) {
-			instr.add(new Ldr(ArmRegister.r0, retOp.accept(new DefaultOperandVisitor())));
+			//instr.addLast(new Mov(ArmRegister.r0, retReg));
 		}
 
-		
 		instr.addLast(new BLInstruction("printf"));
 		return instr;
 	}
@@ -306,13 +305,13 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		instrList.addAll(binExpr.getExprL().accept(this));
-		Operand exprRegL = returnedOperand;
+		Register exprRegL = returnedOperand;
 		
 		instrList.addAll(binExpr.getExprR().accept(this));
-		Operand exprRegR = returnedOperand;
+		Register exprRegR = returnedOperand;
 		
-		Operand trL = trg.generate();
-		Operand trR = trg.generate();
+		Register trL = trg.generate();
+		Register trR = trg.generate();
 
 		// ldr tr exprRegL
 		instrList.add(new Ldr(trL, exprRegL));
@@ -320,7 +319,7 @@ public class IntermediateCodeGenerator implements
 		// ldr tr exprRegR
 		instrList.add(new Ldr(trR, exprRegR));
 		
-		Operand destReg = trg.generate();
+		Register destReg = trg.generate();
 
 		// TODO: Add instructions for each binary op
 		switch (binExpr.getBinaryOp()) {
@@ -361,7 +360,7 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
 		instrList.addAll(unExpr.getExpr().accept(this));
-		Operand tr = trg.generate();
+		Register tr = trg.generate();
 		
 		// ldr tr returnedOperand
 		instrList.add(new Ldr(tr, returnedOperand));
@@ -391,6 +390,8 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(ValueExprAST valueExpr) {
 		Label literalLabel = new Label(LiteralLabelGenerator.getNewUniqueLabel());
+		Register ret = trg.generate();
+		Deque<PseudoInstruction> instr = new LinkedList<PseudoInstruction>();
 		
 		// Literal is added to the .data section
 		textSection.add(literalLabel);
@@ -398,23 +399,22 @@ public class IntermediateCodeGenerator implements
 		// If it is a string literal
 		if(valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))){
 			textSection.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\\0\""));
+			instr.add(new Ldr(ret, new ImmediateValue(literalLabel.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_int)) {
-			returnedOperand = new ImmediateValue(Integer.parseInt(valueExpr.getValue()));
-			return new LinkedList<PseudoInstruction>();
+			instr.add(new Mov(ret,new ImmediateValue(Integer.parseInt(valueExpr.getValue()))));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
 			textSection.add(new AssemblerDirective(".byte '" + valueExpr.getValue() + "'"));
+			instr.add(new Ldr(ret, new ImmediateValue(literalLabel.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
-				returnedOperand = TRUE_LABEL;
+				instr.add(new Ldr(ret, new ImmediateValue(TRUE_LABEL.getName())));;
 			} else {
-				returnedOperand = FALSE_LABEL;
-			}
-			return new LinkedList<PseudoInstruction>();
+				instr.add(new Ldr(ret, new ImmediateValue(FALSE_LABEL.getName())));;
+			}	
 		}
 		
-		// Return the label of the literal
-		returnedOperand = literalLabel;
-		return new LinkedList<PseudoInstruction>();
+		returnedOperand = ret;
+		return instr;
 	}
 
 	@Override

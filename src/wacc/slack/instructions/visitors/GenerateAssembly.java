@@ -4,6 +4,8 @@ import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
+import wacc.slack.instructions.Add;
+import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.BranchInstruction;
@@ -13,6 +15,7 @@ import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
 public class GenerateAssembly implements InstructionVistor<String> {
@@ -34,8 +37,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 		@Override
 		public String visit(TemporaryRegister temporaryRegister) {
-			// TODO Auto-generated method stub
-			return null;
+			return "R" + temporaryRegister.getN();
 		}
 
 		@Override
@@ -101,6 +103,24 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	@Override
 	public String visit(BranchInstruction b) {
 		return newLine(4) + "B" + b.getCond() + " " + b.getLabel();
+	}
+
+	@Override
+	public String visit(And and) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(Add add) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String visit(Sub sub) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
