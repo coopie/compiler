@@ -72,10 +72,14 @@ public class Compiler {
 		}
 
 		GenerateAssembly psuedoInstructionVisitor = new GenerateAssembly();
-
-		PrintStream out = new PrintStream(new File(outputFile));
-
-		for (PseudoInstruction i : ast.accept(new IntermediateCodeGenerator())) {
+	
+		PrintStream out = new PrintStream(new File(outputFile + ".s"));
+	
+//		2. - use liveIn, liveOut algorithms on a CFG to create the register usage graph
+//		3. - colour the graph in the colours that we need, extract the mapping information for the temporary registers
+//		4. - use the mapping to change all of the temporary registers to real ones 
+		
+		for(PseudoInstruction i : ast.accept(new IntermediateCodeGenerator())) {
 			out.print(i.accept(psuedoInstructionVisitor));
 		}
 		

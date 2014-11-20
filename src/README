@@ -64,6 +64,33 @@ PseudoInstructions:
 things to omit from pseudoinstructions:
 - external declarations
 - 
+
+
+
+CFGNode TDD:
+
+- Can create CFGNode with a PseudoInstruction.
+- Can get used registers in the CFGNode.
+- Can get DEfined registers in CFGNode.
+- Can link CFGnodes together.
+- Can traverse CFGNodes.
+
+- the list, uses, must only contain REGISTERS that the instruction in the node uses, and DOESNT CHANGE THE VALUE OF
+- the list, defs, must only contain REGISTERS that the instruction in the node uses, and DOES CHANGE THE VALUE OF
+
+
+
+The list next:
+- Branch instruction nodes must contain the two different CFGNodes that they can point to(except B).
+- Return and exit instruction nodes do not point to anything.
+- all other nodes must point to the node corresponding to the instruction after them in.
+
+
+CFGLabelTable TDD:
+- Can Add Lablels to it.
+- Can insert a key and a value, key being a Label, value being a CFGNode.
+- can babysit a cfg node
+- can check that all babies are happy 
     
     
     
