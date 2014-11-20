@@ -256,8 +256,57 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(BinaryExprAST binExpr) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+
+		instrList.addAll(binExpr.getExprL().accept(this));
+		Operand exprRegL = returnedOperand;
+		
+		instrList.addAll(binExpr.getExprR().accept(this));
+		Operand exprRegR = returnedOperand;
+		
+		Operand trL = trg.generate();
+		Operand trR = trg.generate();
+
+		// ldr tr exprRegL
+		instrList.add(new Ldr(trL, exprRegL));
+		
+		// ldr tr exprRegR
+		instrList.add(new Ldr(trR, exprRegR));
+		
+		Operand destReg = trg.generate();
+
+		// TODO: Add instructions for each binary op
+		switch (binExpr.getBinaryOp()) {
+		case MUL:
+			
+		case DIV:
+			
+		case MOD:
+		
+		case PLUS:
+			
+		case MINUS:
+
+		case GT:
+			
+		case GTE:
+			
+		case LT:
+			
+		case LTE:
+			
+		case EQ:
+			
+		case NEQ:
+			
+		case AND:
+			
+		case OR:
+			
+		}
+		
+		returnedOperand = destReg;
+		return instrList;
 	}
 
 	@Override
@@ -267,17 +316,17 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(unExpr.getExpr().accept(this));
 		Operand tr = trg.generate();
 		
+		// ldr tr returnedOperand
+		instrList.add(new Ldr(tr, returnedOperand));
+		
+		// TODO: Add instructions for each unary op
 		switch (unExpr.getUnaryOp()) {
 		case NOT:
-			// ldr tr returnedOperand
 			// and tr tr 0
-			instrList.add(new Ldr(tr, returnedOperand));
 			instrList.add(new And(tr, tr, new ImmediateValue(0)));
 			
 		case MINUS:
-			// ldr tr returned Operand
-			// sub tr 
-			instrList.add(new Ldr(tr, returnedOperand));
+			// sub tr 0 tr
 			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
 			
 		case LEN:
