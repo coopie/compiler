@@ -198,10 +198,10 @@ public class IntermediateCodeGenerator implements
 
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
-		
 		// TODO: fill in the null here for the operand visitor of the expression
+		instrList.addAll(exitStat.getExpr().accept(this));
 		
-		instrList.add(new Mov(ArmRegister.r0, trg.generate()));
+		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
 		
 		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
 		
