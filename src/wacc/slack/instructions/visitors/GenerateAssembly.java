@@ -39,8 +39,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 		@Override
 		public String visit(TemporaryRegister temporaryRegister) {
-			// TODO Auto-generated method stub
-			return null;
+			return "R" + temporaryRegister.getN();
 		}
 
 		@Override
@@ -131,6 +130,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	@Override
 	public String visit(Sub sub) {
 		return newLine(4) + "SUB " + sub.getDest() + ", " + sub.getSource() + ", " + sub.getSource2();
+
 	}
 
 }
