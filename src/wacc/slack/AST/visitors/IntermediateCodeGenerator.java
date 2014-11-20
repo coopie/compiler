@@ -46,6 +46,7 @@ import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
 // NB: use LinkedList 
@@ -264,17 +265,20 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
 		instrList.addAll(unExpr.getExpr().accept(this));
+		Operand tr = trg.generate();
 		
 		switch (unExpr.getUnaryOp()) {
 		case NOT:
 			// ldr tr returnedOperand
-			// and tr 0
-			Operand tr = trg.generate();
+			// and tr tr 0
 			instrList.add(new Ldr(tr, returnedOperand));
 			instrList.add(new And(tr, tr, new ImmediateValue(0)));
-			returnedOperand = tr;
 			
 		case MINUS:
+			// ldr tr returned Operand
+			// sub tr 
+			instrList.add(new Ldr(tr, returnedOperand));
+			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
 			
 		case LEN:
 			
@@ -283,6 +287,8 @@ public class IntermediateCodeGenerator implements
 		case CHR:
 			
 		}
+		
+		returnedOperand = tr;
 		return instrList;
 	}
 

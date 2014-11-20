@@ -23,6 +23,8 @@ public interface InstructionVistor<T> {
 	T visit(Push push);
 
 	T visit(Cmp cmp);
+	
+	T visit(Sub sub);
 
 	T visit(BranchInstruction b);
 
