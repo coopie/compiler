@@ -52,10 +52,35 @@ import wacc.slack.instructions.Swi;
 public class IntermediateCodeGenerator implements
 		ASTVisitor<Deque<PseudoInstruction>> {
 
-	
+	private final class DefaultOperandVisitor implements OperandVisitor<String> {
+		@Override
+		public String visit(ArmRegister realRegister) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String visit(TemporaryRegister temporaryRegister) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String visit(Label label) {
+			return label.getName();
+		}
+
+		@Override
+		public String visit(ImmediateValue immediateValue) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+
 	private Deque<PseudoInstruction> data = new LinkedList<>();
 	private Operand returnedOperand = null;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
+	private boolean printLnCalled = false;
 	
 	@Override
 	public Deque<PseudoInstruction> visit(FuncAST func) {
@@ -136,39 +161,24 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(PrintlnStatementAST printlnStat) {
-		// TODO Auto-generated method stub
-		return null;
+		if(printLnCalled == false) {
+			data.add(new Label("new_line_char"));
+			data.add(new AssemblerDirective(".ascii \"\\n\\0\""));
+			printLnCalled = true;
+		}
+		Deque<PseudoInstruction> instr = printInstructionGenerator(printlnStat.getExpr().accept(this),returnedOperand.accept(new DefaultOperandVisitor()));
+		instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue("new_line_char")));
+		instr.addLast(new BLInstruction("printf"));
+		return instr;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(PrintStatementAST printStat) {
-		Deque<PseudoInstruction> instr = printStat.getExpr().accept(this);
-		
-		instr.add(new Ldr(ArmRegister.r0, new ImmediateValue(returnedOperand.accept(new OperandVisitor<String>(){
+		return printInstructionGenerator(printStat.getExpr().accept(this),returnedOperand.accept(new DefaultOperandVisitor()));
+	}
 
-			@Override
-			public String visit(ArmRegister realRegister) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public String visit(TemporaryRegister temporaryRegister) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public String visit(Label label) {
-				return label.getName();
-			}
-
-			@Override
-			public String visit(ImmediateValue immediateValue) {
-				// TODO Auto-generated method stub
-				return null;
-			}}))));
-		
+	private Deque<PseudoInstruction> printInstructionGenerator(Deque<PseudoInstruction> instr, String value) {	
+		instr.add(new Ldr(ArmRegister.r0, new ImmediateValue(value)));
 		instr.addLast(new BLInstruction("printf"));
 		return instr;
 	}
@@ -263,8 +273,7 @@ public class IntermediateCodeGenerator implements
 		if(valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))){
 			//literal is added to the .data section
 			data.add(literalLabel);
-			data.add(new AssemblerDirective(".word " + valueExpr.getValue().length()));
-			data.add(new AssemblerDirective(".asciz " + valueExpr.getValue()));
+			data.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\\0\""));
 		}
 		//return the label of the literal
 		returnedOperand = literalLabel;

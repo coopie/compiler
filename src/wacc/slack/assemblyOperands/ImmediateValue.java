@@ -5,11 +5,11 @@ public class ImmediateValue implements Operand {
 	private final String value;
 	
 	public ImmediateValue(String value) {
-		this.value = value;
+		this.value = "=" + value;
 	}
 	
 	public ImmediateValue(int n) {
-		this.value = "" + n;
+		this.value = "#" + n;
 	}
 
 	public String getValue() {

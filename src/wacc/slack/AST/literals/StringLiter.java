@@ -10,10 +10,8 @@ public class StringLiter implements Liter {
 	private final String text;
 	private final FilePosition filePos;
 
-	// TODO: Remove double quotes around the text
-
 	public StringLiter(String text, FilePosition filePost) {
-		this.text = text;
+		this.text = text.substring(1,text.length() -1);
 		this.filePos = filePost;
 	}
 

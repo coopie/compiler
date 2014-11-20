@@ -67,7 +67,7 @@ public class Compiler {
 		for(PseudoInstruction i : ast.accept(new IntermediateCodeGenerator())) {
 			out.print(i.accept(psuedoInstructionVisitor));
 		}
-		
+		out.print('\n');
 		out.close();
 		
 
