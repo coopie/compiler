@@ -46,6 +46,7 @@ import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.BranchInstruction;
+import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
@@ -185,7 +186,8 @@ public class IntermediateCodeGenerator implements
 		Label falsel = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		instrList.addAll(ifStat.getCond().accept(this));
-		// must work out branch instruction here (to false body)
+		instrList.add(new Cmp(returnedOperand, new ImmediateValue("0")));
+		instrList.add(new BranchInstruction(Condition.EQ, falsel));
 		instrList.addAll(ifStat.getTrueStats().accept(this));
 		instrList.add(new BranchInstruction(Condition.AL, endl));
 		instrList.add(falsel);
@@ -209,7 +211,8 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(whileStat.getBody().accept(this));
 		instrList.add(end);
 		instrList.addAll(whileStat.getCond().accept(this));
-		// must work out branch instruction here (new method or switch statement?)
+		instrList.add(new Cmp(returnedOperand, new ImmediateValue("1")));
+		instrList.add(new BranchInstruction(Condition.EQ, start));
 		return instrList;
 	}
 
