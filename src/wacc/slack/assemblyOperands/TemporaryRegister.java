@@ -1,6 +1,6 @@
 package wacc.slack.assemblyOperands;
 
-public class TemporaryRegister implements Operand {
+public class TemporaryRegister implements Register {
 	
 	private final int n;
 
