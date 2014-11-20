@@ -265,15 +265,21 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ValueExprAST valueExpr) {
-		
 		Label literalLabel = new Label(LiteralLabelGenerator.getNewUniqueLabel());
-		//if it is a string literal
+		
+		// Literal is added to the .data section
+		data.add(literalLabel);
+		
+		// If it is a string literal
 		if(valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))){
-			//literal is added to the .data section
-			data.add(literalLabel);
 			data.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\\0\""));
+		} else if (valueExpr.getType().equals(BaseType.T_int)) {
+			data.add(new AssemblerDirective(".word " + valueExpr.getValue()));
+		} else if (valueExpr.getType().equals(BaseType.T_char)) {
+			data.add(new AssemblerDirective(".byte '" + valueExpr.getValue() + "'"));
 		}
-		//return the label of the literal
+		
+		// Return the label of the literal
 		returnedOperand = literalLabel;
 		return new LinkedList<PseudoInstruction>();
 	}
