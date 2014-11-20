@@ -39,6 +39,7 @@ import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.generators.TemporaryRegisterGenerator;
+import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.Label;
@@ -47,6 +48,7 @@ import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
 // NB: use LinkedList 
@@ -55,8 +57,11 @@ public class IntermediateCodeGenerator implements
 		ASTVisitor<Deque<PseudoInstruction>> {
 
 	private static final String STRING_FORMAT_LABEL = "string_format";
+	private static final String CHAR_FORMAT_LABEL = "char_format";
 	private static final String NEW_LINE_CHAR = "new_line_char";
 	private static final String INT_FORMAT_LABEL = "int_format";
+	private static final Label TRUE_LABEL = new Label("l_true");
+	private static final Label FALSE_LABEL = new Label("l_false");
 
 	private final class DefaultOperandVisitor implements OperandVisitor<Operand> {
 
@@ -103,6 +108,8 @@ public class IntermediateCodeGenerator implements
 		
 		Deque<PseudoInstruction> d = prog.getStatements().accept(this);
 		
+		// d = doCFG(d) // replaces all the temporarz registers with real ones and do the optimization
+		
 		instrList.add(new AssemblerDirective(".global main"));	
 		// TODO: functions, exit codes maybe
 
@@ -132,8 +139,18 @@ public class IntermediateCodeGenerator implements
 		textSection.add(new Label(STRING_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective(".ascii \"%s\\0\""));
 		
+		textSection.add(new Label(CHAR_FORMAT_LABEL));
+		textSection.add(new AssemblerDirective(".ascii \"%c\\0\""));
+		
 		textSection.add(new Label(INT_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective(".ascii \"%d\\0\""));
+		
+		textSection.add(new Label(TRUE_LABEL.getName()));
+		textSection.add(new AssemblerDirective(".ascii \"true\\0\""));
+		
+		textSection.add(new Label(FALSE_LABEL.getName()));
+		textSection.add(new AssemblerDirective(".ascii \"false\\0\""));
+		
 	}
 	@Override
 	public Deque<PseudoInstruction> visit(StatListAST statAST) {
@@ -153,7 +170,6 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(BeginEndAST beginEnd) {
-		// TODO Auto-generated method stub
 		return new LinkedList<PseudoInstruction>();
 	}
 
@@ -203,7 +219,13 @@ public class IntermediateCodeGenerator implements
 		} else if(t.equals(new WaccArrayType(BaseType.T_char))) {
 			instr.add(new Ldr(ArmRegister.r1, retOp.accept(new DefaultOperandVisitor())));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(STRING_FORMAT_LABEL)));
+		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
+			instr.add(new Ldr(ArmRegister.r1, retOp.accept(new DefaultOperandVisitor())));
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(CHAR_FORMAT_LABEL)));
+		} else if (t.equals(BaseType.T_bool)) {
+			instr.add(new Ldr(ArmRegister.r0, retOp.accept(new DefaultOperandVisitor())));
 		}
+
 		
 		instr.addLast(new BLInstruction("printf"));
 		return instr;
@@ -225,10 +247,10 @@ public class IntermediateCodeGenerator implements
 
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
-		
 		// TODO: fill in the null here for the operand visitor of the expression
+		instrList.addAll(exitStat.getExpr().accept(this));
 		
-		instrList.add(new Mov(ArmRegister.r0, trg.generate()));
+		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
 		
 		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
 		
@@ -287,8 +309,34 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(UnaryExprAST unExpr) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		instrList.addAll(unExpr.getExpr().accept(this));
+		Operand tr = trg.generate();
+		
+		switch (unExpr.getUnaryOp()) {
+		case NOT:
+			// ldr tr returnedOperand
+			// and tr tr 0
+			instrList.add(new Ldr(tr, returnedOperand));
+			instrList.add(new And(tr, tr, new ImmediateValue(0)));
+			
+		case MINUS:
+			// ldr tr returned Operand
+			// sub tr 
+			instrList.add(new Ldr(tr, returnedOperand));
+			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
+			
+		case LEN:
+			
+		case ORD:
+			
+		case CHR:
+			
+		}
+		
+		returnedOperand = tr;
+		return instrList;
 	}
 
 	@Override
@@ -306,6 +354,13 @@ public class IntermediateCodeGenerator implements
 			return new LinkedList<PseudoInstruction>();
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
 			textSection.add(new AssemblerDirective(".byte '" + valueExpr.getValue() + "'"));
+		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
+			if (valueExpr.getValue().equals("true")) {
+				returnedOperand = TRUE_LABEL;
+			} else {
+				returnedOperand = FALSE_LABEL;
+			}
+			return new LinkedList<PseudoInstruction>();
 		}
 		
 		// Return the label of the literal

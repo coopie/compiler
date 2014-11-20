@@ -6,6 +6,7 @@ import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
+import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
@@ -94,7 +95,12 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Cmp cmp) {
-		return "CMP " + cmp.getOp1().accept(printOperand) + ", " + cmp.getOp2().accept(printOperand) + "\n";
+		return newLine(4) + "CMP " + cmp.getSource().accept(printOperand) + ", " + cmp.getDest().accept(printOperand);
+	}
+	
+	@Override
+	public String visit(BranchInstruction b) {
+		return newLine(4) + "B" + b.getCond() + " " + b.getLabel();
 	}
 
 }
