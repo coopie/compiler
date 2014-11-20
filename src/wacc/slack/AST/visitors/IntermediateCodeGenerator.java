@@ -179,8 +179,17 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(IfStatementAST ifStat) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		Label falsel = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.addAll(ifStat.getCond().accept(this));
+		// must work out branch instruction here (to false body)
+		instrList.addAll(ifStat.getTrueStats().accept(this));
+		instrList.add(new BranchInstruction(Condition.AL, endl));
+		instrList.add(falsel);
+		instrList.addAll(ifStat.getFalseStats().accept(this));
+		instrList.add(endl);
+		return instrList;
 	}
 
 	@Override
