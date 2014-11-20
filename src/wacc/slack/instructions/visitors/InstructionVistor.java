@@ -24,6 +24,8 @@ public interface InstructionVistor<T> {
 
 	T visit(Cmp cmp);
 	
+	T visit(Add add);
+
 	T visit(Sub sub);
 
 	T visit(BranchInstruction b);
