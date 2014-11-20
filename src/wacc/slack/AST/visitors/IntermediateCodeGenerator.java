@@ -132,7 +132,6 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(BeginEndAST beginEnd) {
-		// TODO Auto-generated method stub
 		return new LinkedList<PseudoInstruction>();
 	}
 
