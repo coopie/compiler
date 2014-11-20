@@ -133,7 +133,6 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(BeginEndAST beginEnd) {
-		// TODO Auto-generated method stub
 		return new LinkedList<PseudoInstruction>();
 	}
 
@@ -200,10 +199,10 @@ public class IntermediateCodeGenerator implements
 
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
-		
 		// TODO: fill in the null here for the operand visitor of the expression
+		instrList.addAll(exitStat.getExpr().accept(this));
 		
-		instrList.add(new Mov(ArmRegister.r0, trg.generate()));
+		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
 		
 		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
 		

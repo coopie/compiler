@@ -5,7 +5,7 @@ public class TemporaryRegister implements Operand {
 	private final int n;
 
 	// use the generator to make these!!
-	TemporaryRegister(int n) {
+	public TemporaryRegister(int n) {
 		this.n = n;
 	}
 
