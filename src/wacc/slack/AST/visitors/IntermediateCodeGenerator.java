@@ -36,6 +36,7 @@ import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.generators.LiteralLabelGenerator;
+import wacc.slack.generators.TemporaryRegisterGenerator;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.Label;
@@ -78,6 +79,7 @@ public class IntermediateCodeGenerator implements
 
 	private Deque<PseudoInstruction> data = new LinkedList<>();
 	private Operand returnedOperand = null;
+	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
 	private boolean printLnCalled = false;
 	
 	@Override
@@ -200,7 +202,7 @@ public class IntermediateCodeGenerator implements
 		
 		// TODO: fill in the null here for the operand visitor of the expression
 		
-		instrList.add(new Mov(ArmRegister.r0, null));
+		instrList.add(new Mov(ArmRegister.r0, trg.generate()));
 		
 		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
 		
