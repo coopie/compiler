@@ -4,7 +4,8 @@ import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.instructions.visitors.InstructionVistor;
 
-public class Label  implements PseudoInstruction, Operand {
+public class Label implements PseudoInstruction, Operand {
+	
 	private final String name;
 	
 	public Label(String name) {
