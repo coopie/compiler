@@ -37,6 +37,7 @@ import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.generators.TemporaryRegisterGenerator;
+import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.Label;
@@ -261,8 +262,25 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(UnaryExprAST unExpr) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		instrList.addAll(unExpr.getExpr().accept(this));
+		
+		switch (unExpr.getUnaryOp()) {
+		case NOT:
+			// And reg and 0
+			instrList.add(new And(returnedOperand, new ImmediateValue(0), returnedOperand));
+			
+		case MINUS:
+			
+		case LEN:
+			
+		case ORD:
+			
+		case CHR:
+			
+		}
+		return instrList;
 	}
 
 	@Override
@@ -279,6 +297,12 @@ public class IntermediateCodeGenerator implements
 			data.add(new AssemblerDirective(".word " + valueExpr.getValue()));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
 			data.add(new AssemblerDirective(".byte '" + valueExpr.getValue() + "'"));
+		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
+			if (valueExpr.getValue().equals("true")) {
+				data.add(new AssemblerDirective(".byte " + 1 + ""));
+			} else {
+				data.add(new AssemblerDirective(".byte " + 0 + ""));
+			}
 		}
 		
 		// Return the label of the literal

@@ -4,8 +4,10 @@ import wacc.slack.instructions.*;
 
 public interface InstructionVistor<T> {
 
+	T visit(And and);
+	
 	T visit(Mov mov);
-
+	
 	T visit(Label label);
 
 	T visit(AssemblerDirective assemblerDirective);
