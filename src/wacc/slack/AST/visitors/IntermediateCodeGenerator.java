@@ -35,6 +35,7 @@ import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
+import wacc.slack.assemblyOperands.TemporaryRegisterGenerator;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
@@ -54,6 +55,8 @@ public class IntermediateCodeGenerator implements
 	
 	private Deque<PseudoInstruction> data = new LinkedList<>();
 	private Operand returnedOperand = null;
+	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
+	
 	@Override
 	public Deque<PseudoInstruction> visit(FuncAST func) {
 		// TODO Auto-generated method stub
@@ -189,7 +192,7 @@ public class IntermediateCodeGenerator implements
 		
 		// TODO: fill in the null here for the operand visitor of the expression
 		
-		instrList.add(new Mov(ArmRegister.r0, null));
+		instrList.add(new Mov(ArmRegister.r0, trg.generate()));
 		
 		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
 		
