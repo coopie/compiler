@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
+import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArrayElemAST;
@@ -26,6 +27,7 @@ import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
+import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
@@ -35,10 +37,13 @@ import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
+import wacc.slack.generators.ControlFlowLabelGenerator;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.generators.TemporaryRegisterGenerator;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
+import wacc.slack.instructions.BranchInstruction;
+import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
@@ -148,8 +153,16 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(WhileStatementAST whileStat) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.add(new BranchInstruction(Condition.AL, end));
+		instrList.add(start);
+		instrList.addAll(whileStat.getBody().accept(this));
+		instrList.add(end);
+		instrList.addAll(whileStat.getCond().accept(this));
+		// must work out branch instruction here (new method or switch statement?)
+		return instrList;
 	}
 
 	@Override

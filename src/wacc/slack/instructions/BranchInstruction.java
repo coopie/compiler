@@ -1,6 +1,8 @@
 package wacc.slack.instructions;
 
-public class BranchInstruction {
+import wacc.slack.instructions.visitors.InstructionVistor;
+
+public class BranchInstruction implements PseudoInstruction {
 	
 	private final Condition cond;
 	private final Label label;
@@ -16,6 +18,11 @@ public class BranchInstruction {
 	
 	public Label getLabel() {
 		return label;
+	}
+
+	@Override
+	public <T> T accept(InstructionVistor<T> visitor) {
+		return visitor.visit(this);
 	}
 
 }
