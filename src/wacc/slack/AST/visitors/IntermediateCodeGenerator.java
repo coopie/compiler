@@ -267,8 +267,12 @@ public class IntermediateCodeGenerator implements
 		
 		switch (unExpr.getUnaryOp()) {
 		case NOT:
-			// And reg and 0
-			instrList.add(new And(returnedOperand, new ImmediateValue(0), returnedOperand));
+			// ldr tr returnedOperand
+			// and tr 0
+			Operand tr = trg.generate();
+			instrList.add(new Ldr(tr, returnedOperand));
+			instrList.add(new And(tr, tr, new ImmediateValue(0)));
+			returnedOperand = tr;
 			
 		case MINUS:
 			
