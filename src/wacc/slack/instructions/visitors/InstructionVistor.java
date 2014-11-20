@@ -6,6 +6,8 @@ public interface InstructionVistor<T> {
 
 	T visit(And and);
 	
+	T visit(Orr or);
+	
 	T visit(Mov mov);
 	
 	T visit(Label label);
@@ -23,6 +25,8 @@ public interface InstructionVistor<T> {
 	T visit(Push push);
 
 	T visit(Cmp cmp);
+	
+	T visit(Mul mul);
 	
 	T visit(Add add);
 

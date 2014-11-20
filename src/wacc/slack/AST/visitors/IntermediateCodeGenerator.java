@@ -27,6 +27,7 @@ import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
+import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
@@ -38,14 +39,19 @@ import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
+import wacc.slack.generators.ControlFlowLabelGenerator;
 import wacc.slack.generators.LiteralLabelGenerator;
 import wacc.slack.generators.TemporaryRegisterGenerator;
+import wacc.slack.instructions.Add;
 import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
+import wacc.slack.instructions.BranchInstruction;
+import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
+import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
@@ -176,8 +182,17 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(IfStatementAST ifStat) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		Label falsel = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.addAll(ifStat.getCond().accept(this));
+		// must work out branch instruction here (to false body)
+		instrList.addAll(ifStat.getTrueStats().accept(this));
+		instrList.add(new BranchInstruction(Condition.AL, endl));
+		instrList.add(falsel);
+		instrList.addAll(ifStat.getFalseStats().accept(this));
+		instrList.add(endl);
+		return instrList;
 	}
 
 	@Override
@@ -187,8 +202,16 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(WhileStatementAST whileStat) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.add(new BranchInstruction(Condition.AL, end));
+		instrList.add(start);
+		instrList.addAll(whileStat.getBody().accept(this));
+		instrList.add(end);
+		instrList.addAll(whileStat.getCond().accept(this));
+		// must work out branch instruction here (new method or switch statement?)
+		return instrList;
 	}
 
 	@Override
@@ -313,10 +336,11 @@ public class IntermediateCodeGenerator implements
 		Register trL = trg.generate();
 		Register trR = trg.generate();
 
-		// ldr tr exprRegL
+		// TODO: Much overhead, such bad -- check that the Ldr instruction is the best way to do it
+		// ldr trL exprRegL
 		instrList.add(new Ldr(trL, exprRegL));
 		
-		// ldr tr exprRegR
+		// ldr trR exprRegR
 		instrList.add(new Ldr(trR, exprRegR));
 		
 		Register destReg = trg.generate();
@@ -324,15 +348,21 @@ public class IntermediateCodeGenerator implements
 		// TODO: Add instructions for each binary op
 		switch (binExpr.getBinaryOp()) {
 		case MUL:
+			// add destReg trL trR
+			instrList.add(new Add(destReg, trL, trR));
 			
 		case DIV:
 			
 		case MOD:
 		
 		case PLUS:
+			// add destReg trL trR
+			instrList.add(new Add(destReg, trL, trR));
 			
 		case MINUS:
-
+			// sub destReg trL trR
+			instrList.add(new Sub(destReg, trL, trR));
+			
 		case GT:
 			
 		case GTE:
@@ -346,9 +376,12 @@ public class IntermediateCodeGenerator implements
 		case NEQ:
 			
 		case AND:
+			// and destReg trL trR
+			instrList.add(new And(destReg, trL, trR));
 			
 		case OR:
-			
+			// and destReg trL trR
+			instrList.add(new Orr(destReg, trL, trR));
 		}
 		
 		returnedOperand = destReg;

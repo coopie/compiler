@@ -13,6 +13,8 @@ import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
+import wacc.slack.instructions.Mul;
+import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Sub;
@@ -107,20 +109,28 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(And and) {
-		// TODO Auto-generated method stub
-		return null;
+		return newLine(4) + "AND " + and.getDest() + ", " + and.getSource() + ", " + and.getSource2();
+	}
+
+	@Override
+	public String visit(Orr or) {
+		return newLine(4) + "ORR " + or.getDest() + ", " + or.getSource() + ", " + or.getSource2();
+	}
+
+	@Override
+	public String visit(Mul mul) {
+		return newLine(4) + "MUL " + mul.getDest() + ", " + mul.getSource() + ", " + mul.getSource2();
 	}
 
 	@Override
 	public String visit(Add add) {
-		// TODO Auto-generated method stub
-		return null;
+		return newLine(4) + "ADD " + add.getDest() + ", " + add.getSource() + ", " + add.getSource2();
 	}
 
 	@Override
 	public String visit(Sub sub) {
-		// TODO Auto-generated method stub
-		return null;
+		return newLine(4) + "SUB " + sub.getDest() + ", " + sub.getSource() + ", " + sub.getSource2();
+
 	}
 
 }
