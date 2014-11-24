@@ -32,6 +32,7 @@ abstract class GeneralArmInstruction {
 		return source;
 	}
 	
+	//TODO;: make this protected and override it where needed
 	public Operand getSource2() {
 		return source2;
 	}
