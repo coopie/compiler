@@ -71,7 +71,8 @@ public class IntermediateCodeGenerator implements
 	private static final Label TRUE_LABEL = new Label("l_true");
 	private static final Label FALSE_LABEL = new Label("l_false");
 
-	private final class DefaultOperandVisitor implements OperandVisitor<Operand> {
+	private final class DefaultOperandVisitor implements
+			OperandVisitor<Operand> {
 
 		@Override
 		public Operand visit(ArmRegister realRegister) {
@@ -94,13 +95,13 @@ public class IntermediateCodeGenerator implements
 		public Operand visit(ImmediateValue immediateValue) {
 			return immediateValue;
 		}
-		
+
 	}
 
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
 	private Register returnedOperand = null;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
-	
+
 	@Override
 	public Deque<PseudoInstruction> visit(FuncAST func) {
 		// TODO Auto-generated method stub
@@ -109,57 +110,56 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ProgramAST prog) {
-		
+
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
-		
-		
+
 		Deque<PseudoInstruction> d = prog.getStatements().accept(this);
-		
-		// d = doCFG(d) // replaces all the temporarz registers with real ones and do the optimization
-		
-		instrList.add(new AssemblerDirective(".global main"));	
+
+		// d = doCFG(d) // replaces all the temporarz registers with real ones
+		// and do the optimization
+
+		instrList.add(new AssemblerDirective(".global main"));
 		// TODO: functions, exit codes maybe
 
 		// --- implementation of the "main" function, i.e. the stats after the
 		// function definitions
-		
+
 		instrList.add(new Label("main"));
-		
+
 		instrList.add(new Push(ArmRegister.lr));
-		
+
 		instrList.addAll(d);
-		
+
 		instrList.add(new Pop(ArmRegister.pc));
-		
-		instrList.add(new AssemblerDirective(".text"));	
+
+		instrList.add(new AssemblerDirective(".text"));
 		initTextSection();
 		instrList.addAll(textSection);
-		
 
 		return instrList;
 	}
-	
+
 	private void initTextSection() {
 		textSection.add(new Label(NEW_LINE_CHAR));
 		textSection.add(new AssemblerDirective(".ascii \"\\n\\0\""));
-		
+
 		textSection.add(new Label(STRING_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective(".ascii \"%s\\0\""));
-		
+
 		textSection.add(new Label(CHAR_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective(".ascii \"%c\\0\""));
-		
+
 		textSection.add(new Label(INT_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective(".ascii \"%d\\0\""));
-		
+
 		textSection.add(new Label(TRUE_LABEL.getName()));
 		textSection.add(new AssemblerDirective(".ascii \"true\\0\""));
-		
+
 		textSection.add(new Label(FALSE_LABEL.getName()));
 		textSection.add(new AssemblerDirective(".ascii \"false\\0\""));
-		
+
 	}
+
 	@Override
 	public Deque<PseudoInstruction> visit(StatListAST statAST) {
 
@@ -227,7 +227,8 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(PrintlnStatementAST printlnStat) {
 
 		ExprAST expr = printlnStat.getExpr();
-		Deque<PseudoInstruction> instr = 	printInstructionGenerator(expr.accept(this),returnedOperand,expr.getType());
+		Deque<PseudoInstruction> instr = printInstructionGenerator(
+				expr.accept(this), returnedOperand, expr.getType());
 		instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(NEW_LINE_CHAR)));
 		instr.addLast(new BLInstruction("printf"));
 		return instr;
@@ -236,20 +237,25 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(PrintStatementAST printStat) {
 		ExprAST expr = printStat.getExpr();
-		return printInstructionGenerator(expr.accept(this),returnedOperand,expr.getType());
+		return printInstructionGenerator(expr.accept(this), returnedOperand,
+				expr.getType());
 	}
 
-	private Deque<PseudoInstruction> printInstructionGenerator(Deque<PseudoInstruction> instr, Register retReg, Type t) {	
-		
-		instr.addLast(new Mov(ArmRegister.r1,retReg));
-		if(t.equals(BaseType.T_int)) {
-			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(INT_FORMAT_LABEL)));
-		} else if(t.equals(new WaccArrayType(BaseType.T_char))) {
-			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(STRING_FORMAT_LABEL)));
+	private Deque<PseudoInstruction> printInstructionGenerator(
+			Deque<PseudoInstruction> instr, Register retReg, Type t) {
+
+		instr.addLast(new Mov(ArmRegister.r1, retReg));
+		if (t.equals(BaseType.T_int)) {
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
+					INT_FORMAT_LABEL)));
 		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
-			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(CHAR_FORMAT_LABEL)));
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
+					STRING_FORMAT_LABEL)));
+		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
+					CHAR_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_bool)) {
-			//instr.addLast(new Mov(ArmRegister.r0, retReg));
+			// instr.addLast(new Mov(ArmRegister.r0, retReg));
 		}
 
 		instr.addLast(new BLInstruction("printf"));
@@ -265,22 +271,22 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) {
 
-//		/* syscall exit(int status) */
-//	    mov     %r0, $0     /* status -> 0 */
-//	    mov     %r7, $1     /* exit is syscall #1 */
-//	    swi     $0          /* invoke syscall */
+		// /* syscall exit(int status) */
+		// mov %r0, $0 /* status -> 0 */
+		// mov %r7, $1 /* exit is syscall #1 */
+		// swi $0 /* invoke syscall */
 
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		// TODO: fill in the null here for the operand visitor of the expression
 		instrList.addAll(exitStat.getExpr().accept(this));
-		
+
 		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
-		
+
 		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
-		
+
 		instrList.add(new Swi());
-		
+
 		return instrList;
 	}
 
@@ -332,123 +338,176 @@ public class IntermediateCodeGenerator implements
 
 		instrList.addAll(binExpr.getExprL().accept(this));
 		Register exprRegL = returnedOperand;
-		
+
 		instrList.addAll(binExpr.getExprR().accept(this));
 		Register exprRegR = returnedOperand;
-		
-		Register trL = trg.generate();
-		Register trR = trg.generate();
 
-		// TODO: Much overhead, such bad -- check that the Ldr instruction is the best way to do it
-		// ldr trL exprRegL
-		instrList.add(new Ldr(trL, exprRegL));
-		
-		// ldr trR exprRegR
-		instrList.add(new Ldr(trR, exprRegR));
-		
+		/*
+		 * Register trL = trg.generate(); Register trR = trg.generate();
+		 * 
+		 * // TODO: Much overhead, such bad -- check that the Ldr instruction is
+		 * the best way to do it // ldr trL exprRegL instrList.add(new Ldr(trL,
+		 * exprRegL));
+		 * 
+		 * // ldr trR exprRegR instrList.add(new Ldr(trR, exprRegR));
+		 */
+
 		Register destReg = trg.generate();
 
 		// TODO: Add instructions for each binary op
 		switch (binExpr.getBinaryOp()) {
 		case MUL:
 			// add destReg trL trR
-			instrList.add(new Add(destReg, trL, trR));
-			
+			instrList.add(new Add(destReg, exprRegL, exprRegR));
+
 		case DIV:
-			
+
 		case MOD:
-		
+
 		case PLUS:
 			// add destReg trL trR
-			instrList.add(new Add(destReg, trL, trR));
-			
+			instrList.add(new Add(destReg, exprRegL, exprRegR));
+
 		case MINUS:
 			// sub destReg trL trR
-			instrList.add(new Sub(destReg, trL, trR));
-			
+			instrList.add(new Sub(destReg, exprRegL, exprRegR));
+
 		case GT:
-			
+			// cmp trL trR
+			// movgt destReg, #1
+			// movle destReg, #0
+			instrList.add(new Cmp(exprRegL, exprRegR));
+			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.GT));
+			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.LE));
+
 		case GTE:
-			
+			// cmp trL trR
+			// movge destReg, #1
+			// movlt destReg, #0
+			instrList.add(new Cmp(exprRegL, exprRegR));
+			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.GE));
+			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.LT));
+
 		case LT:
-			
+			// cmp trL trR
+			// movlt destReg, #1
+			// movge destReg, #0
+			instrList.add(new Cmp(exprRegR, exprRegL));
+			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.LT));
+			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.GE));
+
 		case LTE:
-			
+			// cmp trL trR
+			// movle destReg, #1
+			// movgt destReg, #0
+			instrList.add(new Cmp(exprRegR, exprRegL));
+			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.LE));
+			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.GT));
+
 		case EQ:
-			
+			// cmp trL trR
+			// moveq destReg, #1
+			// movne destReg, #0
+			instrList.add(new Cmp(exprRegL, exprRegR));
+			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.EQ));
+			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.NE));
+
 		case NEQ:
+			// cmp trL trR
+			// movne destReg, #1
+			// moveq destReg, #0
+			instrList.add(new Cmp(exprRegL, exprRegR));
+			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.NE));
+			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.EQ));
 			
 		case AND:
 			// and destReg trL trR
-			instrList.add(new And(destReg, trL, trR));
-			
+			instrList.add(new And(destReg, exprRegL, exprRegR));
+
 		case OR:
 			// and destReg trL trR
-			instrList.add(new Orr(destReg, trL, trR));
+			instrList.add(new Orr(destReg, exprRegL, exprRegR));
 		}
-		
+
 		returnedOperand = destReg;
 		return instrList;
+	}
+	
+	// TODO
+	private void checkDivideByZero() {
+		
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(UnaryExprAST unExpr) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		instrList.addAll(unExpr.getExpr().accept(this));
-		Register tr = trg.generate();
-		
-		// ldr tr returnedOperand
-		instrList.add(new Ldr(tr, returnedOperand));
-		
+
+		/*
+		 * Register tr = trg.generate();
+		 * 
+		 * // ldr tr returnedOperand instrList.add(new Ldr(tr,
+		 * returnedOperand));
+		 */
+
+		Register tr = returnedOperand;
+
 		// TODO: Add instructions for each unary op
 		switch (unExpr.getUnaryOp()) {
 		case NOT:
 			// and tr tr 0
 			instrList.add(new And(tr, tr, new ImmediateValue(0)));
-			
+
 		case MINUS:
 			// sub tr 0 tr
 			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
-			
+
 		case LEN:
-			
+
 		case ORD:
-			
+
 		case CHR:
-			
+
 		}
-		
+
 		returnedOperand = tr;
 		return instrList;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(ValueExprAST valueExpr) {
-		Label literalLabel = new Label(LiteralLabelGenerator.getNewUniqueLabel());
+		Label literalLabel = new Label(
+				LiteralLabelGenerator.getNewUniqueLabel());
 		Register ret = trg.generate();
 		Deque<PseudoInstruction> instr = new LinkedList<PseudoInstruction>();
-		
+
 		// Literal is added to the .data section
 		textSection.add(literalLabel);
-		
+
 		// If it is a string literal
-		if(valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))){
-			textSection.add(new AssemblerDirective(".ascii \"" + valueExpr.getValue() + "\\0\""));
+		if (valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))) {
+			textSection.add(new AssemblerDirective(".ascii \""
+					+ valueExpr.getValue() + "\\0\""));
 			instr.add(new Ldr(ret, new ImmediateValue(literalLabel.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_int)) {
-			instr.add(new Mov(ret,new ImmediateValue(Integer.parseInt(valueExpr.getValue()))));
+			instr.add(new Mov(ret, new ImmediateValue(Integer
+					.parseInt(valueExpr.getValue()))));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
-			textSection.add(new AssemblerDirective(".byte '" + valueExpr.getValue() + "'"));
+			textSection.add(new AssemblerDirective(".byte '"
+					+ valueExpr.getValue() + "'"));
 			instr.add(new Ldr(ret, new ImmediateValue(literalLabel.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
-				instr.add(new Ldr(ret, new ImmediateValue(TRUE_LABEL.getName())));;
+				instr.add(new Ldr(ret, new ImmediateValue(TRUE_LABEL.getName())));
+				;
 			} else {
-				instr.add(new Ldr(ret, new ImmediateValue(FALSE_LABEL.getName())));;
-			}	
+				instr.add(new Ldr(ret,
+						new ImmediateValue(FALSE_LABEL.getName())));
+				;
+			}
 		}
-		
+
 		returnedOperand = ret;
 		return instr;
 	}

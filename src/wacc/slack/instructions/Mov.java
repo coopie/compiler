@@ -9,6 +9,10 @@ public class Mov extends GeneralArmInstruction implements PseudoInstruction {
 		super(dest, source);
 	}
 
+	public Mov(Operand dest, Operand source, Condition ge) {
+		super(dest, source);
+	}
+
 	@Override
 	public <T> T accept(InstructionVistor<T> visitor) {
 		return visitor.visit(this);
