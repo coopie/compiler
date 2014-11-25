@@ -2,10 +2,12 @@ package wacc.slack.controlFlow;
 
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import wacc.slack.assemblyOperands.Register;
@@ -24,8 +26,6 @@ public class CFGNode {
 
 	private List<Register> defs = new LinkedList<>();
 	private List<Register> uses = new LinkedList<>();
-	
-	private List<CFGNode> next = new LinkedList<CFGNode>(); 
 	
 	private static final AbstractInstructionVisitor<Label> labelVisitor = new AbstractInstructionVisitor<Label>(new Callable<Label>(){
 		@Override
@@ -70,25 +70,12 @@ public class CFGNode {
 	public Iterable<Register> getUses() {
 		return uses;
 	}
-
-
-	public void setNext(CFGNode n2) {
-		if(n2 != null)
-			next.add(n2);
-	}
-
-
-	public List<CFGNode> getNext() {
-		return next;
-	}	
-	public static CFGNode makeGraph(Deque<PseudoInstruction> code) {
-		return makeGraph(code, new HashMap<Label,CFGNode>());
-	}
 	
-	private static Label isLabel(PseudoInstruction instr) {
-		return instr.accept(labelVisitor);
-	}
-	static CFGNode makeGraph(Deque<PseudoInstruction> code, Map<Label,CFGNode> labelLookUp) {
+	public static Map<CFGNode,Set<CFGNode>> makeGraph(Deque<PseudoInstruction> code) {
+		Map<CFGNode,Set<CFGNode>> graph = new HashMap<>();
+		Map<Label,CFGNode> labelLookUp = new HashMap<>();
+
+
 		Iterator<PseudoInstruction> i = code.descendingIterator();
 		LabelBabySitter sitter = new LabelBabySitter(labelLookUp);
 		
@@ -96,21 +83,23 @@ public class CFGNode {
 		CFGNode prevNode  = null;
 		CFGNode currentNode = null;
 		Label l = null;
-		//TODO: a lot
+		Set<CFGNode> nexts;
 		while(i.hasNext()) {
 			currentInstruction = i.next();
 			//if the current instruction is label we add it to the look up and 
 			//carry on as if there were no pseudo instruction
-			l = isLabel(currentInstruction);
-			if(currentInstruction instanceof Label) {
+			l = currentInstruction.accept(labelVisitor);
+			if(l != null) {
 				labelLookUp.put(l,prevNode);
 				continue;
 			}
 			currentNode = new CFGNode(currentInstruction);
-			sitter.add(currentNode);
-			if(currentInstruction.accept(isNextInstructionExecuted)) {
-				currentNode.setNext(prevNode);
+			nexts = new HashSet<>();
+			sitter.add(currentNode, nexts);
+			if(prevNode != null && currentInstruction.accept(isNextInstructionExecuted)) {
+				nexts.add(prevNode);
 			}
+			graph.put(currentNode, nexts);
 			prevNode = currentNode;
 		}
 		
@@ -118,7 +107,7 @@ public class CFGNode {
 			throw new RuntimeException("undefined label found");
 		}
 		
-		return currentNode;
+		return graph;
 	}
 
 }

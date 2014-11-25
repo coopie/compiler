@@ -4,22 +4,17 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import java.util.Arrays;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
 import wacc.slack.assemblyOperands.ArmRegister;
-import wacc.slack.assemblyOperands.Register;
 import wacc.slack.instructions.BranchInstruction;
-import wacc.slack.instructions.Cmp;
-import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Mov;
-import wacc.slack.instructions.PseudoInstruction;
 
 public class LabelBabySiterTest {
 	
@@ -36,19 +31,23 @@ public class LabelBabySiterTest {
 	
 	@Test
 	public void canAddNonLabeldependantInsutrction() {
-		sitter.add(mov);
+		sitter.add(mov, new HashSet<CFGNode>());
 		assertThat(sitter.allInstructionsHappy(), is(true));
 	}
 	
 	@Test
 	public void canAddLabeldependantInsutrction() {
+		sitter.add(mov,null);
+		assertThat(sitter.allInstructionsHappy(), is(true));
+		
 	}
 	@Test
-	public void setsNextOfAllTheLookedafterNodesAccoringToLabelLookup() {
+	public void setsNextOfAllTheLookedAfterNodesAccoringToLabelLookup() {
 		
-		sitter.add(branch);
+		Set<CFGNode> nexts = new HashSet<>();
+		sitter.add(branch,nexts);
 		labelLookup.put(new Label("l1"),mov);
 		assertThat(sitter.allInstructionsHappy(), is(true));
-		assertThat(branch.getNext(), hasItems(mov));
+		assertThat(nexts, hasItems(mov));
 	}
 }

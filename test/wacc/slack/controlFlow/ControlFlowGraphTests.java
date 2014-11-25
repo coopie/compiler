@@ -3,12 +3,13 @@ package wacc.slack.controlFlow;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Arrays;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -57,69 +58,72 @@ public class ControlFlowGraphTests {
 		assertThat(n.getUses(),hasItems((Register)ArmRegister.r1));
 	}
 	
-	@Test
-	public void canLinkAndTraverseCFGNodes() {
-		CFGNode n1 = new CFGNode(mov);
-		CFGNode n2 = new CFGNode(mov);
-		CFGNode n3 = new CFGNode(mov);
-		
-		n1.setNext(n2);
-		n1.setNext(n3);
-		n2.setNext(n3);
-		n3.setNext(n1);
-		
-		assertThat(n1.getNext(),hasItems(n2,n3));
-		assertThat(n2.getNext(),hasItems(n3));
-		assertThat(n3.getNext(),hasItems(n1));
-	}
 	
 	@Test
-	public void canAddNullAsNoNextNode() {
-		CFGNode n = new CFGNode(mov);
-		n.setNext(null);
-		assertThat(n.getNext().size(), is(0));
-	}
+	public void canMakeGraph() {
+		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
+		assertThat(graph.keySet().size(), is(2));
 	
-	@Test
-	public void cFGGraphHasCorrectRoot() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
-		assertThat(root.getInstruction(), is((PseudoInstruction)cmp));
 	}
 	
 	@Test
 	public void cFGGraphCanHaveOneNextNode() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
-		assertThat(root.getNext().get(0).getInstruction(), is((PseudoInstruction)mov));
+		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
+		
+		assertThat(graph.keySet().size(),is(2));
+		for(CFGNode n : graph.keySet()) {
+			if(n.getInstruction() == cmp) {
+				assertThat(graph.get(n).size(),is(1));
+				assertThat(graph.get(n).iterator().next().getInstruction(), is(mov));
+			} else if (n.getInstruction() == mov) {
+				assertThat(graph.get(n).size(),is(0));
+			} else {
+				assertFalse(true);
+			}
+		}
 	}
 	
 	@Test
 	public void cFGGraphCanIncludeLabels() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,new Label("l1"),mov)));	
-		assertThat(root.getNext().get(0).getInstruction(), is((PseudoInstruction)mov));
-	}
-	
-	@Test
-	public void labelsAreAddedToTheLabelLookup() {
-		Map<Label,CFGNode> labelLookup = new HashMap<>();
-		CFGNode.makeGraph(new LinkedList<PseudoInstruction>(Arrays.asList(branch,new Label("l1"),mov)),labelLookup);	
-		assertThat(labelLookup.get(new Label ("l1")).getInstruction(), is(mov));
+		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,new Label("l1"),mov)));	
+		assertThat(graph.keySet().size(),is(2));
 	}
 
 	@Test
 	public void branchInstructionHasOneNext() {
-		Map<Label,CFGNode> labelLookup = new HashMap<>();
-		CFGNode root = CFGNode.makeGraph(new LinkedList<PseudoInstruction>(Arrays.asList(new Label("l1"),mov,branch,cmp)),labelLookup);	
-		assertThat(root.getNext().get(0).getNext().size(), is(1));
-		assertThat(root.getNext().get(0).getNext().get(0).getInstruction(), is(mov));
+		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(new Label("l1"),mov,branch,cmp)));	
+
+		assertThat(graph.keySet().size(),is(3));
+		for(CFGNode n : graph.keySet()) {
+			if(n.getInstruction() == cmp) {
+				assertThat(graph.get(n).size(),is(0));
+			} else if (n.getInstruction() == mov) {
+				assertThat(graph.get(n).size(),is(1));
+			} else if (n.getInstruction() == branch) {
+				assertThat(graph.get(n).size(),is(1));
+				assertThat(graph.get(n).iterator().next().getInstruction(), is(mov));
+			} else {
+				assertFalse(true);
+			}
+		}
 	}
 
 	@Test
 	public void branchInstructionHasTwoNexts() {
-		Map<Label,CFGNode> labelLookup = new HashMap<>();
-		CFGNode root = CFGNode.makeGraph(new LinkedList<PseudoInstruction>(Arrays.asList(new Label("start"),mov,branchStart,cmp)),labelLookup);	
-		assertThat(root.getNext().get(0).getNext().size(), is(2));
-		assertThat(root.getNext().get(0).getNext().get(1).getInstruction(), is(mov));
-		assertThat(root.getNext().get(0).getNext().get(0).getInstruction(), is(cmp));
+		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(new Label("start"),mov,branchStart,cmp)));	
+
+		assertThat(graph.keySet().size(),is(3));
+		for(CFGNode n : graph.keySet()) {
+			if(n.getInstruction() == cmp) {
+				assertThat(graph.get(n).size(),is(0));
+			} else if (n.getInstruction() == mov) {
+				assertThat(graph.get(n).size(),is(1));
+			} else if (n.getInstruction() == branchStart) {
+				assertThat(graph.get(n).size(),is(2));
+			} else {
+				assertFalse(true);
+			}
+		}
 	}
 
 }

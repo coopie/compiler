@@ -1,6 +1,6 @@
 package wacc.slack.controlFlow;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -39,7 +39,7 @@ class LabelBabySitter {
 	};
 	
 	private final Map<Label, CFGNode> labelLookup;
-	private final Set<CFGNode> instructions = new HashSet<>();
+	private final Map<CFGNode,Set<CFGNode>> instructions = new HashMap<>();
 
 	public LabelBabySitter(Map<Label, CFGNode> labelLookup) {
 		this.labelLookup = labelLookup;
@@ -47,19 +47,19 @@ class LabelBabySitter {
 
 	public boolean allInstructionsHappy() {
 		CFGNode next;
-		for(CFGNode n : instructions) {
+		for(CFGNode n : instructions.keySet()) {
 			next = labelLookup.get(n.getInstruction().accept(labelVisitor));
 			if(next != null) {
-				n.setNext(next);
+				instructions.get(n).add(next);
 				instructions.remove(n);
 			}
 		}
 		return instructions.size() == 0;
 	}
 
-	public void add(CFGNode node) {
+	public void add(CFGNode node, Set<CFGNode> nexts) {
 		if(node.getInstruction().accept(boolvisitor)) {
-			instructions.add(node);
+			instructions.put(node,nexts);
 		}
 	}
 
