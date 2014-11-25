@@ -55,6 +55,7 @@ import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
@@ -100,7 +101,8 @@ public class IntermediateCodeGenerator implements
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
 	private Register returnedOperand = null;
 	/*
-	 * contains the current weight of registers for current scope, use everytime you create a register
+	 * contains the current weight of registers for current scope, use everytime
+	 * you create a register
 	 */
 	private int weight = 0;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
@@ -162,11 +164,13 @@ public class IntermediateCodeGenerator implements
 		textSection.add(new AssemblerDirective(".ascii \"false\\0\""));
 
 	}
-	
-	/*private void divideByZeroMethod() {
 
-
-	}*/
+	/*
+	 * private void divideByZeroMethod() {
+	 * 
+	 * 
+	 * }
+	 */
 
 	@Override
 	public Deque<PseudoInstruction> visit(StatListAST statAST) {
@@ -194,11 +198,11 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		Label falsel = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
-		
+
 		instrList.addAll(ifStat.getCond().accept(this));
 		instrList.add(new Cmp(returnedOperand, new ImmediateValue("0")));
 		instrList.add(new BranchInstruction(Condition.EQ, falsel));
-		
+
 		weight = weight / 2;
 		instrList.addAll(ifStat.getTrueStats().accept(this));
 		instrList.add(new BranchInstruction(Condition.AL, endl));
@@ -217,9 +221,9 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(WhileStatementAST whileStat) {
-		
+
 		weight = weight * 10;
-		
+
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
@@ -315,8 +319,12 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ArrayElemAST arrayElem) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+
+		// Get the element at expr[n] then treat the element at expr[n] as
+		// another array and get the element expr[n+1] in that array and so on
+
+		return instrList;
 	}
 
 	@Override
@@ -333,8 +341,47 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+
+		// Needs to evaluate and add code for each expression in the array then
+		// find out which register the result is in and put it in the array...
+		// no lazy evaluation! this ain't no functional language
+
+		int typeSize = 4;
+		instrList.add(new Sub(ArmRegister.sp, ArmRegister.sp,
+				new ImmediateValue(typeSize)));
+
+		// Size should be the num of elems in the array + 1 * size of the type
+		// You add one to the num of elems because you need to store the size of
+		// the array as well
+		int size = 20;
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size)));
+
+		instrList.add(new BLInstruction("malloc"));
+		
+		instrList.add(new Mov(ArmRegister.r4, ArmRegister.r0));
+		
+		int offset = typeSize;
+		for (ExprAST expr : arrayLiter.getExprList()) {
+			
+			instrList.addAll(expr.accept(this));
+			
+			// Result of evaluating expr stored in returnedOperand
+			// Store register returnedOperand to memory at [r4, #offset]
+			
+			instrList.add(new Str(returnedOperand, ArmRegister.r4, offset));
+			
+			offset += typeSize;
+		}
+		
+		// Store size of array at offset 0
+		instrList.add(new Mov(ArmRegister.r5, new ImmediateValue(arrayLiter.getExprList().size())));
+		// Store contents of register r5 into [r4]
+		instrList.add(new Str(ArmRegister.r5, ArmRegister.r4));
+
+		instrList.add(new Str(ArmRegister.r4, ArmRegister.sp));
+		
+		return instrList;
 	}
 
 	@Override
@@ -384,49 +431,61 @@ public class IntermediateCodeGenerator implements
 			// movgt destReg, #1
 			// movle destReg, #0
 			instrList.add(new Cmp(exprRegL, exprRegR));
-			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.GT));
-			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.LE));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(1), Condition.GT));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(0), Condition.LE));
 
 		case GTE:
 			// cmp trL trR
 			// movge destReg, #1
 			// movlt destReg, #0
 			instrList.add(new Cmp(exprRegL, exprRegR));
-			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.GE));
-			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.LT));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(1), Condition.GE));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(0), Condition.LT));
 
 		case LT:
 			// cmp trL trR
 			// movlt destReg, #1
 			// movge destReg, #0
 			instrList.add(new Cmp(exprRegR, exprRegL));
-			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.LT));
-			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.GE));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(1), Condition.LT));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(0), Condition.GE));
 
 		case LTE:
 			// cmp trL trR
 			// movle destReg, #1
 			// movgt destReg, #0
 			instrList.add(new Cmp(exprRegR, exprRegL));
-			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.LE));
-			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.GT));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(1), Condition.LE));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(0), Condition.GT));
 
 		case EQ:
 			// cmp trL trR
 			// moveq destReg, #1
 			// movne destReg, #0
 			instrList.add(new Cmp(exprRegL, exprRegR));
-			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.EQ));
-			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.NE));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(1), Condition.EQ));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(0), Condition.NE));
 
 		case NEQ:
 			// cmp trL trR
 			// movne destReg, #1
 			// moveq destReg, #0
 			instrList.add(new Cmp(exprRegL, exprRegR));
-			instrList.add(new Mov(destReg, new ImmediateValue(1), Condition.NE));
-			instrList.add(new Mov(destReg, new ImmediateValue(0), Condition.EQ));
-			
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(1), Condition.NE));
+			instrList
+					.add(new Mov(destReg, new ImmediateValue(0), Condition.EQ));
+
 		case AND:
 			// and destReg trL trR
 			instrList.add(new And(destReg, exprRegL, exprRegR));

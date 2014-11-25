@@ -17,6 +17,7 @@ import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
@@ -131,6 +132,12 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	public String visit(Sub sub) {
 		return newLine(4) + "SUB " + sub.getDest() + ", " + sub.getSource() + ", " + sub.getSource2();
 
+	}
+
+	@Override
+	public String visit(Str str) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

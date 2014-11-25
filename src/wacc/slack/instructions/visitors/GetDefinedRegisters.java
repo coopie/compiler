@@ -22,6 +22,7 @@ import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
@@ -31,12 +32,14 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 	private final class GetRegsIfAny implements OperandVisitor<List<Register>> {
 		@Override
 		public List<Register> visit(ArmRegister realRegister) {
-			return new LinkedList<Register>(Arrays.asList((Register)realRegister));
+			return new LinkedList<Register>(
+					Arrays.asList((Register) realRegister));
 		}
 
 		@Override
 		public List<Register> visit(TemporaryRegister temporaryRegister) {
-			return new LinkedList<Register>(Arrays.asList((Register)temporaryRegister));
+			return new LinkedList<Register>(
+					Arrays.asList((Register) temporaryRegister));
 		}
 
 		@Override
@@ -129,6 +132,12 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 	@Override
 	public List<Register> visit(BranchInstruction b) {
 		return b.getLabel().accept(new GetRegsIfAny());
+	}
+
+	@Override
+	public List<Register> visit(Str str) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

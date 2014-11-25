@@ -34,4 +34,6 @@ public interface InstructionVistor<T> {
 
 	T visit(BranchInstruction b);
 
+	T visit(Str str);
+
 }
