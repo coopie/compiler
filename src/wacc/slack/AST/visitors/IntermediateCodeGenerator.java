@@ -348,6 +348,10 @@ public class IntermediateCodeGenerator implements
 		// no lazy evaluation! this ain't no functional language
 
 		int typeSize = 4;
+		if (arrayLiter.getType().equals(BaseType.T_bool) || arrayLiter.getType().equals(BaseType.T_char)) {
+			typeSize = 1;
+		}
+		
 		instrList.add(new Sub(ArmRegister.sp, ArmRegister.sp,
 				new ImmediateValue(typeSize)));
 
