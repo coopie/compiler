@@ -27,7 +27,6 @@ import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
 import wacc.slack.AST.statements.ReturnStatementAST;
 import wacc.slack.AST.statements.SkipStatementAST;
-import wacc.slack.AST.statements.StatAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
@@ -159,6 +158,11 @@ public class IntermediateCodeGenerator implements
 		textSection.add(new AssemblerDirective(".ascii \"false\\0\""));
 
 	}
+	
+	/*private void divideByZeroMethod() {
+
+
+	}*/
 
 	@Override
 	public Deque<PseudoInstruction> visit(StatListAST statAST) {
@@ -431,11 +435,6 @@ public class IntermediateCodeGenerator implements
 
 		returnedOperand = destReg;
 		return instrList;
-	}
-	
-	// TODO
-	private void checkDivideByZero() {
-		
 	}
 
 	@Override

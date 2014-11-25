@@ -24,18 +24,19 @@ import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
+
 //TDD class
 public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	private final class GetRegsIfAny implements OperandVisitor<List<Register>> {
 		@Override
 		public List<Register> visit(ArmRegister realRegister) {
-			return Arrays.asList((Register)realRegister);
+			return new LinkedList<Register>(Arrays.asList((Register) realRegister));
 		}
 
 		@Override
 		public List<Register> visit(TemporaryRegister temporaryRegister) {
-			return Arrays.asList((Register)temporaryRegister);
+			return new LinkedList<Register>(Arrays.asList((Register) temporaryRegister));
 		}
 
 		@Override
@@ -51,14 +52,16 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(And and) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Register> l = and.getSource().accept(new GetRegsIfAny());
+		l.addAll(and.getSource2().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 	@Override
 	public List<Register> visit(Orr or) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Register> l = or.getSource().accept(new GetRegsIfAny());
+		l.addAll(or.getSource2().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 	@Override
@@ -110,26 +113,28 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Cmp cmp) {
-		// TODO Auto-generated method stub
-		return null;
+		return cmp.getSource().accept(new GetRegsIfAny());
 	}
 
 	@Override
 	public List<Register> visit(Mul mul) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Register> l = mul.getSource().accept(new GetRegsIfAny());
+		l.addAll(mul.getSource2().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 	@Override
 	public List<Register> visit(Add add) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Register> l = add.getSource().accept(new GetRegsIfAny());
+		l.addAll(add.getSource2().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 	@Override
 	public List<Register> visit(Sub sub) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Register> l = sub.getSource().accept(new GetRegsIfAny());
+		l.addAll(sub.getSource2().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 	@Override
