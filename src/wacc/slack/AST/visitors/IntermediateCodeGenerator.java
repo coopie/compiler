@@ -115,10 +115,7 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ProgramAST prog) {
-
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-
-		Deque<PseudoInstruction> d = prog.getStatements().accept(this);
 
 		// d = doCFG(d) // replaces all the temporarz registers with real ones
 		// and do the optimization
@@ -133,7 +130,7 @@ public class IntermediateCodeGenerator implements
 
 		instrList.add(new Push(ArmRegister.lr));
 
-		instrList.addAll(d);
+		instrList.addAll(prog.getStatements().accept(this));
 
 		instrList.add(new Pop(ArmRegister.pc));
 
@@ -174,7 +171,6 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(StatListAST statAST) {
-
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		for (WaccAST stat : statAST.getChildren()) {
 			instrList.addAll(stat.accept(this));
@@ -339,6 +335,7 @@ public class IntermediateCodeGenerator implements
 		return null;
 	}
 
+	//TODO: Replace arm registers with temp ones where possible. Check
 	@Override
 	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
@@ -351,9 +348,6 @@ public class IntermediateCodeGenerator implements
 		if (arrayLiter.getType().equals(BaseType.T_bool) || arrayLiter.getType().equals(BaseType.T_char)) {
 			typeSize = 1;
 		}
-		
-		instrList.add(new Sub(ArmRegister.sp, ArmRegister.sp,
-				new ImmediateValue(typeSize)));
 
 		// Size should be the num of elems in the array + 1 * size of the type
 		// You add one to the num of elems because you need to store the size of

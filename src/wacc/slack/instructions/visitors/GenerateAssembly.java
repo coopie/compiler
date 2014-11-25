@@ -22,16 +22,16 @@ import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
 public class GenerateAssembly implements InstructionVistor<String> {
-	
+
 	private String newLine(int indent) {
 		String s = "\n";
-		for(int i = 0; i < indent; i++) {
+		for (int i = 0; i < indent; i++) {
 			s += "\t";
 		}
 		return s;
 	}
-	
-	private OperandVisitor<String> printOperand = new OperandVisitor<String>(){
+
+	private OperandVisitor<String> printOperand = new OperandVisitor<String>() {
 
 		@Override
 		public String visit(ArmRegister realRegister) {
@@ -45,7 +45,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 		@Override
 		public String visit(Label label) {
-			
+
 			return "=" + label.getName();
 		}
 
@@ -53,13 +53,13 @@ public class GenerateAssembly implements InstructionVistor<String> {
 		public String visit(ImmediateValue immediateValue) {
 			return immediateValue.getValue();
 		}
-		
+
 	};
-	
+
 	@Override
 	public String visit(Mov mov) {
-		return newLine(4) +"MOV " + mov.getDest().accept(printOperand) + ", " +
-				mov.getSource().accept(printOperand);
+		return newLine(4) + "MOV " + mov.getDest().accept(printOperand) + ", "
+				+ mov.getSource().accept(printOperand);
 	}
 
 	@Override
@@ -79,8 +79,8 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Ldr ldr) {
-		return newLine(4) + "LDR " + ldr.getDest().accept(printOperand) +
-				", " + ldr.getSource().accept(printOperand);
+		return newLine(4) + "LDR " + ldr.getDest().accept(printOperand) + ", "
+				+ ldr.getSource().accept(printOperand);
 	}
 
 	@Override
@@ -90,19 +90,22 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Pop pop) {
-		return newLine(4) + "POP {" + pop.getOperand().accept(printOperand) + "}";
+		return newLine(4) + "POP {" + pop.getOperand().accept(printOperand)
+				+ "}";
 	}
 
 	@Override
 	public String visit(Push push) {
-		return newLine(4) + "PUSH {" + push.getOperand().accept(printOperand) + "}";
+		return newLine(4) + "PUSH {" + push.getOperand().accept(printOperand)
+				+ "}";
 	}
 
 	@Override
 	public String visit(Cmp cmp) {
-		return newLine(4) + "CMP " + cmp.getSource().accept(printOperand) + ", " + cmp.getDest().accept(printOperand);
+		return newLine(4) + "CMP " + cmp.getSource().accept(printOperand)
+				+ ", " + cmp.getDest().accept(printOperand);
 	}
-	
+
 	@Override
 	public String visit(BranchInstruction b) {
 		return newLine(4) + "B" + b.getCond() + " " + b.getLabel();
@@ -110,34 +113,43 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(And and) {
-		return newLine(4) + "AND " + and.getDest() + ", " + and.getSource() + ", " + and.getSource2();
+		return newLine(4) + "AND " + and.getDest() + ", " + and.getSource()
+				+ ", " + and.getSource2();
 	}
 
 	@Override
 	public String visit(Orr or) {
-		return newLine(4) + "ORR " + or.getDest() + ", " + or.getSource() + ", " + or.getSource2();
+		return newLine(4) + "ORR " + or.getDest() + ", " + or.getSource()
+				+ ", " + or.getSource2();
 	}
 
 	@Override
 	public String visit(Mul mul) {
-		return newLine(4) + "MUL " + mul.getDest() + ", " + mul.getSource() + ", " + mul.getSource2();
+		return newLine(4) + "MUL " + mul.getDest() + ", " + mul.getSource()
+				+ ", " + mul.getSource2();
 	}
 
 	@Override
 	public String visit(Add add) {
-		return newLine(4) + "ADD " + add.getDest() + ", " + add.getSource() + ", " + add.getSource2();
+		return newLine(4) + "ADD " + add.getDest() + ", " + add.getSource()
+				+ ", " + add.getSource2();
 	}
 
 	@Override
 	public String visit(Sub sub) {
-		return newLine(4) + "SUB " + sub.getDest() + ", " + sub.getSource() + ", " + sub.getSource2();
+		return newLine(4) + "SUB " + sub.getDest() + ", " + sub.getSource()
+				+ ", " + sub.getSource2();
 
 	}
 
 	@Override
 	public String visit(Str str) {
-		// TODO Auto-generated method stub
-		return null;
+		String s = "";
+		if (str.getOffset() != 0) {
+			s = ", #" + str.getOffset();
+		}
+		return newLine(4) + "STR " + str.getSource() + ", [" + str.getDest()
+				+ s + "]";
 	}
 
 }
