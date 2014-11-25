@@ -15,7 +15,7 @@ import wacc.slack.instructions.Label;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.visitors.AbstractInstructionVisitor;
 
-public class ControlFlowGraph extends AbstractGraph<CFGNode,CFGNode> {
+public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 
 	private final AbstractInstructionVisitor<Label> labelVisitor = new AbstractInstructionVisitor<Label>(new Callable<Label>(){
 		@Override

@@ -6,9 +6,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractGraph<T,R> implements Iterable<T>  {
+public abstract class AbstractGraph<T> implements Iterable<T>  {
 
-	private Map<T, Set<R>> graph = new HashMap<>();
+	private Map<T, Set<T>> graph = new HashMap<>();
 	
 	public Set<T> nodeSet() {
 		return graph.keySet();
@@ -19,32 +19,36 @@ public abstract class AbstractGraph<T,R> implements Iterable<T>  {
 		return graph.keySet().iterator();
 	}
 
-	public Set<R> getAdjecent(T node) {
+	public Set<T> getAdjecent(T node) {
 		return graph.get(node);
 	}
 
 	@Override
 	public String toString() {
-		return printGraph();
+		return printGraph(graph);
 	}
 	
-	protected void putNode(T node, Set<R> adjecent) {
-		graph.put(node, adjecent);
+	public void putNode(T node, Set<T> adjecent) {
+		if(graph.containsKey(node)) {
+			graph.get(node).addAll(adjecent);
+		} else {
+			graph.put(node, adjecent);
+		}
 	}
 	
 	/**
 	 * 
 	 * @return adjecency list of this graph
 	 */
-	public Map<T,Set<R>> getAdjecencyList() {
-		Map<T,Set<R>> g = new HashMap<>();
+	public Map<T,Set<T>> getAdjecencyList() {
+		Map<T,Set<T>> g = new HashMap<>();
 		for(T node : graph.keySet()) {
 			g.put(node,new HashSet<>(graph.get(node)));
 		}
 		return g;
 	}
 	
-	public String printGraph() {
+	public static <T,R> String printGraph(Map<T,R> graph) {
 		String s = "";
 		
 		for(T n : graph.keySet()) {

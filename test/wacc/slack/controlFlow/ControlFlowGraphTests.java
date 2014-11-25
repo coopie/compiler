@@ -129,7 +129,8 @@ public class ControlFlowGraphTests {
 	@Test
 	public void canGetLiveOut() {
 		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(new Label("start"),mov,branchStart,cmp)));	
-		System.out.print(graph.getLiveOut());
+		System.out.print(AbstractGraph.printGraph(graph.getLiveOut()));
+		assertFalse(true); //TODO:
 		
 	}
 }
