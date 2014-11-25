@@ -90,9 +90,4 @@ public class ControlFlowGraphTests {
 		assertThat(root.getNext().get(0).getInstruction(), is((PseudoInstruction)mov));
 	}
 	
-	@Test
-	public void CFGGraphCanHaveOneNextNode() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,mov)));	
-		assertThat(root.getNext().get(0).getInstruction(), is((PseudoInstruction)mov));
-	}
 }
