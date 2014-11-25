@@ -1,19 +1,35 @@
 package wacc.slack.interferenceGraph;
 
-import wacc.slack.assemblyOperands.ArmRegister;
-import wacc.slack.assemblyOperands.Register;
-import wacc.slack.assemblyOperands.TemporaryRegister;
+import java.util.HashMap;
+import java.util.Map;
 
-public class InterferenceGraphNode {
+import wacc.slack.assemblyOperands.Register;
+
+class InterferenceGraphNode {
 
 	private int colour = -1;
 	
 	private final int weight;
 	private final Register reg;
 	
-	public InterferenceGraphNode(Register reg, int weight) {
+	private static Map<Register, InterferenceGraphNode> registersMapped = new HashMap<>();
+	
+	
+	public static InterferenceGraphNode getInterferenceGraphNodeForRegister(Register reg) {
+		if(registersMapped.containsKey(reg)) {
+			return registersMapped.get(reg);
+		}
+		InterferenceGraphNode n = new InterferenceGraphNode(reg);
+		registersMapped.put(reg, n);
+		return n;
+	}
+	
+	//this gurantess there is only one interferencegraphNode for each register,
+	//so for example keys in map are the same objects as the values
+	// use the above static method
+	private InterferenceGraphNode(Register reg) {
 		this.reg = reg;
-		this.weight = weight;
+		this.weight = reg.getWeight();
 	}
 
 	
@@ -36,12 +52,19 @@ public class InterferenceGraphNode {
 
 	@Override
 	public int hashCode() {
-		if (reg instanceof ArmRegister) {
+		//commenting this out, becuase overriding equals and feel like it is unsafe to do it that way
+		/*if (reg instanceof ArmRegister) {
 			return -1 * ((ArmRegister)reg).ordinal();
 			
 		} else {
 			return ((TemporaryRegister)reg).getN();
-		}
+		}*/
+		return reg.hashCode();
 		
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return reg.equals(o);
 	}
 }
