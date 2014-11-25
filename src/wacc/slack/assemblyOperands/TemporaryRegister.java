@@ -3,10 +3,12 @@ package wacc.slack.assemblyOperands;
 public class TemporaryRegister implements Register {
 	
 	private final int n;
+	private int weight = 1;
 
 	// use the generator to make these!!
-	public TemporaryRegister(int n) {
+	public TemporaryRegister(int n, int weight) {
 		this.n = n;
+		this.weight = weight;
 	}
 
 	@Override
@@ -18,5 +20,10 @@ public class TemporaryRegister implements Register {
 		return n;
 	}
 	
-
+	@Override
+	public int getWeight() {
+		return weight;
+	}
+	
+	
 }

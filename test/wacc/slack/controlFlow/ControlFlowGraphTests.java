@@ -6,7 +6,9 @@ import static org.hamcrest.core.Is.is;
 
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -21,9 +23,9 @@ import wacc.slack.instructions.PseudoInstruction;
 
 public class ControlFlowGraphTests {
 	
-	private BranchInstruction branch = new BranchInstruction(null,new Label("l1"));
+	private BranchInstruction branch = new BranchInstruction(Condition.AL,new Label("l1"));
 	private PseudoInstruction mov = new Mov(ArmRegister.r0, ArmRegister.r1);
-	private Cmp cmp = new Cmp(ArmRegister.r0,ArmRegister.r1);
+	private PseudoInstruction cmp = new Cmp(ArmRegister.r0,ArmRegister.r1);
 	private BranchInstruction branchStart = new BranchInstruction(Condition.LT,new Label("start"));
 	
 	Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
@@ -79,20 +81,45 @@ public class ControlFlowGraphTests {
 	}
 	
 	@Test
-	public void CFGGraphHasCorrectRoot() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,mov)));	
-		assertThat(root.getInstruction(), is((PseudoInstruction)branch));
+	public void cFGGraphHasCorrectRoot() {
+		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
+		assertThat(root.getInstruction(), is((PseudoInstruction)cmp));
 	}
 	
 	@Test
-	public void CFGGraphCanHaveOneNextNode() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,mov)));	
+	public void cFGGraphCanHaveOneNextNode() {
+		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
 		assertThat(root.getNext().get(0).getInstruction(), is((PseudoInstruction)mov));
 	}
 	
 	@Test
-	public void CFGGraphCanHaveOneNextNode() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,mov)));	
+	public void cFGGraphCanIncludeLabels() {
+		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,new Label("l1"),mov)));	
 		assertThat(root.getNext().get(0).getInstruction(), is((PseudoInstruction)mov));
 	}
+	
+	@Test
+	public void labelsAreAddedToTheLabelLookup() {
+		Map<Label,CFGNode> labelLookup = new HashMap<>();
+		CFGNode.makeGraph(new LinkedList<PseudoInstruction>(Arrays.asList(branch,new Label("l1"),mov)),labelLookup);	
+		assertThat(labelLookup.get(new Label ("l1")).getInstruction(), is(mov));
+	}
+
+	@Test
+	public void branchInstructionHasOneNext() {
+		Map<Label,CFGNode> labelLookup = new HashMap<>();
+		CFGNode root = CFGNode.makeGraph(new LinkedList<PseudoInstruction>(Arrays.asList(new Label("l1"),mov,branch,cmp)),labelLookup);	
+		assertThat(root.getNext().get(0).getNext().size(), is(1));
+		assertThat(root.getNext().get(0).getNext().get(0).getInstruction(), is(mov));
+	}
+
+	@Test
+	public void branchInstructionHasTwoNexts() {
+		Map<Label,CFGNode> labelLookup = new HashMap<>();
+		CFGNode root = CFGNode.makeGraph(new LinkedList<PseudoInstruction>(Arrays.asList(new Label("start"),mov,branchStart,cmp)),labelLookup);	
+		assertThat(root.getNext().get(0).getNext().size(), is(2));
+		assertThat(root.getNext().get(0).getNext().get(1).getInstruction(), is(mov));
+		assertThat(root.getNext().get(0).getNext().get(0).getInstruction(), is(cmp));
+	}
+
 }

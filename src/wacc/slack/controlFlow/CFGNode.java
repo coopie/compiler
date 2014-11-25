@@ -1,12 +1,19 @@
 package wacc.slack.controlFlow;
 
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import wacc.slack.assemblyOperands.Register;
+import wacc.slack.instructions.BranchInstruction;
+import wacc.slack.instructions.Condition;
+import wacc.slack.instructions.Label;
 import wacc.slack.instructions.PseudoInstruction;
+import wacc.slack.instructions.visitors.AbstractInstructionVisitor;
 import wacc.slack.instructions.visitors.GetDefinedRegisters;
 import wacc.slack.instructions.visitors.GetUsedRegisters;
 //TDD class
@@ -18,7 +25,29 @@ public class CFGNode {
 	private List<Register> defs = new LinkedList<>();
 	private List<Register> uses = new LinkedList<>();
 	
-	private List<CFGNode> next = new LinkedList<CFGNode>();
+	private List<CFGNode> next = new LinkedList<CFGNode>(); 
+	
+	private static final AbstractInstructionVisitor<Label> labelVisitor = new AbstractInstructionVisitor<Label>(new Callable<Label>(){
+		@Override
+		public Label call() throws Exception {
+			return null;
+		}}){
+			@Override
+			public Label visit(Label l) {
+				return l;
+			}
+	};
+	
+	private static final AbstractInstructionVisitor<Boolean> isNextInstructionExecuted = new AbstractInstructionVisitor<Boolean>(new Callable<Boolean>(){
+		@Override
+		public Boolean call() throws Exception {
+			return true;
+		}}){
+			@Override
+			public Boolean visit(BranchInstruction b) {
+				return b.getCond() != Condition.AL;
+			}
+	};
 	
 
 	CFGNode(PseudoInstruction ps) {
@@ -52,20 +81,41 @@ public class CFGNode {
 	public List<CFGNode> getNext() {
 		return next;
 	}	
-	
 	public static CFGNode makeGraph(Deque<PseudoInstruction> code) {
+		return makeGraph(code, new HashMap<Label,CFGNode>());
+	}
+	
+	private static Label isLabel(PseudoInstruction instr) {
+		return instr.accept(labelVisitor);
+	}
+	static CFGNode makeGraph(Deque<PseudoInstruction> code, Map<Label,CFGNode> labelLookUp) {
 		Iterator<PseudoInstruction> i = code.descendingIterator();
+		LabelBabySitter sitter = new LabelBabySitter(labelLookUp);
 		
 		PseudoInstruction currentInstruction;
 		CFGNode prevNode  = null;
 		CFGNode currentNode = null;
-		
+		Label l = null;
 		//TODO: a lot
 		while(i.hasNext()) {
 			currentInstruction = i.next();
+			//if the current instruction is label we add it to the look up and 
+			//carry on as if there were no pseudo instruction
+			l = isLabel(currentInstruction);
+			if(currentInstruction instanceof Label) {
+				labelLookUp.put(l,prevNode);
+				continue;
+			}
 			currentNode = new CFGNode(currentInstruction);
-			currentNode.setNext(prevNode);
+			sitter.add(currentNode);
+			if(currentInstruction.accept(isNextInstructionExecuted)) {
+				currentNode.setNext(prevNode);
+			}
 			prevNode = currentNode;
+		}
+		
+		if(!sitter.allInstructionsHappy()) {
+			throw new RuntimeException("undefined label found");
 		}
 		
 		return currentNode;
