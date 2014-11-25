@@ -86,11 +86,38 @@ The list next:
 - all other nodes must point to the node corresponding to the instruction after them in.
 
 
+WE NEED TO MAKE SURE WEIGHTS ARE ALL TESTED!!!!
+
 CFGLabelTable TDD:
 - Can Add Lablels to it.
 - Can insert a key and a value, key being a Label, value being a CFGNode.
 - can babysit a cfg node
 - can check that all babies are happy 
+
+
+
+InterferenceGraph TDD:  NB: spelling of colour is ENGLISH in this
+
+InterferenceGraphNode:
+- Each node has a unique hashcode 
+- Each node, contains a integer field, colour, which is assigned to -1 initially, when the method, colour(c),
+  is called on the node, the colour field is set to the integer c.
+- If the method, colour(c) is not called on a node yet, the method isColoured() returns false, otherwise true
+- contains a weight field, which signifies the importance of the register
+
+InterferenceGraph:
+- Can iterate over all of the nodes in the graph
+- Can "clean" the graph of colours and reset the graph for another colouring pass
+- can tell that a certain node isConstrained(k) or not (if the node neighbours k or more nodes)
+- can return a list of nodes which neighbour a certain node.
+
+InterferenceGraphColourer
+- Can attempt to colour the graph with r registers and s scratchpad registers, returns success of colouring
+- can extract the mapping of TemporaryRegisters to real registers and signal which TemporaryRegisters are going to be
+  stored in memory.
+- 
+
+
     
     
     
