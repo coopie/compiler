@@ -61,22 +61,22 @@ public class ControlFlowGraphTests {
 	
 	@Test
 	public void canMakeGraph() {
-		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
-		assertThat(graph.keySet().size(), is(2));
+		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(cmp,mov)));
+		assertThat(graph.nodeSet().size(), is(2));
 	
 	}
 	
 	@Test
 	public void cFGGraphCanHaveOneNextNode() {
-		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(cmp,mov)));	
-		
-		assertThat(graph.keySet().size(),is(2));
-		for(CFGNode n : graph.keySet()) {
+		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(cmp,mov)));
+			
+		assertThat(graph.nodeSet().size(),is(2));
+		for(CFGNode n : graph) {
 			if(n.getInstruction() == cmp) {
-				assertThat(graph.get(n).size(),is(1));
-				assertThat(graph.get(n).iterator().next().getInstruction(), is(mov));
+				assertThat(graph.getAdjecent(n).size(),is(1));
+				assertThat(graph.getAdjecent(n).iterator().next().getInstruction(), is(mov));
 			} else if (n.getInstruction() == mov) {
-				assertThat(graph.get(n).size(),is(0));
+				assertThat(graph.getAdjecent(n).size(),is(0));
 			} else {
 				assertFalse(true);
 			}
@@ -85,53 +85,51 @@ public class ControlFlowGraphTests {
 	
 	@Test
 	public void cFGGraphCanIncludeLabels() {
-		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,new Label("l1"),mov)));	
-		assertThat(graph.keySet().size(),is(2));
+		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(branch,new Label("l1"),mov)));	
+		assertThat(graph.nodeSet().size(),is(2));
 	}
 
 	@Test
 	public void branchInstructionHasOneNext() {
-		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(new Label("l1"),mov,branch,cmp)));	
+		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(new Label("l1"),mov,branch,cmp)));	
 
-		assertThat(graph.keySet().size(),is(3));
-		for(CFGNode n : graph.keySet()) {
+		assertThat(graph.nodeSet().size(),is(3));
+		for(CFGNode n : graph) {
 			if(n.getInstruction() == cmp) {
-				assertThat(graph.get(n).size(),is(0));
+				assertThat(graph.getAdjecent(n).size(),is(0));
 			} else if (n.getInstruction() == mov) {
-				assertThat(graph.get(n).size(),is(1));
+				assertThat(graph.getAdjecent(n).size(),is(1));
 			} else if (n.getInstruction() == branch) {
-				assertThat(graph.get(n).size(),is(1));
-				assertThat(graph.get(n).iterator().next().getInstruction(), is(mov));
+				assertThat(graph.getAdjecent(n).size(),is(1));
+				assertThat(graph.getAdjecent(n).iterator().next().getInstruction(), is(mov));
 			} else {
 				assertFalse(true);
 			}
 		}
 	}
-<<<<<<< HEAD
-	
-	/*@Test
-	public void CFGGraphCanHaveOneNextNode() {
-		CFGNode root = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(branch,mov)));	
-		assertThat(root.getNext().get(0).getInstruction(), is((PseudoInstruction)mov));
-	}*/
-=======
 
 	@Test
 	public void branchInstructionHasTwoNexts() {
-		Map<CFGNode,Set<CFGNode>> graph = CFGNode.makeGraph(new LinkedList<>(Arrays.asList(new Label("start"),mov,branchStart,cmp)));	
+		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(new Label("start"),mov,branchStart,cmp)));	
 
-		assertThat(graph.keySet().size(),is(3));
-		for(CFGNode n : graph.keySet()) {
+		assertThat(graph.nodeSet().size(),is(3));
+		for(CFGNode n : graph) {
 			if(n.getInstruction() == cmp) {
-				assertThat(graph.get(n).size(),is(0));
+				assertThat(graph.getAdjecent(n).size(),is(0));
 			} else if (n.getInstruction() == mov) {
-				assertThat(graph.get(n).size(),is(1));
+				assertThat(graph.getAdjecent(n).size(),is(1));
 			} else if (n.getInstruction() == branchStart) {
-				assertThat(graph.get(n).size(),is(2));
+				assertThat(graph.getAdjecent(n).size(),is(2));
 			} else {
 				assertFalse(true);
 			}
 		}
 	}
->>>>>>> fe5c8d8f8bb3d7d4edbbb4d3112099fbbf115b73
+	
+	@Test
+	public void canGetLiveOut() {
+		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(new Label("start"),mov,branchStart,cmp)));	
+		System.out.print(graph.getLiveOut());
+		
+	}
 }
