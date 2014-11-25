@@ -73,7 +73,7 @@ public class Compiler {
 
 		GenerateAssembly psuedoInstructionVisitor = new GenerateAssembly();
 	
-		PrintStream out = new PrintStream(new File(outputFile + ".s"));
+		PrintStream out = new PrintStream(new File(outputFile));
 	
 //		2. - use liveIn, liveOut algorithms on a CFG to create the register usage graph
 //		3. - colour the graph in the colours that we need, extract the mapping information for the temporary registers

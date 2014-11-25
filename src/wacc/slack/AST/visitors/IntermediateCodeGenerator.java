@@ -180,8 +180,13 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.addAll(assignStat.getRhs().accept(this));
+		Register destReg = trg.generate(weight);
+		// This might be unnecessary
+		instrList.add(new Mov(destReg, returnedOperand));
+		returnedOperand = destReg;
+		return instrList;
 	}
 
 	@Override
@@ -335,7 +340,7 @@ public class IntermediateCodeGenerator implements
 		return null;
 	}
 
-	//TODO: Replace arm registers with temp ones where possible. Check
+	// TODO: Replace arm registers with temp ones where possible. Check
 	@Override
 	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
@@ -345,7 +350,8 @@ public class IntermediateCodeGenerator implements
 		// no lazy evaluation! this ain't no functional language
 
 		int typeSize = 4;
-		if (arrayLiter.getType().equals(BaseType.T_bool) || arrayLiter.getType().equals(BaseType.T_char)) {
+		if (arrayLiter.getType().equals(BaseType.T_bool)
+				|| arrayLiter.getType().equals(BaseType.T_char)) {
 			typeSize = 1;
 		}
 
@@ -356,29 +362,30 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size)));
 
 		instrList.add(new BLInstruction("malloc"));
-		
+
 		instrList.add(new Mov(ArmRegister.r4, ArmRegister.r0));
-		
+
 		int offset = typeSize;
 		for (ExprAST expr : arrayLiter.getExprList()) {
-			
+
 			instrList.addAll(expr.accept(this));
-			
+
 			// Result of evaluating expr stored in returnedOperand
 			// Store register returnedOperand to memory at [r4, #offset]
-			
+
 			instrList.add(new Str(returnedOperand, ArmRegister.r4, offset));
-			
+
 			offset += typeSize;
 		}
-		
+
 		// Store size of array at offset 0
-		instrList.add(new Mov(ArmRegister.r5, new ImmediateValue(arrayLiter.getExprList().size())));
+		instrList.add(new Ldr(ArmRegister.r5, new ImmediateValue(arrayLiter
+				.getExprList().size())));
 		// Store contents of register r5 into [r4]
 		instrList.add(new Str(ArmRegister.r5, ArmRegister.r4));
 
 		instrList.add(new Str(ArmRegister.r4, ArmRegister.sp));
-		
+
 		return instrList;
 	}
 
