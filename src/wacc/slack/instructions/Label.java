@@ -25,5 +25,18 @@ public class Label implements PseudoInstruction, Operand {
 	public <T> T accept(OperandVisitor<T> visitor) {
 		return visitor.visit(this);
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof Label) {
+			return name.equals(((Label)o).getName());
+		}
+		return false;
+	}
+	
+	@Override 
+	public int hashCode() {
+		return name.hashCode();
+	}
 
 }

@@ -9,5 +9,9 @@ public enum ArmRegister implements Register{
 		return visitor.visit(this);
 	}
 	
+	@Override
+	public int getWeight() {
+		return 1;//TODO:
+	}
 }
 

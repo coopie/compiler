@@ -67,8 +67,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Label label) {
-		// TODO Auto-generated method stub
-		return null;
+		return label.accept(new GetRegsIfAny());
 	}
 
 	@Override
@@ -129,8 +128,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(BranchInstruction b) {
-		// TODO Auto-generated method stub
-		return null;
+		return b.getLabel().accept(new GetRegsIfAny());
 	}
 
 }

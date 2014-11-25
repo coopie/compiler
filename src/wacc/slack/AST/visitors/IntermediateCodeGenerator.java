@@ -99,6 +99,10 @@ public class IntermediateCodeGenerator implements
 
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
 	private Register returnedOperand = null;
+	/*
+	 * contains the current weight of registers for current scope, use everytime you create a register
+	 */
+	private int weight = 0;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
 
 	@Override
@@ -190,14 +194,19 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		Label falsel = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		
 		instrList.addAll(ifStat.getCond().accept(this));
 		instrList.add(new Cmp(returnedOperand, new ImmediateValue("0")));
 		instrList.add(new BranchInstruction(Condition.EQ, falsel));
+		
+		weight = weight / 2;
 		instrList.addAll(ifStat.getTrueStats().accept(this));
 		instrList.add(new BranchInstruction(Condition.AL, endl));
 		instrList.add(falsel);
 		instrList.addAll(ifStat.getFalseStats().accept(this));
 		instrList.add(endl);
+
+		weight = (weight + 1) * 2;
 		return instrList;
 	}
 
@@ -208,6 +217,9 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(WhileStatementAST whileStat) {
+		
+		weight = weight * 10;
+		
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
@@ -218,6 +230,7 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(whileStat.getCond().accept(this));
 		instrList.add(new Cmp(returnedOperand, new ImmediateValue("1")));
 		instrList.add(new BranchInstruction(Condition.EQ, start));
+		weight = weight / 10;
 		return instrList;
 	}
 
@@ -346,17 +359,7 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(binExpr.getExprR().accept(this));
 		Register exprRegR = returnedOperand;
 
-		/*
-		 * Register trL = trg.generate(); Register trR = trg.generate();
-		 * 
-		 * // TODO: Much overhead, such bad -- check that the Ldr instruction is
-		 * the best way to do it // ldr trL exprRegL instrList.add(new Ldr(trL,
-		 * exprRegL));
-		 * 
-		 * // ldr trR exprRegR instrList.add(new Ldr(trR, exprRegR));
-		 */
-
-		Register destReg = trg.generate();
+		Register destReg = trg.generate(weight);
 
 		// TODO: Add instructions for each binary op
 		switch (binExpr.getBinaryOp()) {
@@ -443,13 +446,6 @@ public class IntermediateCodeGenerator implements
 
 		instrList.addAll(unExpr.getExpr().accept(this));
 
-		/*
-		 * Register tr = trg.generate();
-		 * 
-		 * // ldr tr returnedOperand instrList.add(new Ldr(tr,
-		 * returnedOperand));
-		 */
-
 		Register tr = returnedOperand;
 
 		// TODO: Add instructions for each unary op
@@ -478,7 +474,7 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(ValueExprAST valueExpr) {
 		Label literalLabel = new Label(
 				LiteralLabelGenerator.getNewUniqueLabel());
-		Register ret = trg.generate();
+		Register ret = trg.generate(weight);
 		Deque<PseudoInstruction> instr = new LinkedList<PseudoInstruction>();
 
 		// Literal is added to the .data section
