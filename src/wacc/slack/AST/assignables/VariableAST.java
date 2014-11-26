@@ -51,4 +51,9 @@ public class VariableAST implements Assignable, ExprAST {
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>();
 	}
+
+	@Override
+	public SymbolTable<IdentInfo> getScope() {
+		return scope;
+	}
 }

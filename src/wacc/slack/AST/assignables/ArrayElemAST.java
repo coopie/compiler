@@ -24,12 +24,14 @@ public class ArrayElemAST implements Assignable, Liter {
 	private final List<ExprAST> exprs;
 	private final FilePosition filePos;
 	private final Type type;
+	private final SymbolTable<IdentInfo> scope;
 
 	public ArrayElemAST(String ident, List<ExprAST> exprs,
 			SymbolTable<IdentInfo> scope, FilePosition filePos) {
 		this.ident = ident;
 		this.exprs = exprs;
 		this.filePos = filePos;
+		this.scope = scope;
 
 		IdentInfo info = scope.lookup(ident);
 		Type t = info.getType();
@@ -104,5 +106,10 @@ public class ArrayElemAST implements Assignable, Liter {
 	@Override
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>(exprs);
+	}
+
+	@Override
+	public SymbolTable<IdentInfo> getScope() {
+		return scope;
 	}
 }

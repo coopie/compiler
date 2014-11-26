@@ -71,4 +71,9 @@ public class FstAST implements Assignable {
 			return BaseType.T_int;
 		}
 	}
+
+	@Override
+	public SymbolTable<IdentInfo> getScope() {
+		return scope;
+	}
 }

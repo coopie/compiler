@@ -72,4 +72,9 @@ public class SndAST implements Assignable {
 			return BaseType.T_int;
 		}
 	}
+
+	@Override
+	public SymbolTable<IdentInfo> getScope() {
+		return scope;
+	}
 }

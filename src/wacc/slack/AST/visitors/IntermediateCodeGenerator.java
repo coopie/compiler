@@ -107,6 +107,7 @@ public class IntermediateCodeGenerator implements
 
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
 	private Register returnedOperand = null;
+
 	/*
 	 * contains the current weight of registers for current scope, use everytime
 	 * you create a register
@@ -188,10 +189,22 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+
 		instrList.addAll(assignStat.getRhs().accept(this));
 		Register destReg = trg.generate(weight);
+
 		// This might be unnecessary
 		instrList.add(new Mov(destReg, returnedOperand));
+
+		// Set the variable identinfo to store this temp reg
+		if (!(destReg instanceof TemporaryRegister)) {
+			throw new RuntimeException(
+					"Variable assignRHS should never be put in a real register.");
+		}
+
+		assignStat.getLhs().getScope().lookup(assignStat.getLhs().getName())
+				.setTemporaryRegister((TemporaryRegister) destReg);
+
 		returnedOperand = destReg;
 		return instrList;
 	}
@@ -229,10 +242,10 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(WhileStatementAST whileStat) {
-
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
 		weight = weight * 10;
 
-		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		instrList.add(new BranchInstruction(Condition.AL, end));
@@ -243,6 +256,7 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Cmp(returnedOperand, new ImmediateValue("1")));
 		instrList.add(new BranchInstruction(Condition.EQ, start));
 		weight = weight / 10;
+		
 		return instrList;
 	}
 
@@ -284,6 +298,7 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					CHAR_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_bool)) {
+			// TODO:
 			// instr.addLast(new Mov(ArmRegister.r0, retReg));
 		}
 
@@ -334,7 +349,7 @@ public class IntermediateCodeGenerator implements
 				|| arrayElem.getType().equals(BaseType.T_char)) {
 			typeSize = 1;
 		}
-		
+
 		// Get the element at expr[n] then treat the element at expr[n] as
 		// another array and get the element expr[n+1] in that array and so on
 
@@ -346,7 +361,8 @@ public class IntermediateCodeGenerator implements
 		// mov destReg, tr1
 
 		// TODO: Implement index
-		int index = 0; 
+		int index = 0;
+		
 		instrList.add(new Ldr(tr1, new Address(ArmRegister.sp, 0)));
 		instrList.add(new Ldr(tr1, new Address(tr1, typeSize * index)));
 		instrList.add(new Mov(destReg, tr1));
@@ -416,8 +432,10 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Str(tr2, new Address(tr1, 0)));
 
 		// Store the actual register that is at tr1 at [sp]
-		instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
+		// instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
 
+		// returnedOperand is the temp reg which stores the memory address of
+		// the array
 		returnedOperand = tr1;
 		return instrList;
 	}
@@ -453,7 +471,7 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Add(destReg, exprRegL, exprRegR));
 
 		case DIV:
-
+			
 		case MOD:
 
 		case PLUS:
@@ -556,6 +574,8 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
 
 		case LEN:
+			// ldr tr, [tr] (the element at index 0 is the length)
+			instrList.add(new Ldr(tr, new Address(tr, 0)));
 
 		case ORD:
 
@@ -572,7 +592,7 @@ public class IntermediateCodeGenerator implements
 		Label literalLabel = new Label(
 				LiteralLabelGenerator.getNewUniqueLabel());
 		Register ret = trg.generate(weight);
-		Deque<PseudoInstruction> instr = new LinkedList<PseudoInstruction>();
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		// Literal is added to the .data section
 		textSection.add(literalLabel);
@@ -581,32 +601,37 @@ public class IntermediateCodeGenerator implements
 		if (valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))) {
 			textSection.add(new AssemblerDirective(".ascii \""
 					+ valueExpr.getValue() + "\\0\""));
-			instr.add(new Ldr(ret, new ImmediateValue(literalLabel.getName())));
+			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
+					.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_int)) {
-			instr.add(new Mov(ret, new ImmediateValue(Integer
+			instrList.add(new Mov(ret, new ImmediateValue(Integer
 					.parseInt(valueExpr.getValue()))));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
 			textSection.add(new AssemblerDirective(".byte '"
 					+ valueExpr.getValue() + "'"));
-			instr.add(new Ldr(ret, new ImmediateValue(literalLabel.getName())));
+			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
+					.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
-				instr.add(new Ldr(ret, new ImmediateValue(TRUE_LABEL.getName())));
+				instrList.add(new Ldr(ret, new ImmediateValue(TRUE_LABEL
+						.getName())));
 				;
 			} else {
-				instr.add(new Ldr(ret,
-						new ImmediateValue(FALSE_LABEL.getName())));
+				instrList.add(new Ldr(ret, new ImmediateValue(FALSE_LABEL
+						.getName())));
 				;
 			}
 		}
 
 		returnedOperand = ret;
-		return instr;
+		return instrList;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(VariableAST variable) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		returnedOperand = variable.getScope().lookup(variable.getName())
+				.getTemporaryRegister();
+		return instrList;
 	}
 }
