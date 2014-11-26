@@ -87,8 +87,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Ldr ldr) {
-		// TODO Auto-generated method stub
-		return null;
+		return ldr.getDest().accept(new GetRegsIfAny());
 	}
 
 	@Override
