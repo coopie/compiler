@@ -97,8 +97,7 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Ldr ldr) {
-		// TODO Auto-generated method stub
-		return null;
+		return ldr.getSource().accept(new GetRegsIfAny());
 	}
 
 	@Override
@@ -109,19 +108,19 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Pop pop) {
-		// TODO Auto-generated method stub
-		return null;
+		return pop.getOperand().accept(new GetRegsIfAny());
 	}
 
 	@Override
 	public List<Register> visit(Push push) {
-		// TODO Auto-generated method stub
-		return null;
+		return push.getOperand().accept(new GetRegsIfAny());
 	}
 
 	@Override
 	public List<Register> visit(Cmp cmp) {
-		return cmp.getSource().accept(new GetRegsIfAny());
+		List<Register> l = cmp.getSource().accept(new GetRegsIfAny());
+		l.addAll(cmp.getDest().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 	@Override
@@ -152,8 +151,11 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Str str) {
-		// TODO Auto-generated method stub
-		return null;
+		// Unsure about this implementation, from my understanding the Str instruction does not modify 
+		// the values in either registers but reads from both
+		List<Register> l = str.getSource().accept(new GetRegsIfAny());
+		l.addAll(str.getDest().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 }

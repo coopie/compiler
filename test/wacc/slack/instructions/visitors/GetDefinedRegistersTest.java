@@ -14,9 +14,13 @@ import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
+import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
+import wacc.slack.instructions.Pop;
+import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 
 public class GetDefinedRegistersTest {
@@ -59,8 +63,7 @@ public class GetDefinedRegistersTest {
 
 	@Test
 	public void CmpInstructionDefinitions() {
-		assertThat(new Cmp(reg0, reg1).accept(new GetDefinedRegisters()),
-				hasItems(reg0));
+		assertTrue(new Cmp(reg0, reg1).accept(new GetDefinedRegisters()).isEmpty());
 	}
 
 	@Test
@@ -86,4 +89,26 @@ public class GetDefinedRegistersTest {
 	public void BranchInstructionDefinitions() {
 		assertTrue(new BranchInstruction(cond, new Label(label)).accept(new GetDefinedRegisters()).isEmpty());
 	}
+	
+	@Test
+	public void StrInstructionDefintions() {
+		assertTrue(new Str(reg1, reg0).accept(new GetDefinedRegisters()).isEmpty());
+	}
+	
+	@Test
+	public void LdrInstructionDefintions() {
+		assertThat(new Ldr(reg1, reg0).accept(new GetDefinedRegisters()),
+				hasItems(reg1));
+	}
+	
+	@Test
+	public void PushInstructionDefinitions() {
+		assertTrue(new Push(reg0).accept(new GetDefinedRegisters()).isEmpty());
+	}
+	
+	@Test
+	public void PopInstructionDefinitions() {
+		assertTrue(new Pop(reg0).accept(new GetDefinedRegisters()).isEmpty());
+	}
+	
 }

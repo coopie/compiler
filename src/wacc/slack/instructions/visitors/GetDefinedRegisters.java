@@ -93,8 +93,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Ldr ldr) {
-		// TODO Auto-generated method stub
-		return null;
+		return ldr.getDest().accept(new GetRegsIfAny());
 	}
 
 	@Override
@@ -105,19 +104,17 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Pop pop) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<Register>();
 	}
 
 	@Override
 	public List<Register> visit(Push push) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<Register>();
 	}
 
 	@Override
 	public List<Register> visit(Cmp cmp) {
-		return cmp.getDest().accept(new GetRegsIfAny());
+		return new LinkedList<Register>();
 	}
 
 	@Override
@@ -142,8 +139,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Str str) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<Register>();
 	}
 
 }
