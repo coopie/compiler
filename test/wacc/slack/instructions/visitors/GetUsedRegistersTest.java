@@ -18,6 +18,8 @@ import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
+import wacc.slack.instructions.Pop;
+import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 
@@ -95,6 +97,18 @@ public class GetUsedRegistersTest {
 	public void LdrInstructionDefintions() {
 		assertThat(new Ldr(reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg1));
+	}
+	
+	@Test
+	public void PushInstructionDefinitions() {
+		assertThat(new Push(reg0).accept(new GetUsedRegisters()),
+				hasItems(reg0));
+	}
+	
+	@Test
+	public void PopInstructionDefinitions() {
+		assertThat(new Pop(reg0).accept(new GetUsedRegisters()),
+				hasItems(reg0));
 	}
 	
 }

@@ -98,14 +98,12 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Pop pop) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<Register>();
 	}
 
 	@Override
 	public List<Register> visit(Push push) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<Register>();
 	}
 
 	@Override

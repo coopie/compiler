@@ -102,14 +102,12 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Pop pop) {
-		// TODO Auto-generated method stub
-		return null;
+		return pop.getOperand().accept(new GetRegsIfAny());
 	}
 
 	@Override
 	public List<Register> visit(Push push) {
-		// TODO Auto-generated method stub
-		return null;
+		return push.getOperand().accept(new GetRegsIfAny());
 	}
 
 	@Override
