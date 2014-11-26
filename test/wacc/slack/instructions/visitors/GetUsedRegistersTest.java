@@ -57,7 +57,7 @@ public class GetUsedRegistersTest {
 	@Test
 	public void CmpInstructionDefinitions() {
 		assertThat(new Cmp(reg0, reg1).accept(new GetUsedRegisters()),
-				hasItems(reg1));
+				hasItems(reg0, reg1));
 	}
 
 	@Test

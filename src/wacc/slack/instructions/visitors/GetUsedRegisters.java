@@ -115,7 +115,9 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Cmp cmp) {
-		return cmp.getSource().accept(new GetRegsIfAny());
+		List<Register> l = cmp.getSource().accept(new GetRegsIfAny());
+		l.addAll(cmp.getDest().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 	@Override

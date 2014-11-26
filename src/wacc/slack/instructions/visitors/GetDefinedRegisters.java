@@ -111,7 +111,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Cmp cmp) {
-		return cmp.getDest().accept(new GetRegsIfAny());
+		return new LinkedList<Register>();
 	}
 
 	@Override

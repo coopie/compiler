@@ -59,8 +59,7 @@ public class GetDefinedRegistersTest {
 
 	@Test
 	public void CmpInstructionDefinitions() {
-		assertThat(new Cmp(reg0, reg1).accept(new GetDefinedRegisters()),
-				hasItems(reg0));
+		assertTrue(new Cmp(reg0, reg1).accept(new GetDefinedRegisters()).isEmpty());
 	}
 
 	@Test
