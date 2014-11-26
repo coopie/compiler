@@ -1,5 +1,6 @@
 package wacc.slack.instructions.visitors;
 
+import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.OperandVisitor;
@@ -52,6 +53,16 @@ public class GenerateAssembly implements InstructionVistor<String> {
 		@Override
 		public String visit(ImmediateValue immediateValue) {
 			return immediateValue.getValue();
+		}
+
+		@Override
+		public String visit(Address address) {
+			if (address.getOffset() == 0) {
+				return "[" + address.getRegister().accept(this) + "]";
+			} else {
+				return "[" + address.getRegister().accept(this) + ", #"
+						+ address.getOffset() + "]";
+			}
 		}
 
 	};
@@ -113,43 +124,44 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(And and) {
-		return newLine(4) + "AND " + and.getDest() + ", " + and.getSource()
-				+ ", " + and.getSource2();
+		return newLine(4) + "AND " + and.getDest().accept(printOperand) + ", "
+				+ and.getSource().accept(printOperand) + ", "
+				+ and.getSource2().accept(printOperand);
 	}
 
 	@Override
 	public String visit(Orr or) {
-		return newLine(4) + "ORR " + or.getDest() + ", " + or.getSource()
-				+ ", " + or.getSource2();
+		return newLine(4) + "ORR " + or.getDest().accept(printOperand) + ", "
+				+ or.getSource().accept(printOperand) + ", "
+				+ or.getSource2().accept(printOperand);
 	}
 
 	@Override
 	public String visit(Mul mul) {
-		return newLine(4) + "MUL " + mul.getDest() + ", " + mul.getSource()
-				+ ", " + mul.getSource2();
+		return newLine(4) + "MUL " + mul.getDest().accept(printOperand) + ", "
+				+ mul.getSource().accept(printOperand) + ", "
+				+ mul.getSource2().accept(printOperand);
 	}
 
 	@Override
 	public String visit(Add add) {
-		return newLine(4) + "ADD " + add.getDest() + ", " + add.getSource()
-				+ ", " + add.getSource2();
+		return newLine(4) + "ADD " + add.getDest().accept(printOperand) + ", "
+				+ add.getSource().accept(printOperand) + ", "
+				+ add.getSource2().accept(printOperand);
 	}
 
 	@Override
 	public String visit(Sub sub) {
-		return newLine(4) + "SUB " + sub.getDest() + ", " + sub.getSource()
-				+ ", " + sub.getSource2();
+		return newLine(4) + "SUB " + sub.getDest().accept(printOperand) + ", "
+				+ sub.getSource().accept(printOperand) + ", "
+				+ sub.getSource2().accept(printOperand);
 
 	}
 
 	@Override
 	public String visit(Str str) {
-		String s = "";
-		if (str.getOffset() != 0) {
-			s = ", #" + str.getOffset();
-		}
-		return newLine(4) + "STR " + str.getSource() + ", [" + str.getDest()
-				+ s + "]";
+		return newLine(4) + "STR " + str.getSource().accept(printOperand)
+				+ ", " + str.getDest().accept(printOperand);
 	}
 
 }

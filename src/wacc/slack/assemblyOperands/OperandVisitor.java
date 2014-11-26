@@ -12,4 +12,6 @@ public interface OperandVisitor<T> {
 
 	T visit(ImmediateValue immediateValue);
 
+	T visit(Address address);
+
 }

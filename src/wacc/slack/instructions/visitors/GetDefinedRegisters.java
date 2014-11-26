@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.OperandVisitor;
@@ -50,6 +51,11 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 		@Override
 		public List<Register> visit(ImmediateValue immediateValue) {
 			return new LinkedList<Register>();
+		}
+
+		@Override
+		public List<Register> visit(Address address) {
+			return address.getRegister().accept(this);
 		}
 	}
 

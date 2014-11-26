@@ -32,6 +32,7 @@ import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.types.WaccArrayType;
+import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
@@ -94,6 +95,12 @@ public class IntermediateCodeGenerator implements
 		@Override
 		public Operand visit(ImmediateValue immediateValue) {
 			return immediateValue;
+		}
+
+		@Override
+		public Operand visit(Address address) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}
@@ -322,9 +329,29 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(ArrayElemAST arrayElem) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
+		int typeSize = 4;
+		if (arrayElem.getType().equals(BaseType.T_bool)
+				|| arrayElem.getType().equals(BaseType.T_char)) {
+			typeSize = 1;
+		}
+		
 		// Get the element at expr[n] then treat the element at expr[n] as
 		// another array and get the element expr[n+1] in that array and so on
 
+		Register tr1 = trg.generate(weight);
+		Register destReg = trg.generate(weight);
+
+		// ldr tr1, [sp]
+		// ldr tr1, [tr1 + typeSize * index]
+		// mov destReg, tr1
+
+		// TODO: Implement index
+		int index = 0; 
+		instrList.add(new Ldr(tr1, new Address(ArmRegister.sp, 0)));
+		instrList.add(new Ldr(tr1, new Address(tr1, typeSize * index)));
+		instrList.add(new Mov(destReg, tr1));
+
+		returnedOperand = destReg;
 		return instrList;
 	}
 
@@ -345,6 +372,11 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
+		// Corresponding r4 and r5 to the reference compiler. May or may not be
+		// actual r4 or r5
+		Register tr1 = trg.generate(weight);
+		Register tr2 = trg.generate(weight);
+
 		// Needs to evaluate and add code for each expression in the array then
 		// find out which register the result is in and put it in the array...
 		// no lazy evaluation! this ain't no functional language
@@ -358,12 +390,12 @@ public class IntermediateCodeGenerator implements
 		// Size should be the num of elems in the array + 1 * size of the type
 		// You add one to the num of elems because you need to store the size of
 		// the array as well
-		int size = 20;
+		int size = (arrayLiter.getExprList().size() + 1) * typeSize;
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size)));
 
 		instrList.add(new BLInstruction("malloc"));
 
-		instrList.add(new Mov(ArmRegister.r4, ArmRegister.r0));
+		instrList.add(new Mov(tr1, ArmRegister.r0));
 
 		int offset = typeSize;
 		for (ExprAST expr : arrayLiter.getExprList()) {
@@ -372,20 +404,21 @@ public class IntermediateCodeGenerator implements
 
 			// Result of evaluating expr stored in returnedOperand
 			// Store register returnedOperand to memory at [r4, #offset]
-
-			instrList.add(new Str(returnedOperand, ArmRegister.r4, offset));
+			instrList.add(new Str(returnedOperand, new Address(tr1, offset)));
 
 			offset += typeSize;
 		}
 
 		// Store size of array at offset 0
-		instrList.add(new Ldr(ArmRegister.r5, new ImmediateValue(arrayLiter
-				.getExprList().size())));
+		instrList.add(new Ldr(tr2, new ImmediateValue(arrayLiter.getExprList()
+				.size())));
 		// Store contents of register r5 into [r4]
-		instrList.add(new Str(ArmRegister.r5, ArmRegister.r4));
+		instrList.add(new Str(tr2, new Address(tr1, 0)));
 
-		instrList.add(new Str(ArmRegister.r4, ArmRegister.sp));
+		// Store the actual register that is at tr1 at [sp]
+		instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
 
+		returnedOperand = tr1;
 		return instrList;
 	}
 
