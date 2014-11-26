@@ -148,8 +148,11 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Str str) {
-		// TODO Auto-generated method stub
-		return null;
+		// Unsure about this implementation, from my understanding the Str instruction does not modify 
+		// the values in either registers but reads from both
+		List<Register> l = str.getSource().accept(new GetRegsIfAny());
+		l.addAll(str.getDest().accept(new GetRegsIfAny()));
+		return l;
 	}
 
 }

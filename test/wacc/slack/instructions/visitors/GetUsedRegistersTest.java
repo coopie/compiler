@@ -17,6 +17,7 @@ import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
+import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 
 public class GetUsedRegistersTest {
@@ -81,5 +82,11 @@ public class GetUsedRegistersTest {
 	public void BranchInstructionDefinitions() {
 		assertTrue(new BranchInstruction(cond, new Label(label)).accept(
 				new GetUsedRegisters()).isEmpty());
+	}
+	
+	@Test
+	public void StrInstructionDefinitions() {
+		assertThat(new Str(reg1, reg0).accept(new GetUsedRegisters()),
+				hasItems(reg1, reg0));
 	}
 }

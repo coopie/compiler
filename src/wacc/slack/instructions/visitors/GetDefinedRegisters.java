@@ -136,8 +136,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Str str) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<Register>();
 	}
 
 }
