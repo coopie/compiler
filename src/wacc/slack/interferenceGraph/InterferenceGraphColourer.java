@@ -50,7 +50,6 @@ public class InterferenceGraphColourer {
 			}
 		}
 		
-		
 		// deal with unconstrained nodes in weight
 		List<InterferenceGraphNode> sortedByWeight = getSortedListOfNodesByWeight();
 		for(InterferenceGraphNode n : sortedByWeight) {
@@ -69,7 +68,7 @@ public class InterferenceGraphColourer {
 		Set<InterferenceGraphNode> neighbours = ig.getAdjecent(n);
 		
 		// try to colour the node with colours within the range of k
-		for (int c = 0; c <= k; c++) {
+		for (int c = 1; c <= k; c++) {
 			boolean neighboursContainThisColour = false;
 			
 			for (InterferenceGraphNode neighbour : neighbours) {

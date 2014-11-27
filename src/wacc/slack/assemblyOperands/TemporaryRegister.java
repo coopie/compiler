@@ -25,5 +25,10 @@ public class TemporaryRegister implements Register {
 		return weight;
 	}
 	
+	@Override
+	public String toString() {
+		return "t" + n;
+	}
+	
 	
 }

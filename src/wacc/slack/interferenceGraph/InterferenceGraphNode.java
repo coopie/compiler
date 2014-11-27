@@ -81,6 +81,6 @@ class InterferenceGraphNode implements Comparable<InterferenceGraphNode>{
 	
 	@Override
 	public String toString() {
-		return "(" + reg + ", " + weight + ")";
+		return "(" + reg + ", " + weight + ", *" + colour +  "*)";
 	}
 }

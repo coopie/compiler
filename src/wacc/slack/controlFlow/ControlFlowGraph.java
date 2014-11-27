@@ -83,14 +83,16 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		Map<CFGNode,Set<Register>> liveOut = new HashMap<>();
 		Map<CFGNode,Set<Register>> liveIn = new HashMap<>();
 		
-		Map<CFGNode,Integer> liveOutPrevSize = new HashMap<>();
-		Map<CFGNode,Integer> liveInPrevSize = new HashMap<>();
+		Map<CFGNode,Set<Register>> liveOutPrevSize = new HashMap<>();
+		Map<CFGNode,Set<Register>> liveInPrevSize = new HashMap<>();
 
 		for(CFGNode n : this) {
-			liveIn.put(n,new HashSet<Register>());
-			liveOut.put(n,new HashSet<Register>());
-			liveInPrevSize.put(n, 0);
-			liveOutPrevSize.put(n, 0);
+			Set<Register> set1 = new HashSet<Register>();
+			Set<Register> set2 = new HashSet<Register>();
+			liveIn.put(n, set1);
+			liveOut.put(n,set2);
+			liveInPrevSize.put(n, set1);
+			liveOutPrevSize.put(n, set2);
 		}
 		
 		Set<Register> liveInN; 
@@ -115,12 +117,14 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				succN = this.getAdjecent(n);
 				for(CFGNode sn : succN) {
 					liveOutN.addAll(liveIn.get(sn));
-					// TODO: potential performance inrease
-					allRegisters.addAll(liveOutN);
 				}
+				allRegisters.addAll(liveOutN);
+				
 				
 			}
 		}while(isChanged(liveIn,liveInPrevSize) &&  isChanged(liveIn,liveInPrevSize));
+		System.out.println(printGraph(liveIn));
+		System.out.println(printGraph(liveOut));
 		
 		return liveOut;
 	}
@@ -129,16 +133,19 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		return allRegisters;
 	}
 	
-	private  <T,R> boolean isChanged(Map<T,Set<R>> graph, Map<T,Integer> sizes) {
-		assert graph.keySet().equals(sizes.keySet()): "must call isChanged with identical key sets";
+	private  <T,R> boolean isChanged(Map<T,Set<R>> graph, Map<T,Set<R>> previousSets) {
+		assert graph.keySet().equals(previousSets.keySet()): "must call isChanged with identical key sets";
 		
+		boolean changed = false;
 		for(T n : graph.keySet()) {
-			if(graph.get(n).size() != sizes.get(n)) {
-				sizes.put(n, graph.get(n).size());
-				return true;
+			if(graph.get(n).equals(previousSets.get(n))) {
+				previousSets.put(n, graph.get(n));
+			} else {
+				changed = true;
 			}
+			
 		}
 		
-		return false;
+		return changed;
 	}
 }

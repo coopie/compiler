@@ -3,18 +3,20 @@ package wacc.slack.controlFlow;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
 
 import org.junit.Test;
 
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.Register;
+import wacc.slack.assemblyOperands.TemporaryRegister;
+import wacc.slack.generators.TemporaryRegisterGenerator;
+import wacc.slack.instructions.Add;
 import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Condition;
@@ -29,6 +31,23 @@ public class ControlFlowGraphTests {
 	private PseudoInstruction cmp = new Cmp(ArmRegister.r0,ArmRegister.r1);
 	private BranchInstruction branchStart = new BranchInstruction(Condition.LT,new Label("start"));
 	
+	TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
+	
+	TemporaryRegister t1 = trg.generate(1);
+	TemporaryRegister t2 = trg.generate(1);
+	TemporaryRegister t3 = trg.generate(1);
+	TemporaryRegister t4 = trg.generate(1);
+	
+	private PseudoInstruction movt = new Mov(t1, t2);
+	private PseudoInstruction cmpt = new Cmp(t4,t3);
+	private PseudoInstruction addt = new Add(t4, t1, t2);
+	
+	Deque<PseudoInstruction> programUsingTemporaries = new LinkedList<>(Arrays.asList(
+			movt,
+			cmpt,
+			addt
+			));
+	
 	Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
 			branch,
 			new Label("start"),
@@ -40,6 +59,15 @@ public class ControlFlowGraphTests {
 			));
 	
 
+	@Test
+	public void liveOutAndLiveInMatchExample() {
+		ControlFlowGraph cfg = new ControlFlowGraph(programUsingTemporaries);
+		assertEquals("{ ADD R4, R1, R2 [t1, t2] [t4]=[],"
+				+ "  MOV R1, R2 [t2] [t1]=[t4, t3],"
+				+ "  CMP R3, R4 [t3, t4] []=[t2, t1]}"
+				, AbstractGraph.printGraph(cfg.getLiveOut()));
+	}
+	
 	@Test
 	public void canCreateCFGNodeWithPseudoInstruction() {
 		CFGNode n = new CFGNode(mov);

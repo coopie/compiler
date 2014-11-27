@@ -18,7 +18,7 @@ public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 
 	private InterferenceGraph(Map<CFGNode,Set<Register>> liveOut, Set<Register> allRegisters) {
 		Set<Register> liveOutId;
-
+		
 		// For each temporary t 
 		for(Register t : allRegisters) {
 			// For each node id 
