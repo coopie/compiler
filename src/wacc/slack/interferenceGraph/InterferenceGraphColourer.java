@@ -1,5 +1,6 @@
 package wacc.slack.interferenceGraph;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -168,8 +169,7 @@ public class InterferenceGraphColourer {
 		for (InterferenceGraphNode n : ig) {
 			weightList.add(n);
 		}
-		
-		weightList.sort(new Comparator<InterferenceGraphNode>() {
+		Collections.sort(weightList, new Comparator<InterferenceGraphNode>() {
 			@Override
 			public int compare(InterferenceGraphNode o1,
 					InterferenceGraphNode o2) {
