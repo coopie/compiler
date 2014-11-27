@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Deque;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -17,6 +18,7 @@ import wacc.slack.errorHandling.errorRecords.ErrorRecordPrinter;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.visitors.GenerateAssembly;
+import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
 import antlr.WaccLexer;
 import antlr.WaccParser;
 
@@ -25,6 +27,7 @@ public class Compiler {
 	public static void main(String[] args) throws Exception {
 		String inputFile = null;
 		String outputFile = null;
+		Compiler compiler = new Compiler();
 		
 		if (args.length > 0) {
 			inputFile = args[0];
@@ -42,6 +45,22 @@ public class Compiler {
 		if (inputFile != null) {
 			is = new FileInputStream(inputFile);
 		}
+		
+		PrintStream out = new PrintStream(new File(outputFile));
+		
+		out.print(compiler.compile(is));
+		
+		out.print('\n');
+		out.close();
+		
+		System.exit(0);
+	}
+	
+	public Compiler() {
+		
+	}
+	
+	public String compile(InputStream is) throws Exception {
 		
 		ANTLRInputStream input = new ANTLRInputStream(is);
 		WaccLexer lexer = new WaccLexer(input);
@@ -71,22 +90,19 @@ public class Compiler {
 			System.exit(ErrorRecords.getInstance().getExitCode());
 		}
 
-		GenerateAssembly psuedoInstructionVisitor = new GenerateAssembly();
-	
-		PrintStream out = new PrintStream(new File(outputFile));
-	
-//		2. - use liveIn, liveOut algorithms on a CFG to create the register usage graph
-//		3. - colour the graph in the colours that we need, extract the mapping information for the temporary registers
-//		4. - use the mapping to change all of the temporary registers to real ones 
+		Deque<PseudoInstruction> intermediateCode = ast.accept(new IntermediateCodeGenerator());
+		GenerateAssembly psuedoInstructionVisitor 
+			= new GenerateAssemblyBuilder()
+					.ignoringTemporaries()
+					.make();
 		
-		for(PseudoInstruction i : ast.accept(new IntermediateCodeGenerator())) {
-			out.print(i.accept(psuedoInstructionVisitor));
+		String output = "";
+		
+		for(PseudoInstruction i : intermediateCode) {
+			output += i.accept(psuedoInstructionVisitor);
 		}
 		
-		out.print('\n');
-		out.close();
-
-		System.exit(0);
+		return output;
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.visitors.GenerateAssembly;
+import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
 import wacc.slack.instructions.visitors.GetDefinedRegisters;
 import wacc.slack.instructions.visitors.GetUsedRegisters;
 //TDD class
@@ -17,7 +18,7 @@ public class CFGNode {
 	List<Register> defs = new LinkedList<>();
 	List<Register> uses = new LinkedList<>();
 
-	private static GenerateAssembly print = new GenerateAssembly();
+	private static GenerateAssembly print = new GenerateAssemblyBuilder().make();
 	
 	CFGNode(PseudoInstruction ps) {
 		this.ps = ps;

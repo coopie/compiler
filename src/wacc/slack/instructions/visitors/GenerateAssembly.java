@@ -24,6 +24,12 @@ import wacc.slack.instructions.Swi;
 
 public class GenerateAssembly implements InstructionVistor<String> {
 
+	OperandVisitor<String> printOperand; 
+	
+	GenerateAssembly () {
+		
+	}
+	
 	private String newLine(int indent) {
 		String s = "\n";
 		for (int i = 0; i < indent; i++) {
@@ -31,41 +37,6 @@ public class GenerateAssembly implements InstructionVistor<String> {
 		}
 		return s;
 	}
-
-	private OperandVisitor<String> printOperand = new OperandVisitor<String>() {
-
-		@Override
-		public String visit(ArmRegister realRegister) {
-			return realRegister.name();
-		}
-
-		@Override
-		public String visit(TemporaryRegister temporaryRegister) {
-			return "R" + temporaryRegister.getN();
-		}
-
-		@Override
-		public String visit(Label label) {
-
-			return "=" + label.getName();
-		}
-
-		@Override
-		public String visit(ImmediateValue immediateValue) {
-			return immediateValue.getValue();
-		}
-
-		@Override
-		public String visit(Address address) {
-			if (address.getOffset() == 0) {
-				return "[" + address.getRegister().accept(this) + "]";
-			} else {
-				return "[" + address.getRegister().accept(this) + ", #"
-						+ address.getOffset() + "]";
-			}
-		}
-
-	};
 
 	@Override
 	public String visit(Mov mov) {
