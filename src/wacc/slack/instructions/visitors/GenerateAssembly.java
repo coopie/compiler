@@ -46,7 +46,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Label label) {
-		return "\n" + newLine(2) + label.getName() + ":";
+		return newLine(2) + label.getName() + ":";
 	}
 
 	@Override
@@ -84,8 +84,8 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Cmp cmp) {
-		return newLine(4) + "CMP " + cmp.getSource().accept(printOperand)
-				+ ", " + cmp.getDest().accept(printOperand);
+		return newLine(4) + "CMP " + cmp.getDest().accept(printOperand)
+				+ ", " + cmp.getSource().accept(printOperand);
 	}
 
 	@Override

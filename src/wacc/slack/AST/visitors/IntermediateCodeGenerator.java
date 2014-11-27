@@ -140,6 +140,8 @@ public class IntermediateCodeGenerator implements
 
 		instrList.addAll(prog.getStatements().accept(this));
 
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue("0")));
+		
 		instrList.add(new Pop(ArmRegister.pc));
 
 		instrList.add(new AssemblerDirective(".text"));
@@ -194,7 +196,7 @@ public class IntermediateCodeGenerator implements
 		Register destReg = trg.generate(weight);
 
 		// This might be unnecessary
-		instrList.add(new Mov(destReg, returnedOperand));
+		//instrList.add(new Mov(destReg, returnedOperand));
 
 		// Set the variable identinfo to store this temp reg
 		if (!(destReg instanceof TemporaryRegister)) {
@@ -221,7 +223,7 @@ public class IntermediateCodeGenerator implements
 		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 
 		instrList.addAll(ifStat.getCond().accept(this));
-		instrList.add(new Cmp(returnedOperand, new ImmediateValue("0")));
+		instrList.add(new Cmp(returnedOperand, new ImmediateValue(0)));
 		instrList.add(new BranchInstruction(Condition.EQ, falsel));
 
 		weight = weight / 2;
@@ -253,7 +255,7 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(whileStat.getBody().accept(this));
 		instrList.add(end);
 		instrList.addAll(whileStat.getCond().accept(this));
-		instrList.add(new Cmp(returnedOperand, new ImmediateValue("1")));
+		instrList.add(new Cmp(returnedOperand, new ImmediateValue(1)));
 		instrList.add(new BranchInstruction(Condition.EQ, start));
 		weight = weight / 10;
 		
@@ -459,13 +461,13 @@ public class IntermediateCodeGenerator implements
 		// Not sure this size is always the same yet although is seems so
 		int size = 8;
 		
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size)));
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(Integer.toString(size))));
 		instrList.add(new BLInstruction("malloc"));
 		instrList.add(new Mov(tr1, ArmRegister.r0));
 		
 		// First element
 		instrList.addAll(newPair.getExprL().accept(this));
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size/2)));
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(Integer.toString(size/2))));
 		instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
 		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
@@ -473,7 +475,7 @@ public class IntermediateCodeGenerator implements
 		
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size/2)));
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(Integer.toString(size/2))));
 		instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
 		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
@@ -651,12 +653,10 @@ public class IntermediateCodeGenerator implements
 					.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
-				instrList.add(new Ldr(ret, new ImmediateValue(TRUE_LABEL
-						.getName())));
+				instrList.add(new Mov(ret, new ImmediateValue(1)));
 				;
 			} else {
-				instrList.add(new Ldr(ret, new ImmediateValue(FALSE_LABEL
-						.getName())));
+				instrList.add(new Mov(ret, new ImmediateValue(0)));
 				;
 			}
 		}
