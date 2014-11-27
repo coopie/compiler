@@ -140,6 +140,8 @@ public class IntermediateCodeGenerator implements
 
 		instrList.addAll(prog.getStatements().accept(this));
 
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue("0")));
+		
 		instrList.add(new Pop(ArmRegister.pc));
 
 		instrList.add(new AssemblerDirective(".text"));
@@ -253,7 +255,7 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(whileStat.getBody().accept(this));
 		instrList.add(end);
 		instrList.addAll(whileStat.getCond().accept(this));
-		instrList.add(new Cmp(returnedOperand, new ImmediateValue("1")));
+		instrList.add(new Cmp(returnedOperand, new ImmediateValue(1)));
 		instrList.add(new BranchInstruction(Condition.EQ, start));
 		weight = weight / 10;
 		
@@ -651,12 +653,10 @@ public class IntermediateCodeGenerator implements
 					.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
-				instrList.add(new Ldr(ret, new ImmediateValue(TRUE_LABEL
-						.getName())));
+				instrList.add(new Mov(ret, new ImmediateValue(1)));
 				;
 			} else {
-				instrList.add(new Ldr(ret, new ImmediateValue(FALSE_LABEL
-						.getName())));
+				instrList.add(new Mov(ret, new ImmediateValue(0)));
 				;
 			}
 		}
