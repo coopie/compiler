@@ -5,7 +5,8 @@ import java.util.Map;
 
 import wacc.slack.assemblyOperands.Register;
 
-class InterferenceGraphNode {
+//TDD
+class InterferenceGraphNode implements Comparable<InterferenceGraphNode>{
 
 	private int colour = -1;
 	
@@ -13,7 +14,6 @@ class InterferenceGraphNode {
 	private final Register reg;
 	
 	private static Map<Register, InterferenceGraphNode> registersMapped = new HashMap<>();
-	
 	
 	public static InterferenceGraphNode getInterferenceGraphNodeForRegister(Register reg) {
 		if(registersMapped.containsKey(reg)) {
@@ -24,14 +24,13 @@ class InterferenceGraphNode {
 		return n;
 	}
 	
-	//this gurantess there is only one interferencegraphNode for each register,
+	//this guarantees there is only one interferencegraphNode for each register,
 	//so for example keys in map are the same objects as the values
 	// use the above static method
-	private InterferenceGraphNode(Register reg) {
+	InterferenceGraphNode(Register reg) {
 		this.reg = reg;
 		this.weight = reg.getWeight();
 	}
-
 	
 	public void colour(int c) {
 		colour = c;
@@ -44,10 +43,17 @@ class InterferenceGraphNode {
 	public int getColour() {
 		return colour;
 	}
-
+	
+	public void clean() {
+		colour = -1;
+	}
 
 	public int getWeight() {
 		return weight;
+	}
+	
+	public Register getRegister() {
+		return reg;
 	}
 
 	@Override
@@ -66,5 +72,15 @@ class InterferenceGraphNode {
 	@Override
 	public boolean equals(Object o) {
 		return reg.equals(o);
+	}
+
+	@Override
+	public int compareTo(InterferenceGraphNode n) {
+		return weight - n.getWeight();
+	}
+	
+	@Override
+	public String toString() {
+		return "(" + reg + ", " + weight + ")";
 	}
 }

@@ -39,6 +39,8 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 			}
 	};
 	
+	private Set<Register> allRegisters;
+	
 	public ControlFlowGraph(Deque<PseudoInstruction> code) {
 	//	Map<CFGNode,Set<CFGNode>> graph = new HashMap<>();
 		super();
@@ -95,15 +97,16 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		Set<Register> liveOutN; 
 		Set<Register> tmp;
 		Set<CFGNode> succN;
+		allRegisters = new HashSet<Register>();
 		do {
 			for(CFGNode n : this) {
-				//LiveIn(n) = uses(n) U (LiveOut(n) – defs(n))
+				//LiveIn(n) = uses(n) U (LiveOut(n) ï¿½ defs(n))
 				liveInN = liveIn.get(n);
 				liveOutN = liveOut.get(n);
 				
 				//LiveIn(n) U uses(n)
 				liveInN.addAll(n.uses);
-				//LiveIn(n) U (LiveOut(n) – defs(n))
+				//LiveIn(n) U (LiveOut(n) ï¿½ defs(n))
 				tmp = new HashSet<Register>(liveOutN);
 				tmp.removeAll(n.defs);
 				liveInN.addAll(tmp);
@@ -112,12 +115,18 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				succN = this.getAdjecent(n);
 				for(CFGNode sn : succN) {
 					liveOutN.addAll(liveIn.get(sn));
+					// TODO: potential performance inrease
+					allRegisters.addAll(liveOutN);
 				}
 				
 			}
 		}while(isChanged(liveIn,liveInPrevSize) &&  isChanged(liveIn,liveInPrevSize));
 		
 		return liveOut;
+	}
+	
+	public Set<Register> getAllRegs() {
+		return allRegisters;
 	}
 	
 	private  <T,R> boolean isChanged(Map<T,Set<R>> graph, Map<T,Integer> sizes) {

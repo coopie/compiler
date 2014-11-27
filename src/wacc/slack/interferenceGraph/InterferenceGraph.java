@@ -7,11 +7,16 @@ import java.util.Set;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.controlFlow.AbstractGraph;
 import wacc.slack.controlFlow.CFGNode;
+import wacc.slack.controlFlow.ControlFlowGraph;
+
 
 public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 
-	
-	public InterferenceGraph(Map<CFGNode,Set<Register>> liveOut, Set<Register> allRegisters) {
+	public InterferenceGraph(ControlFlowGraph graph) {
+		this(graph.getLiveOut(), graph.getAllRegs());
+	}
+
+	private InterferenceGraph(Map<CFGNode,Set<Register>> liveOut, Set<Register> allRegisters) {
 		Set<Register> liveOutId;
 		// For each temporary t 
 		for(Register t : allRegisters) {
@@ -36,6 +41,13 @@ public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 	}
 	
 	public void clean() {
-		//TODO:
+		for (InterferenceGraphNode n : this) {
+			n.clean();
+		}
 	}
+	
+	public boolean isConstrained(InterferenceGraphNode n, int k) {
+		return getAdjecent(n).size() > k;
+	}
+	
 }

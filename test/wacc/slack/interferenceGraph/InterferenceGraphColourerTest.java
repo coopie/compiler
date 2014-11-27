@@ -1,14 +1,13 @@
 package wacc.slack.interferenceGraph;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.controlFlow.ControlFlowGraph;
@@ -20,7 +19,24 @@ import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.PseudoInstruction;
 
-public class InterferenceGraphTest {
+public class InterferenceGraphColourerTest {
+
+	
+	@Test
+	public void graphIsColouredSimple() {
+		InterferenceGraphColourer colourer = colourerOfSimpleGraph();
+		colourer.colour(10, 0);
+		assertThat(colourer.toString(),
+				is(""));
+	}
+	
+	private InterferenceGraphColourer colourerOfSimpleGraph() {
+		return new InterferenceGraphColourer(simpleGraph());
+	}
+	
+	private InterferenceGraphColourer colourerOfComplexGraph() {
+		return new InterferenceGraphColourer(complexGraph());
+	}
 	
 	private BranchInstruction branch = new BranchInstruction(Condition.AL,new Label("l1"));
 	private PseudoInstruction mov = new Mov(ArmRegister.r0, ArmRegister.r1);
@@ -30,7 +46,7 @@ public class InterferenceGraphTest {
 	
 	
 	
-	public InterferenceGraph complexGraph() {
+	private InterferenceGraph complexGraph() {
 		Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
 				branch,
 				new Label("start"),
@@ -46,7 +62,7 @@ public class InterferenceGraphTest {
 		return new InterferenceGraph(cfg);
 	}
 	
-	public InterferenceGraph simpleGraph() {
+	private InterferenceGraph simpleGraph() {
 		Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
 				mov, cmp, add
 				));
@@ -55,52 +71,4 @@ public class InterferenceGraphTest {
 		
 		return new InterferenceGraph(cfg);
 	}
-	
-
-	@Test
-	public void nodeDoesNotNeighbourtself() {
-		InterferenceGraph ig = complexGraph();
-		for(InterferenceGraphNode n : ig) {
-			if(ig.getAdjecent(n).contains(n)) {
-				assertTrue(false);
-			}
-		}
-		assertTrue(true);
-	}
-	
-	@Test
-	public void canIterateThroughAllNodes() {
-		int count = 0;
-		InterferenceGraph ig = complexGraph();
-		for(InterferenceGraphNode n : ig) {
-			count++;
-		}
-		assertThat(count, is(ig.nodeSet().size()));
-	}
-	
-	@Test
-	public void canCleanItself() {
-		InterferenceGraph ig = complexGraph();
-		for(InterferenceGraphNode n : ig) {
-			n.colour(5);
-			n.clean();
-		}
-		boolean cleaningWorked = true;
-		for(InterferenceGraphNode n : ig) {
-			cleaningWorked &= !(n.isColoured());
-		}
-		assertThat(cleaningWorked, is(true));
-	}
-	
-	@Test
-	public void isNotConstrainedWhenNodeHasLessThanKNeighbours() {
-		InterferenceGraph ig = simpleGraph();
-		boolean constrainedQueryWorking = true;
-		for(InterferenceGraphNode n : ig) {
-			constrainedQueryWorking = 
-					ig.isConstrained(n, 1) == ig.getAdjecent(n).size() >= 1;
-		}
-		assertThat(constrainedQueryWorking, is(true));
-	}
-
 }

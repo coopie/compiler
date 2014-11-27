@@ -47,14 +47,15 @@ class LabelBabySitter {
 
 	public boolean allInstructionsHappy() {
 		CFGNode next;
+		int count = 0;
 		for(CFGNode n : instructions.keySet()) {
 			next = labelLookup.get(n.getInstruction().accept(labelVisitor));
 			if(next != null) {
 				instructions.get(n).add(next);
-				instructions.remove(n);
+				count++;
 			}
 		}
-		return instructions.size() == 0;
+		return instructions.size() == count;
 	}
 
 	public void add(CFGNode node, Set<CFGNode> nexts) {

@@ -10,11 +10,12 @@ import wacc.slack.assemblyOperands.ArmRegister;
 
 public class InterferenceGraphNodeTest {
 
-	InterferenceGraphNode ign = new InterferenceGraphNode(ArmRegister.r0, 1);
+	InterferenceGraphNode ign = new InterferenceGraphNode(ArmRegister.r0);
 	
 	@Test
 	public void canGetColour() {
-		
+		ign.colour(44);
+		assertThat(ign.getColour(), is(44));
 	}
 	
 	@Test
