@@ -1,13 +1,14 @@
 package wacc.slack.interferenceGraph;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.*;
+
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.controlFlow.ControlFlowGraph;
@@ -26,8 +27,7 @@ public class InterferenceGraphColourerTest {
 	public void graphIsColouredSimple() {
 		InterferenceGraphColourer colourer = colourerOfSimpleGraph();
 		colourer.colour(10, 0);
-		assertThat(colourer.toString(),
-				is(""));
+		assertEquals("",colourer.toString());
 	}
 	
 	private InterferenceGraphColourer colourerOfSimpleGraph() {

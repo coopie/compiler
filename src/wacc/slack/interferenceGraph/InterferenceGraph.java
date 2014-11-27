@@ -18,6 +18,7 @@ public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 
 	private InterferenceGraph(Map<CFGNode,Set<Register>> liveOut, Set<Register> allRegisters) {
 		Set<Register> liveOutId;
+
 		// For each temporary t 
 		for(Register t : allRegisters) {
 			// For each node id 
@@ -26,16 +27,19 @@ public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 				// If t is in liveOut(id)
 				if(liveOutId.contains(t)) {
 					//Then interferes(t) includes liveOut(id) 
-					this.putNode(InterferenceGraphNode.getInterferenceGraphNodeForRegister(t), convertRegisters(liveOutId));
+					this.putNode(InterferenceGraphNode.getInterferenceGraphNodeForRegister(t), convertRegisters(liveOutId, t));
 				}
 			}
 		}
 	}
 	
-	private Set<InterferenceGraphNode> convertRegisters(Set<Register> regs) {
+	private Set<InterferenceGraphNode> convertRegisters(Set<Register> regs, Register t) {
 		Set<InterferenceGraphNode> n = new HashSet<>();
 		for(Register r : regs) {
-			n.add(InterferenceGraphNode.getInterferenceGraphNodeForRegister(r));
+			//interference node shouldn't be connected to itself
+			if(r != t) {
+				n.add(InterferenceGraphNode.getInterferenceGraphNodeForRegister(r));		
+			}
 		}
 		return n;
 	}
