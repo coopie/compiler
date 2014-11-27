@@ -62,9 +62,9 @@ public class ControlFlowGraphTests {
 	@Test
 	public void liveOutAndLiveInMatchExample() {
 		ControlFlowGraph cfg = new ControlFlowGraph(programUsingTemporaries);
-		assertEquals("{ ADD R4, R1, R2 [t1, t2] [t4]=[],"
-				+ "  MOV R1, R2 [t2] [t1]=[t4, t3],"
-				+ "  CMP R3, R4 [t3, t4] []=[t2, t1]}"
+		assertEquals(" ADD T4, T1, T2 [t1, t2] [t4]: []\n" +
+				" MOV T1, T2 [t2] [t1]: [t3, t4]\n" +
+				" CMP T4, T3 [t3, t4] []: [t2, t1]\n"
 				, AbstractGraph.printGraph(cfg.getLiveOut()));
 	}
 	
