@@ -223,7 +223,7 @@ public class IntermediateCodeGenerator implements
 		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 
 		instrList.addAll(ifStat.getCond().accept(this));
-		instrList.add(new Cmp(returnedOperand, new ImmediateValue("0")));
+		instrList.add(new Cmp(returnedOperand, new ImmediateValue(0)));
 		instrList.add(new BranchInstruction(Condition.EQ, falsel));
 
 		weight = weight / 2;
