@@ -448,8 +448,46 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(NewPairAST newPair) {
-		// TODO Auto-generated method stub
-		return null;
+		// Should have the line
+		// SUB sp, sp, #4
+		// before this
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		Register tr1 = trg.generate(weight);
+		Register tr2 = trg.generate(weight);
+		
+		// Not sure this size is always the same yet although is seems so
+		int size = 8;
+		
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size)));
+		instrList.add(new BLInstruction("malloc"));
+		instrList.add(new Mov(tr1, ArmRegister.r0));
+		
+		// First element
+		instrList.addAll(newPair.getExprL().accept(this));
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size/2)));
+		instrList.add(new BLInstruction("malloc"));
+		// This may need to be STRB for chars
+		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		instrList.add(new Str(ArmRegister.r0, new Address(tr1, 0)));
+		
+		// Second element
+		instrList.addAll(newPair.getExprR().accept(this));
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size/2)));
+		instrList.add(new BLInstruction("malloc"));
+		// This may need to be STRB for chars
+		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		instrList.add(new Str(ArmRegister.r0, new Address(tr1, size/2)));
+		
+		// Store register at tr1 in [sp]
+		instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
+		
+		// Should store memory address of pair
+		returnedOperand = tr1;
+		return instrList;
+		
+		// Followed by
+		// ADD sp, sp, #4
 	}
 
 	@Override
