@@ -52,6 +52,7 @@ import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
+import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
@@ -201,7 +202,7 @@ public class IntermediateCodeGenerator implements
 		Register destReg = trg.generate(weight);
 
 		// This might be unnecessary
-		// instrList.add(new Mov(destReg, returnedOperand));
+		instrList.add(new Mov(destReg, returnedOperand));
 
 		// Set the variable identinfo to store this temp reg
 		if (!(destReg instanceof TemporaryRegister)) {
@@ -361,19 +362,31 @@ public class IntermediateCodeGenerator implements
 		// Get the element at expr[n] then treat the element at expr[n] as
 		// another array and get the element expr[n+1] in that array and so on
 
-		Register tr1 = trg.generate(weight);
+		Register trOffset = trg.generate(weight);
 		Register destReg = trg.generate(weight);
 
 		// ldr tr1, [sp]
 		// ldr tr1, [tr1 + typeSize * index]
 		// mov destReg, tr1
+		
+		// register where array is stored
+		Register array = arrayElem.getScope().lookup(arrayElem.getName())
+				.getTemporaryRegister();
 
-		// TODO: Implement index
-		int index = 0;
+		for (int i = 0; i < arrayElem.getExprs().size(); i++) {
+			instrList.addAll(arrayElem.getExprs().get(i).accept(this));
+			
+			// Move the index to trOffset
+			instrList.add(new Mov(trOffset, returnedOperand));
+			// Mul the index with the typeSize to get the offset
+			instrList.add(new Mul(trOffset, trOffset, new ImmediateValue(typeSize)));
 
-		instrList.add(new Ldr(tr1, new Address(ArmRegister.sp, 0)));
-		instrList.add(new Ldr(tr1, new Address(tr1, typeSize * index)));
-		instrList.add(new Mov(destReg, tr1));
+			// Load array element at offset into array (assuming it will be another array address
+			instrList.add(new Ldr(array, new Address(array, trOffset)));
+		}
+		
+		// Array element is not another array element
+		instrList.add(new Mov(destReg, array));
 
 		returnedOperand = destReg;
 		return instrList;

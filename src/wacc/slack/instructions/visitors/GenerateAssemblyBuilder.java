@@ -53,12 +53,20 @@ public class GenerateAssemblyBuilder {
 
 		@Override
 		public String visit(Address address) {
-			if (address.getOffset() == 0) {
+			
+			if ((address.getOffset() == null || address.getOffset() == 0) && (address.getRegOffset() == null)) {
 				return "[" + address.getRegister().accept(this) + "]";
-			} else {
+			} else if (address.getOffset() != null && address.getOffset() != 0 && address.getRegOffset() != null) {
 				return "[" + address.getRegister().accept(this) + ", #"
 						+ address.getOffset() + "]";
+			} else if ((address.getOffset() == null || address.getOffset() == 0) && (address.getRegOffset() != null)) {
+				return "[" + address.getRegister().accept(this) + ", #"
+						+ address.getRegOffset().accept(this) + "]";
+			} else {
+				// TODO: If we need this
+				return null;
 			}
+			
 		}
 	}
 
