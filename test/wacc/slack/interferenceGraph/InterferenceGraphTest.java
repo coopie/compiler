@@ -1,5 +1,6 @@
 package wacc.slack.interferenceGraph;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -7,10 +8,14 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
 import wacc.slack.assemblyOperands.ArmRegister;
+import wacc.slack.assemblyOperands.Register;
 import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.instructions.Add;
 import wacc.slack.instructions.BranchInstruction;
@@ -102,5 +107,20 @@ public class InterferenceGraphTest {
 		}
 		assertThat(constrainedQueryWorking, is(true));
 	}
-
+	
+	@Test
+	public void containsAllRegistersInCode() {
+		InterferenceGraph ig  = simpleGraph();
+		Map<InterferenceGraphNode, Set<InterferenceGraphNode>> adjacencyList =
+				ig.getAdjecencyList();
+		
+		List<Register> regsInGraph = new LinkedList<>();
+		for (InterferenceGraphNode n : adjacencyList.keySet()) {
+			regsInGraph.add(n.getRegister());
+		}
+		assertThat(regsInGraph, hasItems(ArmRegister.r0,
+				ArmRegister.r1,
+				ArmRegister.r2,
+				ArmRegister.r3));
+	}
 }
