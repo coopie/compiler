@@ -57,5 +57,16 @@ public abstract class AbstractGraph<T> implements Iterable<T>  {
 		
 		return s;
 	}
+	
+	public static <T,R> boolean graphEquals(Map<T,Set<R>> g1, Map<T,Set<R>> g2) {
+		if(!g1.keySet().equals(g2.keySet())) return false;
+		
+		for(T key : g1.keySet()) {
+			if(!g1.get(key).equals(g2.get(key))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

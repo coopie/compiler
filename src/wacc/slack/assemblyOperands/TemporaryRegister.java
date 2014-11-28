@@ -30,5 +30,19 @@ public class TemporaryRegister implements Register {
 		return "t" + n;
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof TemporaryRegister) {
+			return n == ((TemporaryRegister) o).getN();
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return n;
+	}
+	
+	
 	
 }

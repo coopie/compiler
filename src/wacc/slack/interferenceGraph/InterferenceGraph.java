@@ -51,7 +51,7 @@ public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 	}
 	
 	public boolean isConstrained(InterferenceGraphNode n, int k) {
-		return getAdjecent(n).size() > k;
+		return getAdjecent(n).size() >= k;
 	}
 	
 }

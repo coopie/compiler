@@ -15,8 +15,8 @@ public class CFGNode {
 	
 	private final PseudoInstruction ps;
 
-	List<Register> defs = new LinkedList<>();
-	List<Register> uses = new LinkedList<>();
+	final List<Register> defs;// = new LinkedList<>();
+	final List<Register> uses;// = new LinkedList<>();
 
 	private static GenerateAssembly print = new GenerateAssemblyBuilder().make();
 	
@@ -31,11 +31,9 @@ public class CFGNode {
 		return ps;
 	}
 
-
 	public Iterable<Register> getDefinitions() {
 		return defs;
 	}
-
 
 	public Iterable<Register> getUses() {
 		return uses;
@@ -44,6 +42,20 @@ public class CFGNode {
 	@Override
 	public String toString() {
 		return ps.accept(print).replaceAll("\\s+", " ") + " " + uses +  " " + defs;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof CFGNode) {
+			return ps.equals(((CFGNode) o).ps);
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return ps.hashCode();
 	}
 	
 }

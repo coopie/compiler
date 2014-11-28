@@ -60,7 +60,11 @@ public class InterferenceGraphColourer {
 		// now all the nodes should be coloured. To be certain that we have a nice way of dealing
 		// with the scratchpad
 		boolean weHaveSpilledNodes = findLargestColour() > k;
-		return !weHaveSpilledNodes;
+		if(numScratchpads == 3) {
+			return true;
+		} else {
+			return findLargestColour() > k;
+		}
 	}
 	
 	private void tryToColour(InterferenceGraphNode n, int k) {
@@ -146,6 +150,10 @@ public class InterferenceGraphColourer {
 				public Boolean visit(Address address) {
 					return address.getRegister().accept(this);
 				}
+
+				@Override
+				public void setImmediateValuePrefix(String prefix) {
+				}
 				})) {
 				armRegisterNodes.add(n);
 			}
@@ -157,8 +165,8 @@ public class InterferenceGraphColourer {
 	private int findLargestColour() {
 		int largestColourSoFar = -1;
 		for (InterferenceGraphNode n : ig) {
-			if(n.getWeight() > largestColourSoFar) {
-				largestColourSoFar = n.getWeight();
+			if(n.getColour() > largestColourSoFar) {
+				largestColourSoFar = n.getColour();
 			}
 		}
 		return largestColourSoFar;

@@ -102,16 +102,21 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		allRegisters = new HashSet<Register>();
 		do {
 			for(CFGNode n : this) {
-				//LiveIn(n) = uses(n) U (LiveOut(n) � defs(n))
 				liveInN = liveIn.get(n);
+				liveInN.clear();
 				liveOutN = liveOut.get(n);
+				liveOutN.clear();
+			
+				//LiveIn(n) = uses(n) U (LiveOut(n) � defs(n))
 				
-				//LiveIn(n) U uses(n)
+				//1: LiveIn(n) = uses(n)
 				liveInN.addAll(n.uses);
-				//LiveIn(n) U (LiveOut(n) � defs(n))
+				//2: LiveIn(n) U= (LiveOut(n) � defs(n))
 				tmp = new HashSet<Register>(liveOutN);
 				tmp.removeAll(n.defs);
 				liveInN.addAll(tmp);
+				
+				//liveIn.put(n, liveInN);
 				
 				//	LiveOut(n) = Us elem succ(n) LiveIn(s); 
 				succN = this.getAdjecent(n);
@@ -122,8 +127,8 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				
 				
 			}
-		}while(isChanged(liveIn,liveInPrevSize) &&  isChanged(liveIn,liveInPrevSize));
-		System.out.println(printGraph(liveIn));
+		}while(isChanged(liveIn,liveInPrevSize) ||  isChanged(liveOut,liveOutPrevSize));
+		//System.out.println(printGraph(liveIn));
 		System.out.println(printGraph(liveOut));
 		
 		return liveOut;
@@ -133,19 +138,27 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		return allRegisters;
 	}
 	
-	private  <T,R> boolean isChanged(Map<T,Set<R>> graph, Map<T,Set<R>> previousSets) {
+	private int numTimesSame = 0;
+	<T,R> boolean isChanged(Map<T,Set<R>> graph, Map<T,Set<R>> previousSets) {
 		assert graph.keySet().equals(previousSets.keySet()): "must call isChanged with identical key sets";
 		
 		boolean changed = false;
 		for(T n : graph.keySet()) {
 			if(graph.get(n).equals(previousSets.get(n))) {
-				previousSets.put(n, graph.get(n));
 			} else {
 				changed = true;
 			}
+			previousSets.put(n, graph.get(n));
+			
 			
 		}
+		if(!changed) {
+			numTimesSame++;
+			return !(numTimesSame > 4);
+		}else {
+			numTimesSame = 0;
+			return !changed;
+		}
 		
-		return changed;
 	}
 }
