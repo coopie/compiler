@@ -51,6 +51,12 @@ public class ControlFlowGraphTests {
 			cmpt,
 			addt
 			));
+	Map<CFGNode,Set<Register>> liveOutForProgramUsingTemporaries = new HashMap<CFGNode,Set<Register>>(){{
+		put(new CFGNode(0,movt),new HashSet<>(Arrays.asList((Register)t3,t4)) );
+		put(new CFGNode(1,cmpt),new HashSet<>(Arrays.asList((Register)t2,t1)) );
+		put(new CFGNode(2,addt),new HashSet<Register>());
+			
+	}};
 	
 	Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
 			branch,
@@ -69,27 +75,29 @@ public class ControlFlowGraphTests {
 
 		assertTrue(graphEquals(new ControlFlowGraph(programUsingTemporaries).getLiveOut(),
 				new ControlFlowGraph(programUsingTemporaries).getLiveOut()));
-	/*	assertEquals("{ ADD R4, R1, R2 [t1, t2] [t4]=[],"
-				+ "  MOV R1, R2 [t2] [t1]=[t4, t3],"
-				+ "  CMP R3, R4 [t3, t4] []=[t2, t1]}"
-				, AbstractGraph.printGraph(cfg.getLiveOut()));*/
+	}
+	
+	@Test
+	public void liveOutCorrectForPorgramUsingTemporaries() {
+		assertTrue(graphEquals(new ControlFlowGraph(programUsingTemporaries).getLiveOut(),liveOutForProgramUsingTemporaries));
+	
 	}
 	
 	@Test
 	public void canCreateCFGNodeWithPseudoInstruction() {
-		CFGNode n = new CFGNode(mov);
+		CFGNode n = new CFGNode(1,mov);
 		assertThat(n.getInstruction(),is(mov));
 	}
 	
 	@Test
 	public void canGetRegistersDefinedByInstruction() {
-		CFGNode n = new CFGNode(mov);
+		CFGNode n = new CFGNode(1,mov);
 		assertThat(n.getDefinitions(),hasItems((Register)ArmRegister.r0));
 	}
 	
 	@Test
 	public void canGetRegistersUsedByInstruction() {
-		CFGNode n = new CFGNode(mov);
+		CFGNode n = new CFGNode(1,mov);
 		assertThat(n.getUses(),hasItems((Register)ArmRegister.r1));
 	}
 	
@@ -162,16 +170,8 @@ public class ControlFlowGraphTests {
 	}
 	
 	@Test
-	public void canGetLiveOut() {
-		ControlFlowGraph graph = new ControlFlowGraph(new LinkedList<>(Arrays.asList(new Label("start"),mov,branchStart,cmp)));	
-		System.out.print(AbstractGraph.printGraph(graph.getLiveOut()));
-		assertFalse(true); //TODO:
-		
-	}
-	
-	@Test
 	public void isChangedWorksSame() {
-		ControlFlowGraph cfg = new ControlFlowGraph(new LinkedList<>());
+		ControlFlowGraph cfg = new ControlFlowGraph(new LinkedList<PseudoInstruction>());
 		
 		Map<Integer, Set<String>> thingy = new HashMap<>();
 		thingy.put(1, new HashSet<String>(Arrays.asList("fs", "fsf")));
@@ -188,7 +188,7 @@ public class ControlFlowGraphTests {
 	
 	@Test
 	public void isChangedWorksDifferent() {
-		ControlFlowGraph cfg = new ControlFlowGraph(new LinkedList<>());
+		ControlFlowGraph cfg = new ControlFlowGraph(new LinkedList<PseudoInstruction>());
 		Map<Integer, Set<String>> thingy = new HashMap<>();
 		thingy.put(1, new HashSet<String>(Arrays.asList("fsfsdffwgrs", "fsf")));
 		Map<Integer, Set<String>> thingy2 = new HashMap<>(thingy);

@@ -21,7 +21,6 @@ public class GenerateAssemblyBuilder {
 		}
 	};
 
-	private Deque<PseudoInstruction> intermediateCode;
 	private int optimizationLevel = 0;
 
 	public GenerateAssemblyBuilder ignoringTemporaries() {
@@ -31,33 +30,18 @@ public class GenerateAssemblyBuilder {
 
 	public GenerateAssembly make() {
 		GenerateAssembly gen = new GenerateAssembly();
-		final Map<Register, ArmRegister> mapping = new HashMap<>();
 
 		if (optimizationLevel > 0) {
-			ControlFlowGraph cfg = new ControlFlowGraph(intermediateCode);
-			InterferenceGraph ig = new InterferenceGraph(cfg);
-			InterferenceGraphColourer igc = new InterferenceGraphColourer(ig);
-			igc.generateTemporaryRegisterMappings(mapping);
 			printOperand = new IgnoringTemporariesVisitor() {
 				@Override
 				public String visit(TemporaryRegister temporaryRegister) {
-					ArmRegister r = mapping.get(temporaryRegister);
-					if (r == null)
-						throw new RuntimeException(
-								"no mapping for temporary register found");
-					return visit(r);
+					throw new RuntimeException("found temporary register, when they should be filtered out already");
 				}
 			};
 		}
 
 		gen.printOperand = printOperand;
 		return gen;
-	}
-
-	public GenerateAssemblyBuilder withIntermediateCode(
-			Deque<PseudoInstruction> intermediateCode) {
-		this.intermediateCode = intermediateCode;
-		return this;
 	}
 
 	public GenerateAssemblyBuilder withOptimisationLevel(int i) {

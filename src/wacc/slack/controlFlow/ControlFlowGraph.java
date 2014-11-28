@@ -55,6 +55,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		CFGNode currentNode = null;
 		Label l = null;
 		Set<CFGNode> nexts;
+		int id = 0;
 		while(i.hasNext()) {
 			currentInstruction = i.next();
 			//if the current instruction is label we add it to the look up and 
@@ -64,7 +65,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				labelLookUp.put(l,prevNode);
 				continue;
 			}
-			currentNode = new CFGNode(currentInstruction);
+			currentNode = new CFGNode(id,currentInstruction);
 			nexts = new HashSet<>();
 			sitter.add(currentNode, nexts);
 			if(prevNode != null && currentInstruction.accept(isNextInstructionExecuted)) {
@@ -72,6 +73,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 			}
 			this.putNode(currentNode, nexts);
 			prevNode = currentNode;
+			id++;
 		}
 		
 		if(!sitter.allInstructionsHappy()) {

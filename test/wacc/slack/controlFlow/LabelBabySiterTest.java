@@ -18,8 +18,8 @@ import wacc.slack.instructions.Mov;
 
 public class LabelBabySiterTest {
 	
-	private CFGNode branch = new CFGNode(new BranchInstruction(null,new Label("l1")));
-	private CFGNode mov = new CFGNode(new Mov(ArmRegister.r0, ArmRegister.r1));
+	private CFGNode branch = new CFGNode(1, new BranchInstruction(null,new Label("l1")));
+	private CFGNode mov = new CFGNode(1, new Mov(ArmRegister.r0, ArmRegister.r1));
 
 	Map<Label,CFGNode> labelLookup = new HashMap<>();
 	LabelBabySitter sitter = new LabelBabySitter(labelLookup);

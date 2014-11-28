@@ -19,8 +19,11 @@ public class CFGNode {
 	final List<Register> uses;// = new LinkedList<>();
 
 	private static GenerateAssembly print = new GenerateAssemblyBuilder().make();
+
+	private final int id;
 	
-	CFGNode(PseudoInstruction ps) {
+	CFGNode(int id,PseudoInstruction ps) {
+		this.id = id;
 		this.ps = ps;
 		defs = ps.accept(new GetDefinedRegisters());
 		uses = ps.accept(new GetUsedRegisters());
@@ -47,7 +50,7 @@ public class CFGNode {
 	@Override
 	public boolean equals(Object o) {
 		if(o instanceof CFGNode) {
-			return ps.equals(((CFGNode) o).ps);
+			return ps.equals(((CFGNode) o).ps) && id == ((CFGNode) o).id;
 		}
 		
 		return false;
@@ -55,7 +58,7 @@ public class CFGNode {
 	
 	@Override
 	public int hashCode() {
-		return ps.hashCode();
+		return ps.hashCode()*6047 +  id*7823;
 	}
 	
 }

@@ -151,10 +151,7 @@ public class InterferenceGraphColourer {
 					return address.getRegister().accept(this);
 				}
 
-				@Override
-				public void setImmediateValuePrefix(String prefix) {
-				}
-				})) {
+			})) {
 				armRegisterNodes.add(n);
 			}
 		}

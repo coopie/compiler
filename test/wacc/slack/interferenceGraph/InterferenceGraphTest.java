@@ -118,7 +118,7 @@ public class InterferenceGraphTest {
 		for (InterferenceGraphNode n : adjacencyList.keySet()) {
 			regsInGraph.add(n.getRegister());
 		}
-		assertThat(regsInGraph, hasItems(ArmRegister.r0,
+		assertThat(regsInGraph, hasItems((Register)ArmRegister.r0,
 				ArmRegister.r1,
 				ArmRegister.r2,
 				ArmRegister.r3));
