@@ -77,9 +77,9 @@ public class IntermediateCodeGenerator implements
 		@Override
 		public void setImmediateValuePrefix(String prefix) {
 			// TODO Auto-generated method stub
-			
+
 		}
-		
+
 		@Override
 		public Operand visit(ArmRegister realRegister) {
 			// TODO Auto-generated method stub
@@ -107,7 +107,6 @@ public class IntermediateCodeGenerator implements
 			// TODO Auto-generated method stub
 			return null;
 		}
-
 
 	}
 
@@ -147,7 +146,7 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(prog.getStatements().accept(this));
 
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue("0")));
-		
+
 		instrList.add(new Pop(ArmRegister.pc));
 
 		instrList.add(new AssemblerDirective(".text"));
@@ -202,7 +201,7 @@ public class IntermediateCodeGenerator implements
 		Register destReg = trg.generate(weight);
 
 		// This might be unnecessary
-		//instrList.add(new Mov(destReg, returnedOperand));
+		// instrList.add(new Mov(destReg, returnedOperand));
 
 		// Set the variable identinfo to store this temp reg
 		if (!(destReg instanceof TemporaryRegister)) {
@@ -251,7 +250,7 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(WhileStatementAST whileStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		weight = weight * 10;
 
 		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
@@ -264,13 +263,14 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Cmp(returnedOperand, new ImmediateValue(1)));
 		instrList.add(new BranchInstruction(Condition.EQ, start));
 		weight = weight / 10;
-		
+
 		return instrList;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(ReturnStatementAST exprStat) {
 		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -370,7 +370,7 @@ public class IntermediateCodeGenerator implements
 
 		// TODO: Implement index
 		int index = 0;
-		
+
 		instrList.add(new Ldr(tr1, new Address(ArmRegister.sp, 0)));
 		instrList.add(new Ldr(tr1, new Address(tr1, typeSize * index)));
 		instrList.add(new Mov(destReg, tr1));
@@ -456,46 +456,60 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(NewPairAST newPair) {
-		// Should have the line
-		// SUB sp, sp, #4
-		// before this
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		Register tr1 = trg.generate(weight);
 		Register tr2 = trg.generate(weight);
-		
-		// Not sure this size is always the same yet although is seems so
-		int size = 8;
-		
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(Integer.toString(size))));
+
+		// For storing 2 address each 4 bytes
+		final int PAIRSIZE = 8;
+
+		// Get element sizes
+		int typeSizeFst = 4;
+		int typeSizeSnd = 4;
+
+		if (newPair.getExprL().getType().equals(BaseType.T_bool)
+				&& newPair.getExprL().getType().equals(BaseType.T_char)) {
+			typeSizeFst = 1;
+		}
+
+		if (newPair.getExprR().getType().equals(BaseType.T_bool)
+				&& newPair.getExprR().getType().equals(BaseType.T_char)) {
+			typeSizeSnd = 1;
+		}
+
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(PAIRSIZE)));
 		instrList.add(new BLInstruction("malloc"));
 		instrList.add(new Mov(tr1, ArmRegister.r0));
-		
+
 		// First element
 		instrList.addAll(newPair.getExprL().accept(this));
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(Integer.toString(size/2))));
+		// Move the result of evaluating expr into tr2
+		instrList.add(new Mov(tr2, returnedOperand));
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeFst)));
 		instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
 		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
 		instrList.add(new Str(ArmRegister.r0, new Address(tr1, 0)));
-		
+
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(Integer.toString(size/2))));
+		// Move the result of evaluating expr into tr2
+		instrList.add(new Mov(tr2, returnedOperand));
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeSnd)));
 		instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
 		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		instrList.add(new Str(ArmRegister.r0, new Address(tr1, size/2)));
-		
+		instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE)));
+
 		// Store register at tr1 in [sp]
-		instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
-		
+		// Don't need to do this as we are not storing on the stack, just
+		// keeping in register. Keep just in case we need later
+		// instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
+
 		// Should store memory address of pair
 		returnedOperand = tr1;
 		return instrList;
-		
-		// Followed by
-		// ADD sp, sp, #4
 	}
 
 	@Override
@@ -517,7 +531,7 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Add(destReg, exprRegL, exprRegR));
 
 		case DIV:
-			
+
 		case MOD:
 
 		case PLUS:
@@ -660,10 +674,8 @@ public class IntermediateCodeGenerator implements
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
 				instrList.add(new Mov(ret, new ImmediateValue(1)));
-				;
 			} else {
 				instrList.add(new Mov(ret, new ImmediateValue(0)));
-				;
 			}
 		}
 
