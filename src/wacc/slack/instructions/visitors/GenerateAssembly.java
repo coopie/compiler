@@ -1,10 +1,6 @@
 package wacc.slack.instructions.visitors;
 
-import wacc.slack.assemblyOperands.Address;
-import wacc.slack.assemblyOperands.ArmRegister;
-import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.OperandVisitor;
-import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.instructions.Add;
 import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
@@ -61,6 +57,8 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Ldr ldr) {
+		// Because ldr uses =immediatevalue instead of #immediatevalue
+		printOperand.setImmediateValuePrefix("=");
 		return newLine(4) + "LDR " + ldr.getDest().accept(printOperand) + ", "
 				+ ldr.getSource().accept(printOperand);
 	}
@@ -131,6 +129,8 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Str str) {
+		// Because str uses =immediatevalue instead of #immediatevalue
+		printOperand.setImmediateValuePrefix("=");
 		return newLine(4) + "STR " + str.getSource().accept(printOperand)
 				+ ", " + str.getDest().accept(printOperand);
 	}

@@ -9,10 +9,13 @@ public class ImmediateValue implements Operand {
 	}
 	
 	public ImmediateValue(int n) {
-		this.value = "#" + n;
+		this.value = "" + n;
 	}
 
-	public String getValue() {
+	public String getValue(String prefix) {
+		if (!value.startsWith("=")) {
+			return prefix + value;
+		}
 		return value;
 	}
 

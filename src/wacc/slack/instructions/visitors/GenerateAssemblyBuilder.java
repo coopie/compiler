@@ -17,9 +17,16 @@ import wacc.slack.interferenceGraph.InterferenceGraph;
 import wacc.slack.interferenceGraph.InterferenceGraphColourer;
 
 public class GenerateAssemblyBuilder {
-	
-	private class IgnoringTemporariesVisitor implements
-			OperandVisitor<String> {
+
+	private class IgnoringTemporariesVisitor implements OperandVisitor<String> {
+
+		private String immediateValuePrefix = "#";
+
+		@Override
+		public void setImmediateValuePrefix(String prefix) {
+			immediateValuePrefix = prefix;
+		}
+
 		@Override
 		public String visit(ArmRegister realRegister) {
 			return realRegister.name();
@@ -32,13 +39,16 @@ public class GenerateAssemblyBuilder {
 
 		@Override
 		public String visit(Label label) {
-
 			return "=" + label.getName();
 		}
 
 		@Override
 		public String visit(ImmediateValue immediateValue) {
-			return immediateValue.getValue();
+			String result = immediateValue.getValue(immediateValuePrefix);
+			// You only need to set it for things that aren't # and it reverts
+			// back after you use it
+			setImmediateValuePrefix("#");
+			return result;
 		}
 
 		@Override
@@ -52,47 +62,49 @@ public class GenerateAssemblyBuilder {
 		}
 	}
 
-	private OperandVisitor<String> printOperand =  new IgnoringTemporariesVisitor(){
+	private OperandVisitor<String> printOperand = new IgnoringTemporariesVisitor() {
 		@Override
 		public String visit(TemporaryRegister temporaryRegister) {
 			return "T" + temporaryRegister.getN();
 		}
 	};
+
 	private Deque<PseudoInstruction> intermediateCode;
 	private int optimizationLevel = 0;
-	
+
 	public GenerateAssemblyBuilder ignoringTemporaries() {
 		printOperand = new IgnoringTemporariesVisitor();
 		return this;
 	}
-	
+
 	public GenerateAssembly make() {
 		GenerateAssembly gen = new GenerateAssembly();
 		final Map<Register, ArmRegister> mapping = new HashMap<>();
-		
-		if(optimizationLevel > 0) {
+
+		if (optimizationLevel > 0) {
 			ControlFlowGraph cfg = new ControlFlowGraph(intermediateCode);
 			InterferenceGraph ig = new InterferenceGraph(cfg);
 			InterferenceGraphColourer igc = new InterferenceGraphColourer(ig);
 			igc.generateTemporaryRegisterMappings(mapping);
-			printOperand = new IgnoringTemporariesVisitor(){
+			printOperand = new IgnoringTemporariesVisitor() {
 				@Override
 				public String visit(TemporaryRegister temporaryRegister) {
 					ArmRegister r = mapping.get(temporaryRegister);
-					if(r == null) throw new RuntimeException("no mapping for temporary register found");
+					if (r == null)
+						throw new RuntimeException(
+								"no mapping for temporary register found");
 					return visit(r);
 				}
 			};
 		}
-		
-		
+
 		gen.printOperand = printOperand;
 		return gen;
 	}
-	
+
 	public GenerateAssemblyBuilder withIntermediateCode(
 			Deque<PseudoInstruction> intermediateCode) {
-		this.intermediateCode = intermediateCode;	
+		this.intermediateCode = intermediateCode;
 		return this;
 	}
 

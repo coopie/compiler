@@ -22,6 +22,7 @@ import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
+import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
@@ -31,6 +32,11 @@ import wacc.slack.instructions.Swi;
 public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	private final class GetRegsIfAny implements OperandVisitor<List<Register>> {
+		@Override
+		public void setImmediateValuePrefix(String prefix) {
+			// TODO Auto-generated method stub
+			
+		}
 		@Override
 		public List<Register> visit(ArmRegister realRegister) {
 			return new LinkedList<Register>(
