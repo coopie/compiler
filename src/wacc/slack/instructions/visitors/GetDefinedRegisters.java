@@ -32,11 +32,7 @@ import wacc.slack.instructions.Swi;
 public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	private final class GetRegsIfAny implements OperandVisitor<List<Register>> {
-		@Override
-		public void setImmediateValuePrefix(String prefix) {
-			// TODO Auto-generated method stub
-			
-		}
+
 		@Override
 		public List<Register> visit(ArmRegister realRegister) {
 			return new LinkedList<Register>(

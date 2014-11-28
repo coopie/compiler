@@ -75,11 +75,6 @@ public class IntermediateCodeGenerator implements
 
 	private final class DefaultOperandVisitor implements
 			OperandVisitor<Operand> {
-		@Override
-		public void setImmediateValuePrefix(String prefix) {
-			// TODO Auto-generated method stub
-
-		}
 
 		@Override
 		public Operand visit(ArmRegister realRegister) {

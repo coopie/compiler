@@ -1,6 +1,5 @@
 package wacc.slack.instructions.visitors;
 
-import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.instructions.Add;
 import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
@@ -20,7 +19,7 @@ import wacc.slack.instructions.Swi;
 
 public class GenerateAssembly implements InstructionVistor<String> {
 
-	OperandVisitor<String> printOperand; 
+	IgnoringTemporariesVisitor printOperand; 
 	
 	GenerateAssembly () {
 		
