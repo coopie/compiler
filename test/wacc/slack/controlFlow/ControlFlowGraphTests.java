@@ -52,9 +52,9 @@ public class ControlFlowGraphTests {
 			addt
 			));
 	Map<CFGNode,Set<Register>> liveOutForProgramUsingTemporaries = new HashMap<CFGNode,Set<Register>>(){{
-		put(new CFGNode(0,movt),new HashSet<>(Arrays.asList((Register)t3,t4)) );
+		put(new CFGNode(2,movt),new HashSet<>(Arrays.asList((Register)t3,t4,t1,t2)) );
 		put(new CFGNode(1,cmpt),new HashSet<>(Arrays.asList((Register)t2,t1)) );
-		put(new CFGNode(2,addt),new HashSet<Register>());
+		put(new CFGNode(0,addt),new HashSet<Register>());
 			
 	}};
 	
@@ -81,6 +81,47 @@ public class ControlFlowGraphTests {
 	public void liveOutCorrectForPorgramUsingTemporaries() {
 		assertTrue(graphEquals(new ControlFlowGraph(programUsingTemporaries).getLiveOut(),liveOutForProgramUsingTemporaries));
 	
+	}
+	
+	@Test
+	public void liveOutCorrectForMovCmpAdd() {
+		final PseudoInstruction mov = new Mov(t1,t2);
+		final PseudoInstruction cmp = new Cmp(t4,t3);
+		final PseudoInstruction add = new Add(t4,t1,t2);
+		
+		
+		assertTrue(graphEquals(new ControlFlowGraph(new LinkedList<>(Arrays.asList(mov,cmp,add))).getLiveOut(),
+				new HashMap<CFGNode,Set<Register>>() {{
+				  put(new CFGNode(2,mov),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3,t4)));	
+				  put(new CFGNode(1,cmp),new HashSet<Register>(Arrays.asList((Register)t1,t2)));	
+				  put(new CFGNode(0,add),new HashSet<Register>());	
+				}}
+				));
+		
+	}
+	
+	@Test
+	public void canUseEqualsForSetsOfCFGNodes() {
+		assertThat(new HashSet<CFGNode>(Arrays.asList(new CFGNode(0,movt),new CFGNode(1,cmpt)))
+				.equals(
+				   new HashSet<CFGNode>(Arrays.asList(new CFGNode(0,movt),new CFGNode(1,cmpt)))),
+				is(true));
+	}
+	
+	@Test
+	public void canUseEqualsForKeySetsOfMaps() {
+		Map<CFGNode,Set<Register>> m1 =	new HashMap<CFGNode,Set<Register>>() {{
+				  put(new CFGNode(0,movt),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3,t4)));	
+				  put(new CFGNode(1,cmpt),new HashSet<Register>(Arrays.asList((Register)t1,t2)));	
+				}};
+	
+		Map<CFGNode,Set<Register>> m2 =	new HashMap<CFGNode,Set<Register>>() {{
+				put(new CFGNode(0,movt),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3,t4)));	
+				put(new CFGNode(1,cmpt),new HashSet<Register>(Arrays.asList((Register)t1,t2)));	
+			}};
+		
+	    assertTrue(m1.keySet().equals(m2.keySet()));
+		
 	}
 	
 	@Test

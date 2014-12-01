@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.abego.treelayout.internal.util.java.lang.IterableUtil;
+import org.abego.treelayout.internal.util.java.util.IteratorUtil;
+
 public abstract class AbstractGraph<T> implements Iterable<T>  {
 
 	private Map<T, Set<T>> graph = new HashMap<>();
@@ -57,8 +60,14 @@ public abstract class AbstractGraph<T> implements Iterable<T>  {
 		
 		return s;
 	}
-	
-	public static <T,R> boolean graphEquals(Map<T,Set<R>> g1, Map<T,Set<R>> g2) {
+	private static <E> E getNthElem(Iterator<E> i, int n) {
+		while(n > 0) {
+			i.next();
+			n--;
+		}
+		return i.next();
+	}
+	public static <T,R> boolean graphEquals(Map<T,Set<R>> g1, Map<T,Set<R>> g2) {		
 		if(!g1.keySet().equals(g2.keySet())) return false;
 		
 		for(T key : g1.keySet()) {

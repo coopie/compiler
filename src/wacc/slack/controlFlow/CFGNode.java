@@ -58,7 +58,7 @@ public class CFGNode {
 	
 	@Override
 	public int hashCode() {
-		return ps.hashCode()*6047 +  id*7823;
+		return (ps.hashCode()%15485863)*13 +  id*31;
 	}
 	
 }

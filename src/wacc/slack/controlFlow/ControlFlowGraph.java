@@ -105,9 +105,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		do {
 			for(CFGNode n : this) {
 				liveInN = liveIn.get(n);
-				liveInN.clear();
 				liveOutN = liveOut.get(n);
-				liveOutN.clear();
 			
 				//LiveIn(n) = uses(n) U (LiveOut(n) � defs(n))
 				
