@@ -26,6 +26,7 @@ import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
+import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.PseudoInstruction;
 public class ControlFlowGraphTests {
@@ -42,9 +43,12 @@ public class ControlFlowGraphTests {
 	TemporaryRegister t3 = trg.generate(1);
 	TemporaryRegister t4 = trg.generate(1);
 	
-	private PseudoInstruction movt = new Mov(t1, t2);
-	private PseudoInstruction cmpt = new Cmp(t4,t3);
-	private PseudoInstruction addt = new Add(t4, t1, t2);
+	private final PseudoInstruction movt = new Mov(t1, t2);
+	private final PseudoInstruction cmpt = new Cmp(t4,t3);
+	private final PseudoInstruction addt = new Add(t4, t1, t2);
+	private final PseudoInstruction ldrt = new Ldr(t2, t1);
+	private final Label whileStart = new Label("l1");
+	private final PseudoInstruction whileEnd = new BranchInstruction(Condition.GE, whileStart);
 	
 	Deque<PseudoInstruction> programUsingTemporaries = new LinkedList<>(Arrays.asList(
 			movt,
@@ -84,17 +88,16 @@ public class ControlFlowGraphTests {
 	}
 	
 	@Test
-	public void liveOutCorrectForMovCmpAdd() {
-		final PseudoInstruction mov = new Mov(t1,t2);
-		final PseudoInstruction cmp = new Cmp(t4,t3);
-		final PseudoInstruction add = new Add(t4,t1,t2);
+	public void liveOutCorrectForWhileStartMovCmpAddWhileEndLdr() {
 		
-		
-		assertTrue(graphEquals(new ControlFlowGraph(new LinkedList<>(Arrays.asList(mov,cmp,add))).getLiveOut(),
+		assertTrue(graphEquals(new ControlFlowGraph(new LinkedList<>(Arrays.asList(whileStart,movt,cmpt,addt,whileEnd,ldrt))).getLiveOut(),
 				new HashMap<CFGNode,Set<Register>>() {{
-				  put(new CFGNode(2,mov),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3,t4)));	
-				  put(new CFGNode(1,cmp),new HashSet<Register>(Arrays.asList((Register)t1,t2)));	
-				  put(new CFGNode(0,add),new HashSet<Register>());	
+				  put(new CFGNode(4,movt),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3,t4)));	
+				  put(new CFGNode(3,cmpt),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3)));	
+				  put(new CFGNode(2,addt),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3,t4)));	
+				  put(new CFGNode(1,whileEnd),new HashSet<Register>(Arrays.asList((Register)t1,t2,t3,t4)));	
+				  put(new CFGNode(0,ldrt),new HashSet<Register>());	
+					
 				}}
 				));
 		

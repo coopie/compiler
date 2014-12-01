@@ -93,8 +93,8 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 			Set<Register> set2 = new HashSet<Register>();
 			liveIn.put(n, set1);
 			liveOut.put(n,set2);
-			liveInPrevSize.put(n, set1);
-			liveOutPrevSize.put(n, set2);
+			liveInPrevSize.put(n, new HashSet<>(set1));
+			liveOutPrevSize.put(n, new HashSet<>(set2));
 		}
 		
 		Set<Register> liveInN; 
@@ -102,6 +102,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 		Set<Register> tmp;
 		Set<CFGNode> succN;
 		allRegisters = new HashSet<Register>();
+		numTimesSame = 0;
 		do {
 			for(CFGNode n : this) {
 				liveInN = liveIn.get(n);
@@ -128,7 +129,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				
 			}
 		}while(isChanged(liveIn,liveInPrevSize) ||  isChanged(liveOut,liveOutPrevSize));
-		//System.out.println(printGraph(liveIn));
+		System.out.println(printGraph(liveIn));
 		System.out.println(printGraph(liveOut));
 		
 		return liveOut;
@@ -140,7 +141,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 	
 	private int numTimesSame = 0;
 	<T,R> boolean isChanged(Map<T,Set<R>> graph, Map<T,Set<R>> previousSets) {
-		assert graph.keySet().equals(previousSets.keySet()): "must call isChanged with identical key sets";
+	/*	assert graph.keySet().equals(previousSets.keySet()): "must call isChanged with identical key sets";
 		
 		boolean changed = false;
 		for(T n : graph.keySet()) {
@@ -148,17 +149,20 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 			} else {
 				changed = true;
 			}
-			previousSets.put(n, graph.get(n));
+			previousSets.get(n).addAll(graph.get(n));
 			
 			
-		}
-		if(!changed) {
+		} */
+		if(graphEquals(graph, previousSets)) {
 			numTimesSame++;
-			return !(numTimesSame > 4);
 		}else {
 			numTimesSame = 0;
-			return !changed;
 		}
-		
+
+		for(T n : graph.keySet()) {
+			previousSets.get(n).addAll(graph.get(n));
+		}
+
+		return !(numTimesSame > 4);
 	}
 }
