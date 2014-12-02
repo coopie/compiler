@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,6 +26,7 @@ import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.visitors.GenerateAssembly;
 import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
+import wacc.slack.instructions.visitors.SimpleRegisterAllocator;
 import wacc.slack.instructions.visitors.TemporaryReplacer;
 import wacc.slack.interferenceGraph.InterferenceGraph;
 import wacc.slack.interferenceGraph.InterferenceGraphColourer;
@@ -125,7 +127,7 @@ public class Compiler {
 	}
 
 	private Deque<PseudoInstruction> doOptimisations(Deque<PseudoInstruction> intermediateCode, int optimizationLevel) {
-		if(optimizationLevel == 0) return intermediateCode;
+		if(optimizationLevel == 0) return simpleRegisterAllocation(intermediateCode);
 		
 		Deque<PseudoInstruction> codeWihtoutTemporaries = new LinkedList<>();
 		final Map<Register, ArmRegister> mapping = new HashMap<>();
@@ -138,6 +140,15 @@ public class Compiler {
 			codeWihtoutTemporaries.addAll(i.accept(new TemporaryReplacer(mapping)));
 		}
 		return codeWihtoutTemporaries;
+	}
+
+	private Deque<PseudoInstruction> simpleRegisterAllocation(
+			Deque<PseudoInstruction> intermediateCode) {
+		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>(); 
+		for (PseudoInstruction ps : intermediateCode) {
+			finalCode.addAll(ps.accept(new SimpleRegisterAllocator()));
+		}
+		return finalCode;
 	}
 
 }

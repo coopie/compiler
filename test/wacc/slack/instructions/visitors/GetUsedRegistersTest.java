@@ -1,6 +1,7 @@
 package wacc.slack.instructions.visitors;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -33,7 +34,7 @@ public class GetUsedRegistersTest {
 	Condition cond = Condition.AL;
 
 	@Test
-	public void MovInstructionDefinitions() {
+	public void MovInstructionUses() {
 		assertThat(new Mov(reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg1));
 	}
@@ -41,54 +42,54 @@ public class GetUsedRegistersTest {
 	// Binary ops
 
 	@Test
-	public void MulInstructionDefinitions() {
+	public void MulInstructionUses() {
 		assertThat(new Mul(destReg, reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg0, reg1));
 	}
 
 	@Test
-	public void AddInstructionDefinitions() {
+	public void AddInstructionUses() {
 		assertThat(new Add(destReg, reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg0, reg1));
 	}
 
 	@Test
-	public void SubInstructionDefinitions() {
+	public void SubInstructionUses() {
 		assertThat(new Sub(destReg, reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg0, reg1));
 	}
 
 	@Test
-	public void CmpInstructionDefinitions() {
+	public void CmpInstructionUses() {
 		assertThat(new Cmp(reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg0, reg1));
 	}
 
 	@Test
-	public void AndInstructionDefinitions() {
+	public void AndInstructionUses() {
 		assertThat(new And(destReg, reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg0, reg1));
 	}
 
 	@Test
-	public void OrrInstructionDefinitions() {
+	public void OrrInstructionUses() {
 		assertThat(new Orr(destReg, reg0, reg1).accept(new GetUsedRegisters()),
 				hasItems(reg0, reg1));
 	}
 
 	@Test
-	public void LabelInstructionDefinitions() {
+	public void LabelInstructionUses() {
 		assertTrue(new Label("label").accept(new GetUsedRegisters()).isEmpty());
 	}
 
 	@Test
-	public void BranchInstructionDefinitions() {
+	public void BranchInstructionUses() {
 		assertTrue(new BranchInstruction(cond, new Label(label)).accept(
 				new GetUsedRegisters()).isEmpty());
 	}
 	
 	@Test
-	public void StrInstructionDefinitions() {
+	public void StrInstructionUses() {
 		assertThat(new Str(reg1, reg0).accept(new GetUsedRegisters()),
 				hasItems(reg1, reg0));
 	}
@@ -100,13 +101,13 @@ public class GetUsedRegistersTest {
 	}
 	
 	@Test
-	public void PushInstructionDefinitions() {
+	public void PushInstructionUses() {
 		assertThat(new Push(reg0).accept(new GetUsedRegisters()),
 				hasItems(reg0));
 	}
 	
 	@Test
-	public void PopInstructionDefinitions() {
+	public void PopInstructionUses() {
 		assertThat(new Pop(reg0).accept(new GetUsedRegisters()),
 				hasItems(reg0));
 	}
