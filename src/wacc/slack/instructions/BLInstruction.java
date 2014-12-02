@@ -5,10 +5,15 @@ import wacc.slack.instructions.visitors.InstructionVistor;
 public class BLInstruction implements PseudoInstruction {
 
 	private final String string;
-
+	private Condition cond = Condition.AL;
+	
 	public BLInstruction(String string) {
 		this.string = string;
-		// TODO Auto-generated constructor stub
+	}
+	
+	public BLInstruction(String string, Condition cond) {
+		this.string = string;
+		this.cond = cond;
 	}
 
 	@Override

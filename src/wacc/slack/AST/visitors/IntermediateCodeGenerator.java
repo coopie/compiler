@@ -2,6 +2,7 @@ package wacc.slack.AST.visitors;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.WaccAST;
@@ -17,6 +18,7 @@ import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
+import wacc.slack.AST.literals.StringLiter;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
@@ -73,6 +75,18 @@ public class IntermediateCodeGenerator implements
 	private static final Label TRUE_LABEL = new Label("l_true");
 	private static final Label FALSE_LABEL = new Label("l_false");
 
+	// To print error messages, get a printstatementast.accept and add it to
+	// instrList
+	private static final PrintStatementAST NEGATIVE_INDEX_ERROR = new PrintStatementAST(
+			new ValueExprAST(new StringLiter(
+					"\"ArrayOutOfBoundsException: negative index.\"", null), null),
+			null);
+
+	private static final PrintStatementAST LARGE_INDEX_ERROR = new PrintStatementAST(
+			new ValueExprAST(new StringLiter(
+					"\"ArrayOutOfBoundsException: index too large.\"", null), null),
+			null);
+
 	private final class DefaultOperandVisitor implements
 			OperandVisitor<Operand> {
 
@@ -107,6 +121,8 @@ public class IntermediateCodeGenerator implements
 	}
 
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
+	private Deque<PseudoInstruction> compilerDefinedFunctions = new LinkedList<>();
+
 	private Register returnedOperand = null;
 
 	/*
@@ -115,12 +131,6 @@ public class IntermediateCodeGenerator implements
 	 */
 	private int weight = 0;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
-
-	@Override
-	public Deque<PseudoInstruction> visit(FuncAST func) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(ProgramAST prog) {
@@ -140,6 +150,10 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(prog.getStatements().accept(this));
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue("0")));
 		instrList.add(new Pop(ArmRegister.pc));
+
+		initCompilerDefinedFunctions();
+		instrList.addAll(compilerDefinedFunctions);
+
 		instrList.add(new AssemblerDirective(".text"));
 		initTextSection();
 		instrList.addAll(textSection);
@@ -149,31 +163,104 @@ public class IntermediateCodeGenerator implements
 
 	private void initTextSection() {
 		textSection.add(new Label(NEW_LINE_CHAR));
-		textSection.add(new AssemblerDirective(".ascii \"\\n\\0\""));
+		textSection.add(new AssemblerDirective("\t.ascii \"\\n\\0\""));
 
 		textSection.add(new Label(STRING_FORMAT_LABEL));
-		textSection.add(new AssemblerDirective(".ascii \"%s\\0\""));
+		textSection.add(new AssemblerDirective("\t.ascii \"%s\\0\""));
 
 		textSection.add(new Label(CHAR_FORMAT_LABEL));
-		textSection.add(new AssemblerDirective(".ascii \"%c\\0\""));
+		textSection.add(new AssemblerDirective("\t.ascii \"%c\\0\""));
 
 		textSection.add(new Label(INT_FORMAT_LABEL));
-		textSection.add(new AssemblerDirective(".ascii \"%d\\0\""));
+		textSection.add(new AssemblerDirective("\t.ascii \"%d\\0\""));
 
 		textSection.add(new Label(TRUE_LABEL.getName()));
-		textSection.add(new AssemblerDirective(".ascii \"true\\0\""));
+		textSection.add(new AssemblerDirective("\t.ascii \"true\\0\""));
 
 		textSection.add(new Label(FALSE_LABEL.getName()));
-		textSection.add(new AssemblerDirective(".ascii \"false\\0\""));
-
+		textSection.add(new AssemblerDirective("\t.ascii \"false\\0\""));
 	}
 
-	/*
-	 * private void divideByZeroMethod() {
-	 * 
-	 * 
-	 * }
-	 */
+	// COMPILER ADDED FUNCTIONS
+	// ie. p_check_array_bounds etc
+
+	private void initCompilerDefinedFunctions() {
+
+		// TODO: Make sure checkArrayBoundsAsm() is only added when an array elem is seen in the code
+		if (true) {
+			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
+		}
+		
+	}
+
+	// Needs to be added explicitly when an array elem is used
+	private Deque<PseudoInstruction> checkArrayBoundsAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_check_array_bounds"));
+		instrList.add(new Push(ArmRegister.lr));
+
+		// Check and see if the index is negative
+		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
+		instrList.add(new BLInstruction("p_negative_index_exception",
+				Condition.LT));
+
+		// Check and see if the index is too large
+		instrList.add(new Ldr(ArmRegister.r1, new Address(ArmRegister.r1)));
+		instrList.add(new Cmp(ArmRegister.r0, ArmRegister.r1));
+		instrList
+				.add(new BLInstruction("p_large_index_exception", Condition.CS));
+
+		instrList.add(new Pop(ArmRegister.pc));
+
+		// If checkArrayBounds is called, it will need negative and
+		// largeIndexExceptionAsm
+		instrList.addAll(negativeIndexExceptionAsm());
+		instrList.addAll(largeIndexExceptionAsm());
+
+		return instrList;
+	}
+
+	// Do not add explicitly
+	private Deque<PseudoInstruction> negativeIndexExceptionAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_negative_index_exception"));
+		instrList.addAll(NEGATIVE_INDEX_ERROR.accept(this));
+
+		// Exit the program
+		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
+		instrList.add(new BLInstruction("exit"));
+
+		return instrList;
+	}
+
+	// Do not add explicitly
+	private Deque<PseudoInstruction> largeIndexExceptionAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_large_index_exception"));
+		instrList.addAll(LARGE_INDEX_ERROR.accept(this));
+
+		// Exit the program
+		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
+		instrList.add(new BLInstruction("exit"));
+
+		return instrList;
+	}
+
+	// TODO: Implement this
+	private Deque<PseudoInstruction> checkDivideByZeroAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_check_divide_by_zero"));
+		instrList.add(new Push(ArmRegister.lr));
+
+		instrList.add(new Pop(ArmRegister.pc));
+		return instrList;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(FuncAST func) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(StatListAST statAST) {
@@ -323,11 +410,8 @@ public class IntermediateCodeGenerator implements
 
 		// TODO: fill in the null here for the operand visitor of the expression
 		instrList.addAll(exitStat.getExpr().accept(this));
-
 		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
-
 		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
-
 		instrList.add(new Swi());
 
 		return instrList;
