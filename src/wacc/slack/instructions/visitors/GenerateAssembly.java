@@ -36,6 +36,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Mov mov) {
+		printOperand.setImmediateValuePrefix("#");
 		return newLine(4) + "MOV " + mov.getDest().accept(printOperand) + ", "
 				+ mov.getSource().accept(printOperand);
 	}

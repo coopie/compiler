@@ -1,16 +1,6 @@
 package wacc.slack.instructions.visitors;
 
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
-
-import wacc.slack.assemblyOperands.ArmRegister;
-import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
-import wacc.slack.controlFlow.ControlFlowGraph;
-import wacc.slack.instructions.PseudoInstruction;
-import wacc.slack.interferenceGraph.InterferenceGraph;
-import wacc.slack.interferenceGraph.InterferenceGraphColourer;
 
 public class GenerateAssemblyBuilder {
 
