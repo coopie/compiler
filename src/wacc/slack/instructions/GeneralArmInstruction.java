@@ -1,5 +1,6 @@
 package wacc.slack.instructions;
 
+import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.Operand;
 
 abstract class GeneralArmInstruction {
@@ -11,13 +12,13 @@ abstract class GeneralArmInstruction {
 	
 	public GeneralArmInstruction(Operand dest, Operand source) {
 		this.source = source;
-		this.source2 = null;
+		this.source2 = new NoOperand();
 		this.dest = dest;
 	}
 	
 	public GeneralArmInstruction(Operand dest, Operand source, Condition cond) {
 		this.source = source;
-		this.source2 = null;
+		this.source2 = new NoOperand();
 		this.dest = dest;
 		this.cond = cond;
 	}

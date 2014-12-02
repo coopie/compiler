@@ -3,6 +3,7 @@ package wacc.slack.instructions.visitors;
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
+import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.instructions.Label;
@@ -56,6 +57,11 @@ public class IgnoringTemporariesVisitor implements OperandVisitor<String> {
 			// TODO: If we need this
 			return null;
 		}
+	}
+
+	@Override
+	public String visit(NoOperand noOperand) {
+		return "";
 	}
 
 }

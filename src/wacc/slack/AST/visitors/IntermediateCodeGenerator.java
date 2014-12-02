@@ -38,6 +38,7 @@ import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
+import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
@@ -119,6 +120,12 @@ public class IntermediateCodeGenerator implements
 			return null;
 		}
 
+		@Override
+		public Operand visit(NoOperand noOperand) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
@@ -146,10 +153,14 @@ public class IntermediateCodeGenerator implements
 		// --- implementation of the "main" function, i.e. the stats after the
 		// function definitions
 
+		Operand stackSpace = new ImmediateValue(trg);
+		
 		instrList.add(new Label("main"));
 		instrList.add(new Push(ArmRegister.lr));
+		instrList.add(new Sub(ArmRegister.sp, stackSpace));
 		instrList.addAll(prog.getStatements().accept(this));
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue("0")));
+		instrList.add(new Add(ArmRegister.sp, stackSpace));
 		instrList.add(new Pop(ArmRegister.pc));
 
 		initCompilerDefinedFunctions();

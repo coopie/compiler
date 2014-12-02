@@ -1,5 +1,6 @@
 package wacc.slack.instructions;
 
+import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.instructions.visitors.InstructionVistor;
 
@@ -7,6 +8,10 @@ public class Add extends GeneralArmInstruction implements PseudoInstruction {
 	
 	public Add(Operand dest, Operand source, Operand source2) {
 		super(dest, source, source2);
+	}
+
+	public Add(Operand sp, Operand stackSpace) {
+		super(sp,stackSpace);
 	}
 
 	@Override

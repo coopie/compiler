@@ -1,5 +1,6 @@
 package wacc.slack.instructions.visitors;
 
+import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.instructions.Add;
 import wacc.slack.instructions.And;
 import wacc.slack.instructions.AssemblerDirective;
@@ -92,38 +93,41 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(And and) {
-		return newLine(4) + "AND " + and.getDest().accept(printOperand) + ", "
-				+ and.getSource().accept(printOperand) + ", "
-				+ and.getSource2().accept(printOperand);
+		return concatOperands("AND ", and.getDest(), and.getSource(), and.getSource2());
 	}
 
 	@Override
 	public String visit(Orr or) {
-		return newLine(4) + "ORR " + or.getDest().accept(printOperand) + ", "
-				+ or.getSource().accept(printOperand) + ", "
-				+ or.getSource2().accept(printOperand);
+		return concatOperands("ORR ", or.getDest(), or.getSource(), or.getSource2());
 	}
 
 	@Override
 	public String visit(Mul mul) {
-		return newLine(4) + "MUL " + mul.getDest().accept(printOperand) + ", "
-				+ mul.getSource().accept(printOperand) + ", "
-				+ mul.getSource2().accept(printOperand);
+		return concatOperands("MUL ", mul.getDest(), mul.getSource(), mul.getSource2());
 	}
 
 	@Override
 	public String visit(Add add) {
-		return newLine(4) + "ADD " + add.getDest().accept(printOperand) + ", "
-				+ add.getSource().accept(printOperand) + ", "
-				+ add.getSource2().accept(printOperand);
+		return concatOperands("ADD ", add.getDest(), add.getSource(), add.getSource2());
 	}
 
 	@Override
 	public String visit(Sub sub) {
-		return newLine(4) + "SUB " + sub.getDest().accept(printOperand) + ", "
-				+ sub.getSource().accept(printOperand) + ", "
-				+ sub.getSource2().accept(printOperand);
+		return concatOperands("SUB ", sub.getDest(), sub.getSource(), sub.getSource2());	
+	}
 
+	private String concatOperands(String instr, Operand dest, Operand source,
+			Operand source2) {
+		
+		String base = newLine(4) + instr + dest.accept(printOperand) + ", "
+								+ source.accept(printOperand);
+		String source2String = source2.accept(printOperand);
+		if(source2String == "") {
+			return base;
+		} else {
+			return base + ", " + source2String;
+		}
+		
 	}
 
 	@Override

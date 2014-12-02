@@ -11,6 +11,7 @@ import java.util.Set;
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
+import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
@@ -155,6 +156,11 @@ public class InterferenceGraphColourer {
 				@Override
 				public Boolean visit(Address address) {
 					return address.getRegister().accept(this);
+				}
+
+				@Override
+				public Boolean visit(NoOperand noOperand) {
+					return false;
 				}
 				})) {
 				armRegisterNodes.add(n);

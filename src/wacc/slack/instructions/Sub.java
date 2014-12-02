@@ -8,6 +8,10 @@ public class Sub extends GeneralArmInstruction implements PseudoInstruction {
 	public Sub(Operand dest, Operand source, Operand source2) {
 		super(dest, source, source2);
 	}
+	
+	public Sub(Operand dest, Operand source) {
+		super(dest, source);
+	}
 
 	@Override
 	public <T> T accept(InstructionVistor<T> visitor) {

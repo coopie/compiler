@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
+import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.Operand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
@@ -34,8 +35,12 @@ public class SimpleRegisterAllocator implements InstructionVistor<Deque<PseudoIn
 
 	//currently we need 3 registers, these registers may well need to be changed to combat problems with 
 	// other uses
+	
+	//assumed destination
 	private final Register RA = ArmRegister.r7;
+	//assumed source1
 	private final Register RB = ArmRegister.r8;
+	//assumed source2
 	private final Register RC = ArmRegister.r9;
 	
 	@Override
@@ -275,6 +280,11 @@ public class SimpleRegisterAllocator implements InstructionVistor<Deque<PseudoIn
 			public Integer visit(Address address) {
 				//TODO: won't work with register offest
 				return address.getRegister().accept(this);
+			}
+
+			@Override
+			public Integer visit(NoOperand noOperand) {
+				return -1;
 			}
 
 		
