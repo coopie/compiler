@@ -384,19 +384,31 @@ public class IntermediateCodeGenerator implements
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
 
-		instr.addLast(new Mov(ArmRegister.r1, retReg));
+		
+		
 		if (t.equals(BaseType.T_int)) {
+			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					INT_FORMAT_LABEL)));
 		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
+			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					STRING_FORMAT_LABEL)));
 		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
+			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					CHAR_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_bool)) {
-			// TODO:
-			// instr.addLast(new Mov(ArmRegister.r0, retReg));
+			Label falsel = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+			Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+			instr.addLast(new Cmp(retReg, new ImmediateValue(0)));
+			instr.addLast(new BranchInstruction(Condition.EQ, falsel));
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(TRUE_LABEL.getName())));
+			instr.addLast(new BranchInstruction(Condition.AL, end));
+			instr.addLast(falsel);
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(FALSE_LABEL.getName())));
+			instr.addLast(end);
+			
 		}
 
 		instr.addLast(new BLInstruction("printf"));
