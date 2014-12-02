@@ -41,12 +41,11 @@ public class IgnoringTemporariesVisitor implements OperandVisitor<String> {
 
 	@Override
 	public String visit(Address address) {
-
 		if ((address.getOffset() == null || address.getOffset() == 0)
 				&& (address.getRegOffset() == null)) {
 			return "[" + address.getRegister().accept(this) + "]";
 		} else if (address.getOffset() != null && address.getOffset() != 0
-				&& address.getRegOffset() != null) {
+				&& address.getRegOffset() == null) {
 			return "[" + address.getRegister().accept(this) + ", #"
 					+ address.getOffset() + "]";
 		} else if ((address.getOffset() == null || address.getOffset() == 0)
@@ -57,7 +56,6 @@ public class IgnoringTemporariesVisitor implements OperandVisitor<String> {
 			// TODO: If we need this
 			return null;
 		}
-
 	}
 
 }

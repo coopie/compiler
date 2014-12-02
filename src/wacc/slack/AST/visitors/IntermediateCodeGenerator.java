@@ -136,15 +136,10 @@ public class IntermediateCodeGenerator implements
 		// function definitions
 
 		instrList.add(new Label("main"));
-
 		instrList.add(new Push(ArmRegister.lr));
-
 		instrList.addAll(prog.getStatements().accept(this));
-
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue("0")));
-
 		instrList.add(new Pop(ArmRegister.pc));
-
 		instrList.add(new AssemblerDirective(".text"));
 		initTextSection();
 		instrList.addAll(textSection);
@@ -363,23 +358,25 @@ public class IntermediateCodeGenerator implements
 		// ldr tr1, [sp]
 		// ldr tr1, [tr1 + typeSize * index]
 		// mov destReg, tr1
-		
+
 		// register where array is stored
 		Register array = arrayElem.getScope().lookup(arrayElem.getName())
 				.getTemporaryRegister();
 
 		for (int i = 0; i < arrayElem.getExprs().size(); i++) {
 			instrList.addAll(arrayElem.getExprs().get(i).accept(this));
-			
+
 			// Move the index to trOffset
 			instrList.add(new Mov(trOffset, returnedOperand));
 			// Mul the index with the typeSize to get the offset
-			instrList.add(new Mul(trOffset, trOffset, new ImmediateValue(typeSize)));
+			instrList.add(new Mul(trOffset, trOffset, new ImmediateValue(
+					typeSize)));
 
-			// Load array element at offset into array (assuming it will be another array address
+			// Load array element at offset into array (assuming it will be
+			// another array address
 			instrList.add(new Ldr(array, new Address(array, trOffset)));
 		}
-		
+
 		// Array element is not another array element
 		instrList.add(new Mov(destReg, array));
 
@@ -665,8 +662,12 @@ public class IntermediateCodeGenerator implements
 		// Literal is added to the .data section
 		textSection.add(literalLabel);
 
-		// If it is a string literal
-		if (valueExpr.getType().equals(new WaccArrayType(BaseType.T_char))) {
+		// TODO: Need to do the same thing for pairs
+		if (valueExpr.getLiter() instanceof ArrayElemAST) {
+			instrList
+					.addAll(((ArrayElemAST) valueExpr.getLiter()).accept(this));
+		} else if (valueExpr.getType().equals(
+				new WaccArrayType(BaseType.T_char))) {
 			textSection.add(new AssemblerDirective(".ascii \""
 					+ valueExpr.getValue() + "\\0\""));
 			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel

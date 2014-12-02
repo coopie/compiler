@@ -19,12 +19,12 @@ import wacc.slack.instructions.Swi;
 
 public class GenerateAssembly implements InstructionVistor<String> {
 
-	IgnoringTemporariesVisitor printOperand; 
-	
-	GenerateAssembly () {
-		
+	IgnoringTemporariesVisitor printOperand;
+
+	GenerateAssembly() {
+
 	}
-	
+
 	private String newLine(int indent) {
 		String s = "\n";
 		for (int i = 0; i < indent; i++) {
@@ -81,8 +81,8 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Cmp cmp) {
-		return newLine(4) + "CMP " + cmp.getDest().accept(printOperand)
-				+ ", " + cmp.getSource().accept(printOperand);
+		return newLine(4) + "CMP " + cmp.getDest().accept(printOperand) + ", "
+				+ cmp.getSource().accept(printOperand);
 	}
 
 	@Override
