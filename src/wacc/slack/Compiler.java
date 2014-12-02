@@ -130,8 +130,7 @@ public class Compiler {
 	private Deque<PseudoInstruction> doOptimisations(
 			Deque<PseudoInstruction> intermediateCode, int optimizationLevel) {
 		if (optimizationLevel == 0) {
-			return intermediateCode;
-			// return simpleRegisterAllocation(intermediateCode);
+			return simpleRegisterAllocation(intermediateCode);
 		}
 
 		Deque<PseudoInstruction> codeWithoutTemporaries = new LinkedList<>();
@@ -153,7 +152,8 @@ public class Compiler {
 		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>();
 		for (PseudoInstruction ps : intermediateCode) {
 			finalCode.addAll(ps.accept(new SimpleRegisterAllocator()));
-			finalCode.add(new AssemblerDirective("\n")); // for debugging purposes
+			finalCode.add(new AssemblerDirective("\n")); // for debugging
+															// purposes
 		}
 		return finalCode;
 	}

@@ -117,8 +117,19 @@ InterferenceGraphColourer
   stored in memory.
 - 
 
+TESTS PASSING:
 
-    
+basic*
+
+expressions/plusExpr.wacc
+expressions/minusExpr.wacc
+expressions/multExpr.wacc
+
+IO/print/print.wacc
+IO/print/println.wacc
+IO/print/printInt.wacc
+IO/print/stringAssignmentWithPrint.wacc 
+
     
     
     

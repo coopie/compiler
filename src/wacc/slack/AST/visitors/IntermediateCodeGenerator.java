@@ -2,7 +2,6 @@ package wacc.slack.AST.visitors;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.WaccAST;
@@ -18,8 +17,8 @@ import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
-import wacc.slack.AST.literals.StringLiter;
 import wacc.slack.AST.literals.PairLiter;
+import wacc.slack.AST.literals.StringLiter;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
@@ -412,8 +411,7 @@ public class IntermediateCodeGenerator implements
 		// TODO: fill in the null here for the operand visitor of the expression
 		instrList.addAll(exitStat.getExpr().accept(this));
 		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
-		instrList.add(new Mov(ArmRegister.r7, new ImmediateValue(0)));
-		instrList.add(new Swi());
+		instrList.add(new BLInstruction("exit"));
 
 		return instrList;
 	}
@@ -618,20 +616,20 @@ public class IntermediateCodeGenerator implements
 		switch (binExpr.getBinaryOp()) {
 		case MUL:
 			// add destReg trL trR
-			instrList.add(new Add(destReg, exprRegL, exprRegR));
-
+			instrList.add(new Mul(destReg, exprRegL, exprRegR));
+			break;
 		case DIV:
-
+			break;
 		case MOD:
-
+			break;
 		case PLUS:
 			// add destReg trL trR
 			instrList.add(new Add(destReg, exprRegL, exprRegR));
-
+			break;
 		case MINUS:
 			// sub destReg trL trR
 			instrList.add(new Sub(destReg, exprRegL, exprRegR));
-
+			break;
 		case GT:
 			// cmp trL trR
 			// movgt destReg, #1
@@ -641,7 +639,7 @@ public class IntermediateCodeGenerator implements
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.GT));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.LE));
-
+			break;
 		case GTE:
 			// cmp trL trR
 			// movge destReg, #1
@@ -651,7 +649,7 @@ public class IntermediateCodeGenerator implements
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.GE));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.LT));
-
+			break;
 		case LT:
 			// cmp trL trR
 			// movlt destReg, #1
@@ -661,7 +659,7 @@ public class IntermediateCodeGenerator implements
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LT));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.GE));
-
+			break;
 		case LTE:
 			// cmp trL trR
 			// movle destReg, #1
@@ -671,7 +669,7 @@ public class IntermediateCodeGenerator implements
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LE));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.GT));
-
+			break;
 		case EQ:
 			// cmp trL trR
 			// moveq destReg, #1
@@ -681,7 +679,7 @@ public class IntermediateCodeGenerator implements
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.EQ));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.NE));
-
+			break;
 		case NEQ:
 			// cmp trL trR
 			// movne destReg, #1
@@ -691,14 +689,15 @@ public class IntermediateCodeGenerator implements
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.NE));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.EQ));
-
+			break;
 		case AND:
 			// and destReg trL trR
 			instrList.add(new And(destReg, exprRegL, exprRegR));
-
+			break;
 		case OR:
 			// and destReg trL trR
 			instrList.add(new Orr(destReg, exprRegL, exprRegR));
+			break;
 		}
 
 		returnedOperand = destReg;
@@ -718,19 +717,19 @@ public class IntermediateCodeGenerator implements
 		case NOT:
 			// and tr tr 0
 			instrList.add(new And(tr, tr, new ImmediateValue(0)));
-
+			break;
 		case MINUS:
 			// sub tr 0 tr
 			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
-
+			break;
 		case LEN:
 			// ldr tr, [tr] (the element at index 0 is the length)
 			instrList.add(new Ldr(tr, new Address(tr, 0)));
-
+			break;
 		case ORD:
-
+			break;
 		case CHR:
-
+			break;
 		}
 
 		returnedOperand = tr;

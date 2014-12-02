@@ -83,7 +83,7 @@ public class SimpleRegisterAllocator implements InstructionVistor<Deque<PseudoIn
 
 	@Override
 	public Deque<PseudoInstruction> visit(Swi swi) {
-		throw new RuntimeException("SWI not implemented");
+		return new LinkedList<>(Arrays.asList((PseudoInstruction)swi));
 	}
 
 	@Override
