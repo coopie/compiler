@@ -23,6 +23,7 @@ import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.errorHandling.WaccSyntaxtErrorListner;
 import wacc.slack.errorHandling.errorRecords.ErrorRecordPrinter;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
+import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.visitors.GenerateAssembly;
 import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
@@ -147,6 +148,7 @@ public class Compiler {
 		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>(); 
 		for (PseudoInstruction ps : intermediateCode) {
 			finalCode.addAll(ps.accept(new SimpleRegisterAllocator()));
+			finalCode.add(new AssemblerDirective("\n")); // for debugging purposes
 		}
 		return finalCode;
 	}

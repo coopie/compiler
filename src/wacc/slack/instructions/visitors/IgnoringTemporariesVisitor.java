@@ -46,7 +46,7 @@ public class IgnoringTemporariesVisitor implements OperandVisitor<String> {
 				&& (address.getRegOffset() == null)) {
 			return "[" + address.getRegister().accept(this) + "]";
 		} else if (address.getOffset() != null && address.getOffset() != 0
-				&& address.getRegOffset() != null) {
+				&& address.getRegOffset() == null) {
 			return "[" + address.getRegister().accept(this) + ", #"
 					+ address.getOffset() + "]";
 		} else if ((address.getOffset() == null || address.getOffset() == 0)

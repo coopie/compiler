@@ -13,5 +13,9 @@ public class Sub extends GeneralArmInstruction implements PseudoInstruction {
 	public <T> T accept(InstructionVistor<T> visitor) {
 		return visitor.visit(this);
 	}
+	
+	public Operand getSource2() {
+		return super.getSource2();
+	}
 }
  

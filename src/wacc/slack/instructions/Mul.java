@@ -14,4 +14,7 @@ public class Mul extends GeneralArmInstruction implements PseudoInstruction {
 		return visitor.visit(this);
 	}
 
+	public Operand getSource2() {
+		return super.getSource2();
+	}
 }
