@@ -51,4 +51,8 @@ public class ValueExprAST implements ExprAST {
 	public List<WaccAST> getChildren() {
 		return new LinkedList<WaccAST>();
 	}
+
+	public Liter getLiter() {
+		return liter;
+	}
 }

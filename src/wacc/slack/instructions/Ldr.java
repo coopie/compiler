@@ -9,6 +9,10 @@ public class Ldr extends GeneralArmInstruction implements PseudoInstruction {
 		super(dest, source);
 	}
 
+	public Ldr(Operand dest, Operand source, Condition cond) {
+		super(dest, source, cond);
+	}
+	
 	@Override
 	public <T> T accept(InstructionVistor<T> visitor) {
 		return visitor.visit(this);

@@ -9,8 +9,8 @@ public class Mov extends GeneralArmInstruction implements PseudoInstruction {
 		super(dest, source);
 	}
 
-	public Mov(Operand dest, Operand source, Condition ge) {
-		super(dest, source);
+	public Mov(Operand dest, Operand source, Condition cond) {
+		super(dest, source, cond);
 	}
 
 	@Override

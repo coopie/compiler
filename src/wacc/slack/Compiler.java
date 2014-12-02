@@ -40,40 +40,40 @@ public class Compiler {
 		String inputFile = null;
 		String outputFile = null;
 		Compiler compiler = new Compiler();
-		
+
 		if (args.length > 0) {
 			inputFile = args[0];
-			
+
 			if (!args[0].endsWith(".wacc")) {
 				throw new RuntimeException(
 						"File to compile must end with \".wacc\"");
 			}
-			
+
 			outputFile = args[0].substring(0, args[0].length() - 5) + ".s";
 		}
-		
+
 		InputStream is = System.in;
-		
+
 		if (inputFile != null) {
 			is = new FileInputStream(inputFile);
 		}
-		
+
 		PrintStream out = new PrintStream(new File(outputFile));
-		
+
 		out.print(compiler.compile(is));
-		
+
 		out.print('\n');
 		out.close();
-		
+
 		System.exit(0);
 	}
-	
+
 	public Compiler() {
-		
+
 	}
-	
+
 	public String compile(InputStream is) throws Exception {
-		
+
 		ANTLRInputStream input = new ANTLRInputStream(is);
 		WaccLexer lexer = new WaccLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -83,7 +83,7 @@ public class Compiler {
 		ParseTree tree = parser.program();
 		WaccAST ast = null;
 		ASTBuilder builder = new ASTBuilder();
-		
+
 		try {
 			ast = (WaccAST) tree.accept(builder);
 		} catch (NullPointerException e) {
@@ -92,7 +92,7 @@ public class Compiler {
 				throw e;
 			}
 		}
-		
+
 		ErrorRecords.getInstance().setScope(builder.getScope());
 
 		if (!ErrorRecords.getInstance().isErrorFree()) {
@@ -102,50 +102,55 @@ public class Compiler {
 			System.exit(ErrorRecords.getInstance().getExitCode());
 		}
 
-		Deque<PseudoInstruction> intermediateCode = ast.accept(new IntermediateCodeGenerator());
-		
+		Deque<PseudoInstruction> intermediateCode = ast
+				.accept(new IntermediateCodeGenerator());
+
 		int optimisationLevel = 0;
-		intermediateCode = doOptimisations(intermediateCode,optimisationLevel);
-		
-		GenerateAssembly psuedoInstructionVisitor 
-			= new GenerateAssemblyBuilder()
-					//.ignoringTemporaries()
-					.withOptimisationLevel(optimisationLevel)
-					.make();
-		
+		intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
+
+		GenerateAssembly psuedoInstructionVisitor = new GenerateAssemblyBuilder()
+		// .ignoringTemporaries()
+				.withOptimisationLevel(optimisationLevel).make();
+
 		String output = "";
-		
-		// insert pseudoinstruction code change from temporary register allocation here
-		
-		// realCode = 
-		
-		// 
-		for(PseudoInstruction i : intermediateCode) {
+
+		// insert pseudoinstruction code change from temporary register
+		// allocation here
+
+		// realCode =
+
+		//
+		for (PseudoInstruction i : intermediateCode) {
 			output += i.accept(psuedoInstructionVisitor);
 		}
-		
+
 		return output;
 	}
 
-	private Deque<PseudoInstruction> doOptimisations(Deque<PseudoInstruction> intermediateCode, int optimizationLevel) {
-		if(optimizationLevel == 0) return simpleRegisterAllocation(intermediateCode);
-		
-		Deque<PseudoInstruction> codeWihtoutTemporaries = new LinkedList<>();
+	private Deque<PseudoInstruction> doOptimisations(
+			Deque<PseudoInstruction> intermediateCode, int optimizationLevel) {
+		if (optimizationLevel == 0) {
+			return intermediateCode;
+			// return simpleRegisterAllocation(intermediateCode);
+		}
+
+		Deque<PseudoInstruction> codeWithoutTemporaries = new LinkedList<>();
 		final Map<Register, ArmRegister> mapping = new HashMap<>();
 		ControlFlowGraph cfg = new ControlFlowGraph(intermediateCode);
 		InterferenceGraph ig = new InterferenceGraph(cfg);
 		InterferenceGraphColourer igc = new InterferenceGraphColourer(ig);
 		igc.generateTemporaryRegisterMappings(mapping);
-	
-		for(PseudoInstruction i : intermediateCode) {
-			codeWihtoutTemporaries.addAll(i.accept(new TemporaryReplacer(mapping)));
+
+		for (PseudoInstruction i : intermediateCode) {
+			codeWithoutTemporaries.addAll(i.accept(new TemporaryReplacer(
+					mapping)));
 		}
-		return codeWihtoutTemporaries;
+		return codeWithoutTemporaries;
 	}
 
 	private Deque<PseudoInstruction> simpleRegisterAllocation(
 			Deque<PseudoInstruction> intermediateCode) {
-		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>(); 
+		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>();
 		for (PseudoInstruction ps : intermediateCode) {
 			finalCode.addAll(ps.accept(new SimpleRegisterAllocator()));
 			finalCode.add(new AssemblerDirective("\n")); // for debugging purposes

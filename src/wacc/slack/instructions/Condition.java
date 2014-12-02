@@ -4,7 +4,7 @@ package wacc.slack.instructions;
 // add it!
 
 public enum Condition {
-	EQ, NE, GT, GE, LT, LE, AL;
+	EQ, NE, GT, GE, LT, LE, AL, CS;
 
 	@Override
 	public String toString() {

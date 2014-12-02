@@ -6,6 +6,11 @@ public class Address implements Operand {
 	private Integer offset;
 	private Register regOffset;
 	
+	public Address(Register r) {
+		this.r = r;
+		this.offset = 0;
+	} 
+	
 	public Address(Register r, int offset) {
 		this.r = r;
 		this.offset = offset;
