@@ -3,7 +3,6 @@ package wacc.slack.interferenceGraph;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -15,18 +14,25 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.generators.TemporaryRegisterGenerator;
 import wacc.slack.instructions.Add;
+import wacc.slack.instructions.And;
 import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
+import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
+import wacc.slack.instructions.Mul;
+import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.PseudoInstruction;
+import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 
 public class InterferenceGraphTest {
@@ -35,6 +41,7 @@ public class InterferenceGraphTest {
 	private PseudoInstruction mov = new Mov(ArmRegister.r0, ArmRegister.r1);
 	private PseudoInstruction cmp = new Cmp(ArmRegister.r0,ArmRegister.r1);
 	private PseudoInstruction add = new Add(ArmRegister.r2, ArmRegister.r1, ArmRegister.r3);
+	private PseudoInstruction str = new Str(new Address(ArmRegister.r1, 0), ArmRegister.r2);
 	private BranchInstruction branchStart = new BranchInstruction(Condition.LT,new Label("start"));
 	
 	
@@ -57,7 +64,7 @@ public class InterferenceGraphTest {
 	
 	public InterferenceGraph simpleGraph() {
 		Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
-				mov, cmp, add
+				mov, cmp, add, str
 				));
 
 	    ControlFlowGraph cfg = new ControlFlowGraph(program);
@@ -81,11 +88,16 @@ public class InterferenceGraphTest {
 	private PseudoInstruction large1 = new Mov(t1, t2);
 	private PseudoInstruction large2 = new Mov(t3, t2);
 	private PseudoInstruction large3 = new Add(t1, t2, t3);
-	private PseudoInstruction large4 = new Mov(t2, t1);
-	private PseudoInstruction large5 = new Mov(t6, t2);
-	private PseudoInstruction large6 = new Add(t1, t2, t6);
-	private PseudoInstruction large7 = new Mov(t10, t7);
+	private PseudoInstruction large4 = new And(t2, t1, t6);
+	private PseudoInstruction large5 = new Ldr(new Address(t1, 2), t2);
+	private PseudoInstruction large6 = new Mul(t1, t2, t6);
+	private PseudoInstruction large7 = new Orr(t10, t7, t1);
 	private PseudoInstruction large8 = new Sub(t10, t2, t6);
+	private PseudoInstruction large9 = new Push(t2);
+	private PseudoInstruction large10 = new Sub(t10, t2, t6);
+	private PseudoInstruction large11 = new Label("blah");
+
+	private PseudoInstruction largeEnd = new Str(new Address(t2, 3), t10);
 
 	private InterferenceGraph bigTemporaryGraph() {
 		Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
@@ -97,7 +109,10 @@ public class InterferenceGraphTest {
 				large6,
 				large7,
 				large8,
-				large3
+				large9,
+				large10,
+				large11,
+				largeEnd
 				));
 
 	    ControlFlowGraph cfg = new ControlFlowGraph(program);
@@ -105,7 +120,6 @@ public class InterferenceGraphTest {
 		return new InterferenceGraph(cfg);
 	}
 	
-	//TODO: make a creation test, with loveOut
 
 	@Test
 	public void nodeDoesNotNeighbourtself() {
@@ -163,11 +177,10 @@ public class InterferenceGraphTest {
 		for (InterferenceGraphNode n : adjacencyList.keySet()) {
 			regsInGraph.add(n.getRegister());
 		}
-//		assertThat(regsInGraph, hasItems(ArmRegister.r0,
-//				ArmRegister.r1,
-//				ArmRegister.r2,
-//				ArmRegister.r3));
-		assertEquals(regsInGraph.toString(), "");
+		assertThat(regsInGraph, hasItems(ArmRegister.r0,
+				ArmRegister.r1,
+				ArmRegister.r2,
+				ArmRegister.r3));
 	}
 	
 	@Test
@@ -180,19 +193,8 @@ public class InterferenceGraphTest {
 		for (InterferenceGraphNode n : adjacencyList.keySet()) {
 			regsInGraph.add(n.getRegister());
 		}
-		assertThat(regsInGraph, hasItems(t1, t2, t3, t6, t7, t10
-				));
-	}
-	
-	@Test
-	public void containsAllRegistersInCodeTest3() {
-		InterferenceGraph ig  = bigTemporaryGraph();
 		
-		List<Register> regsInGraph = new LinkedList<>();
-		for (InterferenceGraphNode n : ig.nodeSet()) {
-			regsInGraph.add(n.getRegister());
-		}
-		assertEquals(regsInGraph.toString(), "");
+		assertThat(regsInGraph, hasItems(t1, t2, t3, t6, t7, t10));
 	}
 	
 	

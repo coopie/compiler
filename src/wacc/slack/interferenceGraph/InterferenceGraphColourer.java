@@ -1,7 +1,9 @@
 package wacc.slack.interferenceGraph;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,11 +17,12 @@ import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
+import wacc.slack.generators.TemporaryRegisterGenerator;
 import wacc.slack.instructions.Label;
 
 public class InterferenceGraphColourer {
 
-	private final int MAX_REGS = 10;
+	private final int MAX_REGS = 13;
 
 	private InterferenceGraph ig;
 
@@ -116,7 +119,6 @@ public class InterferenceGraphColourer {
 	}
 
 	private Set<InterferenceGraphNode> findConstrainedNodes(int k) {
-		// TODO: deal with these in weight
 		Set<InterferenceGraphNode> constrainedNodes = new HashSet<>();
 
 		for (InterferenceGraphNode n : ig) {
@@ -131,27 +133,30 @@ public class InterferenceGraphColourer {
 		Set<InterferenceGraphNode> armRegisterNodes = new HashSet<>();
 
 		for (InterferenceGraphNode n : ig) {
-			if (n.getRegister().accept(new OperandVisitor<Boolean>() {
+			if (isArmRegister(n)) {
+				armRegisterNodes.add(n);
+			}
+		}
+		return armRegisterNodes;
+	}
 
-				@Override
-				public Boolean visit(ArmRegister realRegister) {
-					return true;
-				}
+	private Boolean isArmRegister(InterferenceGraphNode n) {
+		return n.getRegister().accept(new OperandVisitor<Boolean>() {
 
-				@Override
-				public Boolean visit(TemporaryRegister temporaryRegister) {
-					return false;
-				}
+			@Override
+			public Boolean visit(ArmRegister realRegister) {
+				return true;
+			}
 
-				@Override
-				public Boolean visit(Label label) {
-					return false;
-				}
+			@Override
+			public Boolean visit(TemporaryRegister temporaryRegister) {
+				return false;
+			}
 
-				@Override
-				public Boolean visit(ImmediateValue immediateValue) {
-					return false;
-				}
+			@Override
+			public Boolean visit(Label label) {
+				return false;
+			}
 
 				@Override
 				public Boolean visit(Address address) {
@@ -162,11 +167,12 @@ public class InterferenceGraphColourer {
 				public Boolean visit(NoOperand noOperand) {
 					return false;
 				}
-				})) {
-				armRegisterNodes.add(n);
+			@Override
+			public Boolean visit(ImmediateValue immediateValue) {
+				return false;
 			}
-		}
-		return armRegisterNodes;
+			
+			});
 	}
 
 	// can be used if we are looking for some optimisation
@@ -196,21 +202,90 @@ public class InterferenceGraphColourer {
 		});
 		return weightList;
 	}
+	
+	public TemporaryRegisterMapping generateTemporaryRegisterMappings() {
+		return generateTemporaryRegisterMappings(MAX_REGS);
+	}
 
-	// TODO: function for getMappings
-	public void generateTemporaryRegisterMappings(
-			Map<Register, ArmRegister> mapping) {
-		int k = MAX_REGS;
+	public TemporaryRegisterMapping generateTemporaryRegisterMappings(int k) {
 
+		// TODO: error with test with colour 0, k still seems to be one
+		
 		// try to colour the graph with no scratchpad registers
 		if (!colour(k, 0)) {
 			// then colour the graph allowing nodes to spill into memory,
 			// accommodating this
 			// with 3 scratchpad registers
 			ig.clean();
-			colour(k - 3, 3);
+			k -= 3;
+			colour(k, 3);
 		}
+//		System.out.println(ig);
+		
+		Map<Integer, ArmRegister> key = new HashMap<Integer, ArmRegister>();
+		List<ArmRegister> armRegsSeen = new LinkedList<ArmRegister>();
+		
+		// find all the armNodes and use them as a basis for starting the mapping
+		for (InterferenceGraphNode armNode : findArmRegisterNodes()) {
+			key.put(armNode.getColour(), (ArmRegister)armNode.getRegister());
+			armRegsSeen.add((ArmRegister)armNode.getRegister());
+		}
+		//generate colour mappings for other ArmRegisters
+		
+		for (ArmRegister r : ArmRegister.values()) {
+			if(!key.containsValue(r)) {
+				for (int i = 1; i <= k; i ++) {
+					if(!key.containsKey(i)) {
+						key.put(i, r);
+						break;
+					}
+				}
+			}
+		}
+		
+		System.out.println("key is : " + key);
+		
+		Map<TemporaryRegister, ArmRegister> temporaryMappings = new HashMap<TemporaryRegister, ArmRegister>();
+		
+		// get all the unspilled nodes
+		for (InterferenceGraphNode n : getUnspilledTemporaryNodes(k)) {
+			// use the key to find the armRegister corresponding to the colour
+			temporaryMappings.put((TemporaryRegister)n.getRegister(),
+					key.get(n.getColour()));
+		}
+		
+		// do arrange the spilled nodes to timotej's specifications
+		
+		TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
+		Map<TemporaryRegister, TemporaryRegister> spilledNodesMap =
+							new HashMap<TemporaryRegister, TemporaryRegister>();
+		
+		for(InterferenceGraphNode n : getSpilledTemporaryNodes(k)) {
+			spilledNodesMap.put((TemporaryRegister)n.getRegister(),
+					trg.generate(n.getWeight()));
+		}
+		
+		return new TemporaryRegisterMapping(temporaryMappings, spilledNodesMap);
+	}
+	
+	private List<InterferenceGraphNode> getSpilledTemporaryNodes(int k) {
+		List<InterferenceGraphNode> spilledNodes = new LinkedList<InterferenceGraphNode>();
+		for (InterferenceGraphNode n : ig) {
+			if (n.getColour() > k && !isArmRegister(n)) {
+				spilledNodes.add(n);
+			}
+		}
+		return spilledNodes;
+	}
 
+	private List<InterferenceGraphNode> getUnspilledTemporaryNodes(int k) {
+		List<InterferenceGraphNode> unspilledNodes = new LinkedList<InterferenceGraphNode>();
+		for (InterferenceGraphNode n : ig) {
+			if (n.getColour() <= k && !isArmRegister(n)) {
+				unspilledNodes.add(n);
+			}
+		}
+		return unspilledNodes;
 	}
 
 	@Override

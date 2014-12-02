@@ -52,6 +52,7 @@ public class Compiler {
 			}
 
 			outputFile = args[0].substring(0, args[0].length() - 5) + ".s";
+			outputFile = outputFile.replaceAll(".*/", "");
 		}
 
 		InputStream is = System.in;
@@ -123,6 +124,7 @@ public class Compiler {
 
 		//
 		for (PseudoInstruction i : intermediateCode) {
+
 			output += i.accept(psuedoInstructionVisitor);
 		}
 
@@ -140,7 +142,7 @@ public class Compiler {
 		ControlFlowGraph cfg = new ControlFlowGraph(intermediateCode);
 		InterferenceGraph ig = new InterferenceGraph(cfg);
 		InterferenceGraphColourer igc = new InterferenceGraphColourer(ig);
-		igc.generateTemporaryRegisterMappings(mapping);
+	//	igc.generateTemporaryRegisterMappings(mapping);
 
 		for (PseudoInstruction i : intermediateCode) {
 			codeWithoutTemporaries.addAll(i.accept(new TemporaryReplacer(

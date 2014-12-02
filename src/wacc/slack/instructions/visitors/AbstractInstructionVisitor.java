@@ -171,8 +171,11 @@ public class AbstractInstructionVisitor<T> implements InstructionVistor<T> {
 
 	@Override
 	public T visit(Str str) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return func.call();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

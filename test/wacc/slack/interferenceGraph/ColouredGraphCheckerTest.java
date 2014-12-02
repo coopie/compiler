@@ -1,17 +1,16 @@
 package wacc.slack.interferenceGraph;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static wacc.slack.interferenceGraph.ColouredGraphChecker.coloured;
+
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import org.junit.After;
 import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-
-
-import static wacc.slack.interferenceGraph.ColouredGraphChecker.coloured;
 
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.controlFlow.ControlFlowGraph;
@@ -23,24 +22,87 @@ import wacc.slack.instructions.Sub;
 
 public class ColouredGraphCheckerTest {
 
+	private InterferenceGraph ig = null;
+
 	@Test
 	public void uncolouredGraphFails() {
-		InterferenceGraph ig = simplestGraph();
+		ig = simplestGraph();
+		assertThat(ig, is(not(coloured())));
+	}
+
+	@Test
+	public void allButOneColouredFails() {
+		ig = simplestGraph();
+		int count = 1;
+		for (InterferenceGraphNode n : ig) {
+			if (count != 1) {
+				n.colour(count);
+			}
+			count++;
+		}
 		assertThat(ig, is(not(coloured())));
 	}
 	
 	@Test
-	public void colouredGraphPasses() {
-		InterferenceGraph ig = simplestGraph();
+	public void allButOneColouredWronlgyFails() {
+		ig = bigTemporaryGraph();
+		System.out.println(ig);
 		int count = 1;
-		for(InterferenceGraphNode n : ig) {
+		for (InterferenceGraphNode n : ig) {
+			if (count != 4) {
+				n.colour(count);
+			} else {
+				for (InterferenceGraphNode neighbour : ig.getAdjecent(n)) {
+					if(neighbour.isColoured()) {
+						n.colour(neighbour.getColour());
+					}
+				}
+			}
+			count++;
+		}
+		assertThat(ig, is(not(coloured())));
+	}
+
+	@Test
+	public void colouredGraphOfAllDifferentColoursPasses() {
+		ig = simplestGraph();
+		int count = 1;
+		for (InterferenceGraphNode n : ig) {
 			n.colour(count);
 			count++;
 		}
 		assertThat(ig, is(coloured()));
 	}
 
+	@Test
+	public void simpleColouredGraphTest() {
+		ig = bigTemporaryGraph();
 
+		for (InterferenceGraphNode n : ig) {
+			for (int c = 0;; c++) {
+				boolean neighboursContainThisColour = false;
+				for (InterferenceGraphNode neighbour : ig.getAdjecent(n)) {
+					if (c == neighbour.getColour()) {
+						neighboursContainThisColour = true;
+						break;
+					}
+				}
+				if (!neighboursContainThisColour) {
+					n.colour(c);
+					break;
+				}
+			}
+					}
+
+		assertThat(ig, is(coloured()));
+	}
+
+	@After
+	public void cleanGraph() {
+		if (ig != null) {
+			ig.clean();
+		}
+	}
 
 	TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
 
@@ -76,19 +138,14 @@ public class ColouredGraphCheckerTest {
 
 		return new InterferenceGraph(cfg);
 	}
-	
+
 	private InterferenceGraph simplestGraph() {
 		Deque<PseudoInstruction> program = new LinkedList<>(Arrays.asList(
-				large1, large2
-				));
+				large1, large2));
 
 		ControlFlowGraph cfg = new ControlFlowGraph(program);
 
 		return new InterferenceGraph(cfg);
 	}
-	
-	
-
-	
 
 }

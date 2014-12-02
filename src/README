@@ -124,6 +124,7 @@ basic*
 expressions/plusExpr.wacc
 expressions/minusExpr.wacc
 expressions/multExpr.wacc
+expressions/AndExpr.wacc
 
 IO/print/print.wacc
 IO/print/println.wacc
