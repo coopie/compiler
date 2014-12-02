@@ -200,8 +200,30 @@ public class IntermediateCodeGenerator implements
 		// TODO: Make sure checkArrayBoundsAsm() is only added when an array elem is seen in the code
 		if (true) {
 			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
+			compilerDefinedFunctions.addAll(checkNullPointerAsm());
 		}
 		
+	}
+	
+	// Needs to be added explicitly when fst/snd are used
+	private Deque<PseudoInstruction> checkNullPointerAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_check_null_pointer"));
+		instrList.add(new Push(ArmRegister.lr));
+		
+		// Check and see if the index is negative or 0 
+		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
+		// Might be worth creating a new method just for this rather than
+		// reusing negative index exception
+		instrList.add(new BLInstruction("p_negative_index_exception",
+				Condition.LE));
+		
+		instrList.add(new Pop(ArmRegister.pc));
+		
+		// Would currently need this, but I'll create a separate error
+		// instrList.addAll(negativeIndexExceptionAsm());
+		
+		return instrList;
 	}
 
 	// Needs to be added explicitly when an array elem is used
@@ -480,14 +502,32 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(FstAST fst) {
-		// TODO Auto-generated method stub
-		return null;
+		// should factor out code for fst/snd into one method as its basically identical accept the address
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		Register ret = fst.getScope().lookup(fst.getName())
+				.getTemporaryRegister();
+		
+		//This may only be the case if you want to assign fst (expr) to something?
+		instrList.add(new Ldr(returnedOperand, new Address(ret)));
+
+		return instrList;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(SndAST snd) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		final int PAIRSIZE = 8;
+		int sndAddr = PAIRSIZE/2;
+		
+		Register ret = snd.getScope().lookup(snd.getName())
+				.getTemporaryRegister();
+		
+		//This may only be the case if you want to assign snd (expr) to something?
+		instrList.add(new Ldr(returnedOperand, new Address(ret, sndAddr)));
+		
+		return instrList;
 	}
 
 	// TODO: Replace arm registers with temp ones where possible. Check
@@ -568,12 +608,12 @@ public class IntermediateCodeGenerator implements
 		int typeSizeSnd = 4;
 
 		if (newPair.getExprL().getType().equals(BaseType.T_bool)
-				&& newPair.getExprL().getType().equals(BaseType.T_char)) {
+				|| newPair.getExprL().getType().equals(BaseType.T_char)) {
 			typeSizeFst = 1;
 		}
 
 		if (newPair.getExprR().getType().equals(BaseType.T_bool)
-				&& newPair.getExprR().getType().equals(BaseType.T_char)) {
+				|| newPair.getExprR().getType().equals(BaseType.T_char)) {
 			typeSizeSnd = 1;
 		}
 
