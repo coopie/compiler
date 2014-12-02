@@ -17,6 +17,7 @@ import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
+import wacc.slack.AST.literals.PairLiter;
 import wacc.slack.AST.statements.AssignStatAST;
 import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
@@ -662,10 +663,11 @@ public class IntermediateCodeGenerator implements
 		// Literal is added to the .data section
 		textSection.add(literalLabel);
 
-		// TODO: Need to do the same thing for pairs
 		if (valueExpr.getLiter() instanceof ArrayElemAST) {
 			instrList
 					.addAll(((ArrayElemAST) valueExpr.getLiter()).accept(this));
+		} else if (valueExpr.getLiter() instanceof PairLiter) {
+			instrList.add(new Ldr(ret, new ImmediateValue(0)));
 		} else if (valueExpr.getType().equals(
 				new WaccArrayType(BaseType.T_char))) {
 			textSection.add(new AssemblerDirective(".ascii \""
