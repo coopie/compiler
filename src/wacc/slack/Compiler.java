@@ -52,6 +52,7 @@ public class Compiler {
 			}
 
 			outputFile = args[0].substring(0, args[0].length() - 5) + ".s";
+			outputFile = outputFile.replaceAll(".*/", "");
 		}
 
 		InputStream is = System.in;
