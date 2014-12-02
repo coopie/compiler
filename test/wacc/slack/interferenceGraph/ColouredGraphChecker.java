@@ -32,7 +32,7 @@ public class ColouredGraphChecker {
 
 			@Override
 			public void describeTo(Description description) {
-				description.appendText("graph is not coloured correctly:\n" + ig.toString());
+				description.appendText("coloured correctly:\n");
 			}
 		};
 
