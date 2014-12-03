@@ -207,8 +207,28 @@ public class IntermediateCodeGenerator implements
 		if (true) {
 			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
 			compilerDefinedFunctions.addAll(checkNullPointerAsm());
+			compilerDefinedFunctions.addAll(freePairAsm());
+			compilerDefinedFunctions.addAll(nullReferenceErrorAsm());
 		}
 		
+	}
+	
+	private Deque<PseudoInstruction> freePairAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_free_pair"));
+		instrList.add(new Push(ArmRegister.lr));
+		
+		// Check and see if the index is negative or 0 
+		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
+		instrList.add(new BLInstruction("p_null_reference_exception",
+				Condition.EQ));
+		
+		// Hopefully this should just free the whole pair
+		instrList.add(new BLInstruction("free"));
+		
+		instrList.add(new Pop(ArmRegister.pc));
+		
+		return instrList;
 	}
 	
 	// Needs to be added explicitly when fst/snd are used
@@ -223,8 +243,6 @@ public class IntermediateCodeGenerator implements
 				Condition.LE));
 		
 		instrList.add(new Pop(ArmRegister.pc));
-		
-		instrList.addAll(nullReferenceErrorAsm());
 		
 		return instrList;
 	}
@@ -478,8 +496,17 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(FreeStatementAST freeStat) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		instrList.addAll(freeStat.getExpr().accept(this));
+		Register pair = returnedOperand;
+		
+		instrList.add(new Mov(ArmRegister.r0, pair));
+		
+		// Need to explicitly add method when needed
+		instrList.add(new BLInstruction("p_free_pair"));
+		
+		return instrList;
 	}
 
 	@Override
@@ -532,12 +559,15 @@ public class IntermediateCodeGenerator implements
 		// should factor out code for fst/snd into one method as its basically identical accept the address
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
+		Register fstReg = trg.generate(weight);
+		
 		Register ret = fst.getScope().lookup(fst.getName())
 				.getTemporaryRegister();
 		
 		//This may only be the case if you want to assign fst (expr) to something?
-		instrList.add(new Ldr(returnedOperand, new Address(ret)));
-
+		instrList.add(new Ldr(fstReg, new Address(ret)));
+		
+		returnedOperand = fstReg;
 		return instrList;
 	}
 
@@ -548,12 +578,15 @@ public class IntermediateCodeGenerator implements
 		final int PAIRSIZE = 8;
 		int sndAddr = PAIRSIZE/2;
 		
+		Register sndReg = trg.generate(weight);
+		
 		Register ret = snd.getScope().lookup(snd.getName())
 				.getTemporaryRegister();
 		
 		//This may only be the case if you want to assign snd (expr) to something?
-		instrList.add(new Ldr(returnedOperand, new Address(ret, sndAddr)));
+		instrList.add(new Ldr(sndReg, new Address(ret, sndAddr)));
 		
+		returnedOperand = sndReg;
 		return instrList;
 	}
 
@@ -622,17 +655,18 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(NewPairAST newPair) {
+		// This new Newpair implementation is now flattened 
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		Register tr1 = trg.generate(weight);
 		Register tr2 = trg.generate(weight);
-
-		// For storing 2 address each 4 bytes
+		
+		// For storing two elements
 		final int PAIRSIZE = 8;
-
+		
 		// Get element sizes
-		int typeSizeFst = 4;
-		int typeSizeSnd = 4;
+		//int typeSizeFst = 4;
+		//int typeSizeSnd = 4;
 
 		if (newPair.getExprL().getType().equals(BaseType.T_bool)
 				|| newPair.getExprL().getType().equals(BaseType.T_char)) {
@@ -652,21 +686,23 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(newPair.getExprL().accept(this));
 		// Move the result of evaluating expr into tr2
 		instrList.add(new Mov(tr2, returnedOperand));
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeFst)));
-		instrList.add(new BLInstruction("malloc"));
+		// We are no longer allocating memory for each element
+		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeFst)));
+		//instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
 		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		instrList.add(new Str(ArmRegister.r0, new Address(tr1, 0)));
+		instrList.add(new Str(ArmRegister.r0, tr2));
 
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
 		// Move the result of evaluating expr into tr2
 		instrList.add(new Mov(tr2, returnedOperand));
-		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeSnd)));
-		instrList.add(new BLInstruction("malloc"));
+		// We are no longer allocating memory for each element
+		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeSnd)));
+		//instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
 		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE)));
+		instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
 
 		// Store register at tr1 in [sp]
 		// Don't need to do this as we are not storing on the stack, just
