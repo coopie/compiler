@@ -665,8 +665,8 @@ public class IntermediateCodeGenerator implements
 		final int PAIRSIZE = 8;
 		
 		// Get element sizes
-		//int typeSizeFst = 4;
-		//int typeSizeSnd = 4;
+		int typeSizeFst = 4;
+		int typeSizeSnd = 4;
 
 		if (newPair.getExprL().getType().equals(BaseType.T_bool)
 				|| newPair.getExprL().getType().equals(BaseType.T_char)) {
