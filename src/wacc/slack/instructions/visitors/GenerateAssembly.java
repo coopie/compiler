@@ -131,7 +131,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	private String concatOperands(String instr, Condition cond, Operand dest,
 			Operand source, Operand source2) {
 
-		String base = newLine(4) + instr + dest.accept(printOperand) + ", "
+		String base = newLine(4) + instr + cond + " " + dest.accept(printOperand) + ", "
 				+ source.accept(printOperand);
 		String source2String = source2.accept(printOperand);
 		if (source2String == "") {
