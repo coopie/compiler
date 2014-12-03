@@ -88,6 +88,11 @@ public class IntermediateCodeGenerator implements
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: index too large.\"", null), null),
 			null);
+	
+	private static final PrintStatementAST NULL_REFERENCE_ERROR = new PrintStatementAST(
+			new ValueExprAST(new StringLiter(
+					"\"NullReferenceError: dereference a null reference.\"", null), null),
+			null);
 
 	private final class DefaultOperandVisitor implements
 			OperandVisitor<Operand> {
@@ -214,16 +219,25 @@ public class IntermediateCodeGenerator implements
 		
 		// Check and see if the index is negative or 0 
 		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
-		// Might be worth creating a new method just for this rather than
-		// reusing negative index exception
-		instrList.add(new BLInstruction("p_negative_index_exception",
+		instrList.add(new BLInstruction("p_null_reference_exception",
 				Condition.LE));
 		
 		instrList.add(new Pop(ArmRegister.pc));
 		
-		// Would currently need this, but I'll create a separate error
-		// instrList.addAll(negativeIndexExceptionAsm());
+		instrList.addAll(nullReferenceErrorAsm());
 		
+		return instrList;
+	}
+	
+	private Deque<PseudoInstruction> nullReferenceErrorAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_null_reference_exception"));
+		instrList.addAll(NULL_REFERENCE_ERROR.accept(this));
+
+		// Exit the program
+		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
+		instrList.add(new BLInstruction("exit"));
+
 		return instrList;
 	}
 
