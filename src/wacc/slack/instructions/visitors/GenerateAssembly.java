@@ -148,9 +148,9 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	public String visit(Str str) {
 		// Because str uses =immediatevalue instead of #immediatevalue
 		String result = newLine(4) + "STR" + str.getCond() + " "
-				+ str.getDest().accept(printOperand) + ", ";
+				+ str.getSource().accept(printOperand) + ", ";
 		printOperand.setImmediateValuePrefix("=");
-		result += str.getSource().accept(printOperand);
+		result += str.getDest().accept(printOperand);
 		printOperand.setImmediateValuePrefix("#");
 		return result;
 	}
