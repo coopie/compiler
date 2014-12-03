@@ -107,7 +107,7 @@ public class Compiler {
 				.accept(new IntermediateCodeGenerator());
 
 		int optimisationLevel = 0;
-		//intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
+		intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
 
 		GenerateAssembly psuedoInstructionVisitor = new GenerateAssemblyBuilder()
 		// .ignoringTemporaries()
