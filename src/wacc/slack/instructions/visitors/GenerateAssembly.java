@@ -62,10 +62,12 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	@Override
 	public String visit(Ldr ldr) {
 		// Because ldr uses =immediatevalue instead of #immediatevalue
+		String result = newLine(4) + "LDR" + ldr.getCond() + " "
+				+ ldr.getDest().accept(printOperand) + ", ";
 		printOperand.setImmediateValuePrefix("=");
-		return newLine(4) + "LDR" + ldr.getCond() + " "
-				+ ldr.getDest().accept(printOperand) + ", "
-				+ ldr.getSource().accept(printOperand);
+		result += ldr.getSource().accept(printOperand);
+		printOperand.setImmediateValuePrefix("#");
+		return result;
 	}
 
 	@Override
@@ -145,10 +147,12 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	@Override
 	public String visit(Str str) {
 		// Because str uses =immediatevalue instead of #immediatevalue
+		String result = newLine(4) + "STR" + str.getCond() + " "
+				+ str.getDest().accept(printOperand) + ", ";
 		printOperand.setImmediateValuePrefix("=");
-		return newLine(4) + "STR" + str.getCond() + " "
-				+ str.getSource().accept(printOperand) + ", "
-				+ str.getDest().accept(printOperand);
+		result += str.getSource().accept(printOperand);
+		printOperand.setImmediateValuePrefix("#");
+		return result;
 	}
 
 	@Override
