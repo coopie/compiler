@@ -17,6 +17,7 @@ import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
+import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
@@ -163,6 +164,12 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 		List<Register> l = str.getSource().accept(new GetRegsIfAny());
 		l.addAll(str.getDest().accept(new GetRegsIfAny()));
 		return l;
+	}
+
+	@Override
+	public List<Register> visit(Eor eor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

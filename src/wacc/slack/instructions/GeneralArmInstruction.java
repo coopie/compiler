@@ -42,4 +42,8 @@ abstract class GeneralArmInstruction {
 		return dest;
 	}
 
+	public Condition getCond() {
+		return cond;
+	}
+	
 }

@@ -25,4 +25,8 @@ public class BLInstruction implements PseudoInstruction {
 		return string;
 	}
 
+	public Condition getCond() {
+		return cond;
+	}
+	
 }

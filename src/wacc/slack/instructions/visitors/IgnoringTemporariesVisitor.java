@@ -18,34 +18,27 @@ public class IgnoringTemporariesVisitor implements OperandVisitor<String> {
 
 	@Override
 	public String visit(ArmRegister realRegister) {
-		setImmediateValuePrefix("#");
 		return realRegister.name();
 	}
 
 	@Override
 	public String visit(TemporaryRegister temporaryRegister) {
-		setImmediateValuePrefix("#");
 		return "R" + temporaryRegister.getN();
 	}
 
 	@Override
 	public String visit(Label label) {
-		setImmediateValuePrefix("#");
 		return "=" + label.getName();
 	}
 
 	@Override
 	public String visit(ImmediateValue immediateValue) {
 		String result = immediateValue.getValue(immediateValuePrefix);
-		// You only need to set it for things that aren't # and it reverts
-		// back after you use it
-		setImmediateValuePrefix("#");
 		return result;
 	}
 
 	@Override
 	public String visit(Address address) {
-		setImmediateValuePrefix("#");
 		if ((address.getOffset() == null || address.getOffset() == 0)
 				&& (address.getRegOffset() == null)) {
 			return "[" + address.getRegister().accept(this) + "]";

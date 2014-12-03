@@ -8,6 +8,7 @@ import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
+import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
@@ -171,6 +172,15 @@ public class AbstractInstructionVisitor<T> implements InstructionVistor<T> {
 
 	@Override
 	public T visit(Str str) {
+		try {
+			return func.call();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public T visit(Eor eor) {
 		try {
 			return func.call();
 		} catch (Exception e) {
