@@ -18,7 +18,6 @@ import wacc.slack.AST.ASTBuilder;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.IntermediateCodeGenerator;
 import wacc.slack.assemblyOperands.ArmRegister;
-import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.errorHandling.WaccSyntaxtErrorListner;
@@ -26,7 +25,6 @@ import wacc.slack.errorHandling.errorRecords.ErrorRecordPrinter;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.PseudoInstruction;
-import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.visitors.GenerateAssembly;
 import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
 import wacc.slack.instructions.visitors.SimpleRegisterAllocator;
@@ -142,7 +140,7 @@ public class Compiler {
 		ControlFlowGraph cfg = new ControlFlowGraph(intermediateCode);
 		InterferenceGraph ig = new InterferenceGraph(cfg);
 		InterferenceGraphColourer igc = new InterferenceGraphColourer(ig);
-	//	igc.generateTemporaryRegisterMappings(mapping);
+		// igc.generateTemporaryRegisterMappings(mapping);
 
 		for (PseudoInstruction i : intermediateCode) {
 			codeWithoutTemporaries.addAll(i.accept(new TemporaryReplacer(

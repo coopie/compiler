@@ -36,4 +36,6 @@ public interface InstructionVistor<T> {
 
 	T visit(Str str);
 
+	T visit(Eor eor);
+
 }

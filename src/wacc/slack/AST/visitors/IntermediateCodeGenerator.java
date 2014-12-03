@@ -52,6 +52,7 @@ import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Condition;
+import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
 import wacc.slack.instructions.Mov;
@@ -779,7 +780,7 @@ public class IntermediateCodeGenerator implements
 		switch (unExpr.getUnaryOp()) {
 		case NOT:
 			// and tr tr 0
-			instrList.add(new And(tr, tr, new ImmediateValue(0)));
+			instrList.add(new Eor(tr, tr, new ImmediateValue(1)));
 			break;
 		case MINUS:
 			// sub tr 0 tr
