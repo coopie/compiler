@@ -141,7 +141,8 @@ public class SimpleRegisterAllocator implements
 		if (loadSourceReg1IfNeccessary(l, s2, RC, cmp.getCond()) > 0) {
 			s2 = RC;
 		}
-		l.add(new Cmp(s1, s2, cmp.getCond()));
+		
+		l.add(new Cmp(s1, new Address((Register) s2), cmp.getCond()));
 
 		return l;
 	}
@@ -201,8 +202,8 @@ public class SimpleRegisterAllocator implements
 		if (loadSourceReg1IfNeccessary(l, s2, RC, str.getCond()) > 0) {
 			s2 = RC;
 		}
-		l.add(new Str(s1, s2, str.getCond()));
-
+		
+		l.add(new Str(s2, new Address((Register) s1), str.getCond()));
 		return l;
 	}
 

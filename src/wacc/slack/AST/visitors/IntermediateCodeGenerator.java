@@ -419,8 +419,6 @@ public class IntermediateCodeGenerator implements
 
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
-
-		
 		
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
@@ -444,7 +442,6 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(falsel);
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(FALSE_LABEL.getName())));
 			instr.addLast(end);
-			
 		}
 
 		instr.addLast(new BLInstruction("printf"));
@@ -510,6 +507,7 @@ public class IntermediateCodeGenerator implements
 
 		Register trOffset = trg.generate(weight);
 		Register destReg = trg.generate(weight);
+		Register tr = trg.generate(weight);
 
 		// ldr tr1, [sp]
 		// ldr tr1, [tr1 + typeSize * index]
@@ -524,9 +522,10 @@ public class IntermediateCodeGenerator implements
 
 			// Move the index to trOffset
 			instrList.add(new Mov(trOffset, returnedOperand));
+			
 			// Mul the index with the typeSize to get the offset
-			instrList.add(new Mul(trOffset, trOffset, new ImmediateValue(
-					typeSize)));
+			instrList.add(new Mov(tr, new ImmediateValue(typeSize)));
+			instrList.add(new Mul(trOffset, trOffset, tr));
 
 			// Load array element at offset into array (assuming it will be
 			// another array address
@@ -756,7 +755,7 @@ public class IntermediateCodeGenerator implements
 			// cmp trL trR
 			// movlt destReg, #1
 			// movge destReg, #0
-			instrList.add(new Cmp(exprRegR, exprRegL));
+			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LT));
 			instrList
@@ -766,7 +765,7 @@ public class IntermediateCodeGenerator implements
 			// cmp trL trR
 			// movle destReg, #1
 			// movgt destReg, #0
-			instrList.add(new Cmp(exprRegR, exprRegL));
+			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LE));
 			instrList
