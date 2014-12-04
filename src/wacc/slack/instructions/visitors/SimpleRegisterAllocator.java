@@ -18,6 +18,7 @@ import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
 import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Cmp;
+import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
@@ -51,20 +52,20 @@ public class SimpleRegisterAllocator implements
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
 		SwapReturn r = swapTrinaryInstruction(l, and.getSource(),
-				and.getSource2(), and.getDest());
-		l.add(new And(r.dest, r.source, r.source2));
+				and.getSource2(), and.getDest(), and.getCond());
+		l.add(new And(r.dest, r.source, r.source2, and.getCond()));
 		l.addAll(r.destStore);
 
 		return l;
 	}
 
 	@Override
-	public Deque<PseudoInstruction> visit(Orr orr) {
+	public Deque<PseudoInstruction> visit(Orr or) {
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
-		SwapReturn r = swapTrinaryInstruction(l, orr.getSource(),
-				orr.getSource2(), orr.getDest());
-		l.add(new And(r.dest, r.source, r.source2));
+		SwapReturn r = swapTrinaryInstruction(l, or.getSource(),
+				or.getSource2(), or.getDest(), or.getCond());
+		l.add(new Orr(r.dest, r.source, r.source2, or.getCond()));
 		l.addAll(r.destStore);
 
 		return l;
@@ -74,8 +75,9 @@ public class SimpleRegisterAllocator implements
 	public Deque<PseudoInstruction> visit(Mov mov) {
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
-		SwapReturn r = swapBinaryInstruction(l, mov.getSource(), mov.getDest());
-		l.add(new Mov(r.dest, r.source));
+		SwapReturn r = swapBinaryInstruction(l, mov.getSource(), mov.getDest(),
+				mov.getCond());
+		l.add(new Mov(r.dest, r.source, mov.getCond()));
 		l.addAll(r.destStore);
 
 		return l;
@@ -101,8 +103,9 @@ public class SimpleRegisterAllocator implements
 	public Deque<PseudoInstruction> visit(Ldr ldr) {
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
-		SwapReturn r = swapBinaryInstruction(l, ldr.getSource(), ldr.getDest());
-		l.add(new Ldr(r.dest, r.source));
+		SwapReturn r = swapBinaryInstruction(l, ldr.getSource(), ldr.getDest(),
+				ldr.getCond());
+		l.add(new Ldr(r.dest, r.source, ldr.getCond()));
 		l.addAll(r.destStore);
 
 		return l;
@@ -131,14 +134,14 @@ public class SimpleRegisterAllocator implements
 		Operand s1 = cmp.getDest();
 		Operand s2 = cmp.getSource();
 
-		if (loadSourceReg1IfNeccessary(l, s1, RB) > 0) {
+		if (loadSourceReg1IfNeccessary(l, s1, RB, cmp.getCond()) > 0) {
 			s1 = RB;
 		}
 
-		if (loadSourceReg1IfNeccessary(l, s2, RC) > 0) {
+		if (loadSourceReg1IfNeccessary(l, s2, RC, cmp.getCond()) > 0) {
 			s2 = RC;
 		}
-		l.add(new Cmp(s1, s2));
+		l.add(new Cmp(s1, s2, cmp.getCond()));
 
 		return l;
 	}
@@ -148,8 +151,8 @@ public class SimpleRegisterAllocator implements
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
 		SwapReturn r = swapTrinaryInstruction(l, mul.getSource(),
-				mul.getSource2(), mul.getDest());
-		l.add(new Mul(r.dest, r.source, r.source2));
+				mul.getSource2(), mul.getDest(), mul.getCond());
+		l.add(new Mul(r.dest, r.source, r.source2, mul.getCond()));
 		l.addAll(r.destStore);
 
 		return l;
@@ -160,8 +163,8 @@ public class SimpleRegisterAllocator implements
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
 		SwapReturn r = swapTrinaryInstruction(l, add.getSource(),
-				add.getSource2(), add.getDest());
-		l.add(new Add(r.dest, r.source, r.source2));
+				add.getSource2(), add.getDest(), add.getCond());
+		l.add(new Add(r.dest, r.source, r.source2, add.getCond()));
 		l.addAll(r.destStore);
 
 		return l;
@@ -172,8 +175,8 @@ public class SimpleRegisterAllocator implements
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
 		SwapReturn r = swapTrinaryInstruction(l, sub.getSource(),
-				sub.getSource2(), sub.getDest());
-		l.add(new Sub(r.dest, r.source, r.source2));
+				sub.getSource2(), sub.getDest(), sub.getCond());
+		l.add(new Sub(r.dest, r.source, r.source2, sub.getCond()));
 		l.addAll(r.destStore);
 
 		return l;
@@ -191,52 +194,52 @@ public class SimpleRegisterAllocator implements
 		Operand s1 = str.getDest();
 		Operand s2 = str.getSource();
 
-		if (loadSourceReg1IfNeccessary(l, s1, RB) > 0) {
+		if (loadSourceReg1IfNeccessary(l, s1, RB, str.getCond()) > 0) {
 			s1 = RB;
 		}
 
-		if (loadSourceReg1IfNeccessary(l, s2, RC) > 0) {
+		if (loadSourceReg1IfNeccessary(l, s2, RC, str.getCond()) > 0) {
 			s2 = RC;
 		}
-		l.add(new Str(s1, s2));
+		l.add(new Str(s1, s2, str.getCond()));
 
 		return l;
 	}
 
 	// returns negative value if it hasn't done anything
 	private int storeDestRegIfNeccessary(Deque<PseudoInstruction> l,
-			Operand destReg) {
+			Operand destReg, Condition cond) {
 		int n = temporaryNumber(destReg);
 		if (n > 0) {
-			l.add(new Str(RA, new Address(ArmRegister.sp, n * 4)));
+			l.add(new Str(RA, new Address(ArmRegister.sp, n * 4), cond));
 		}
 		return n;
 	}
 
 	// returns negative value if it hasn't done anything
 	private int loadSourceReg1IfNeccessary(Deque<PseudoInstruction> l,
-			Operand sourceReg, Register r) {
+			Operand sourceReg, Register r, Condition cond) {
 		int n = temporaryNumber(sourceReg);
 		if (n > 0) {
-			l.add(new Ldr(r, new Address(ArmRegister.sp, n * 4)));
+			l.add(new Ldr(r, new Address(ArmRegister.sp, n * 4), cond));
 		}
 		return n;
 	}
 
 	private SwapReturn swapTrinaryInstruction(Deque<PseudoInstruction> l,
-			Operand source, Operand source2, Operand dest) {
+			Operand source, Operand source2, Operand dest, Condition cond) {
 
 		Deque<PseudoInstruction> destStore = new LinkedList<>();
 
-		if (loadSourceReg1IfNeccessary(l, source, RB) > 0) {
+		if (loadSourceReg1IfNeccessary(l, source, RB, cond) > 0) {
 			source = RB;
 		}
 
-		if (loadSourceReg1IfNeccessary(l, source2, RC) > 0) {
+		if (loadSourceReg1IfNeccessary(l, source2, RC, cond) > 0) {
 			source2 = RC;
 		}
 
-		if (storeDestRegIfNeccessary(destStore, dest) > 0) {
+		if (storeDestRegIfNeccessary(destStore, dest, cond) > 0) {
 			dest = RA;
 		}
 
@@ -244,15 +247,15 @@ public class SimpleRegisterAllocator implements
 	}
 
 	private SwapReturn swapBinaryInstruction(Deque<PseudoInstruction> l,
-			Operand source, Operand dest) {
+			Operand source, Operand dest, Condition cond) {
 
 		Deque<PseudoInstruction> destStore = new LinkedList<>();
 
-		if (loadSourceReg1IfNeccessary(l, source, RB) > 0) {
+		if (loadSourceReg1IfNeccessary(l, source, RB, cond) > 0) {
 			source = RB;
 		}
 
-		if (storeDestRegIfNeccessary(destStore, dest) > 0) {
+		if (storeDestRegIfNeccessary(destStore, dest, cond) > 0) {
 			dest = RA;
 		}
 
@@ -327,8 +330,8 @@ public class SimpleRegisterAllocator implements
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
 		SwapReturn r = swapTrinaryInstruction(l, eor.getSource(),
-				eor.getSource2(), eor.getDest());
-		l.add(new And(r.dest, r.source, r.source2));
+				eor.getSource2(), eor.getDest(), eor.getCond());
+		l.add(new Eor(r.dest, r.source, r.source2, eor.getCond()));
 		l.addAll(r.destStore);
 
 		return l;

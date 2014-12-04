@@ -9,6 +9,10 @@ public class Orr extends GeneralArmInstruction implements PseudoInstruction {
 		super(dest, source, source2);
 	}
 
+	public Orr(Operand dest, Operand source, Operand source2, Condition cond) {
+		super(dest, source, source2, cond);
+	}
+
 	@Override
 	public <T> T accept(InstructionVistor<T> visitor) {
 		return visitor.visit(this);
