@@ -78,7 +78,7 @@ public class IntermediateCodeGenerator implements
 	private static final Label FALSE_LABEL = new Label("l_false");
 
 	// To print error messages, get a printstatementast.accept and add it to
-	// instrList
+	// instrListSpilledRegistersHaveTheRestOfTheRegistersInThem
 	private static final PrintStatementAST NEGATIVE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: negative index.\"", null), null),
