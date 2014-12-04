@@ -279,13 +279,17 @@ public class IntermediateCodeGenerator implements
 
 		weight = weight * 10;
 
-		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		
 		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		instrList.add(new BranchInstruction(Condition.AL, end));
+		
+		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		instrList.add(start);
 		instrList.addAll(whileStat.getBody().accept(this));
+		
 		instrList.add(end);
 		instrList.addAll(whileStat.getCond().accept(this));
+		
 		instrList.add(new Cmp(returnedOperand, new ImmediateValue(1)));
 		instrList.add(new BranchInstruction(Condition.EQ, start));
 		weight = weight / 10;
@@ -659,8 +663,10 @@ public class IntermediateCodeGenerator implements
 			// movgt destReg, #1
 			// movle destReg, #0
 			instrList.add(new Cmp(exprRegL, exprRegR));
+			
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.GT));
+			
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.LE));
 			break;
