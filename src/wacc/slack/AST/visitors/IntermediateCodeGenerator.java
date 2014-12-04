@@ -83,6 +83,11 @@ public class IntermediateCodeGenerator implements
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: negative index.\"", null),
 					null), null);
+	
+	private static final PrintStatementAST DIVIDE_BY_ZERO_ERROR = new PrintStatementAST(
+			new ValueExprAST(new StringLiter(
+					"\"DivideByZeroError: expression has divisor of zero .\"", null), null),
+			null);
 
 	private static final PrintStatementAST LARGE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
@@ -219,9 +224,58 @@ public class IntermediateCodeGenerator implements
 			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
 			compilerDefinedFunctions.addAll(checkNullPointerAsm());
 			compilerDefinedFunctions.addAll(nullReferenceErrorAsm());
+			compilerDefinedFunctions.addAll(checkDivideByZero());
+			compilerDefinedFunctions.addAll(divideByZeroError());
+
 		}
 	}
+	
+	private Deque<PseudoInstruction> checkDivideByZero() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		instrList.add(new Label("p_check_divide_by_zero"));
+		instrList.add(new Push(ArmRegister.lr));
+		instrList.add(new Cmp(ArmRegister.r1, new ImmediateValue(0)));
+		
+		instrList.add(new BLInstruction("p_divide_by_zero_exception", Condition.EQ));
+		
+		instrList.add(new Pop(ArmRegister.pc));
+		
+		return instrList;
+	}
+	
+	private Deque<PseudoInstruction> divideByZeroError() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		instrList.add(new Label("p_divide_by_zero_exception"));
+		instrList.add(new Push(ArmRegister.lr));
+		
+		instrList.addAll(DIVIDE_BY_ZERO_ERROR.accept(this));
 
+		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
+		instrList.add(new BLInstruction("exit"));
+		
+		return instrList;
+	}
+	
+	private Deque<PseudoInstruction> freePairAsm() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_free_pair"));
+		instrList.add(new Push(ArmRegister.lr));
+		
+		// Check and see if the index is negative or 0 
+		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
+		instrList.add(new BLInstruction("p_null_reference_exception",
+				Condition.EQ));
+		
+		// Hopefully this should just free the whole pair
+		instrList.add(new BLInstruction("free"));
+		
+		instrList.add(new Pop(ArmRegister.pc));
+		
+		return instrList;
+	}
+	
 	// Needs to be added explicitly when fst/snd are used
 	private Deque<PseudoInstruction> checkNullPointerAsm() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
@@ -807,6 +861,13 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Mul(destReg, exprRegL, exprRegR));
 			break;
 		case DIV:
+			instrList.add(new Mov(ArmRegister.r0, exprRegL));
+			instrList.add(new Mov(ArmRegister.r1, exprRegR));
+			instrList.add(new BLInstruction("p_check_divide_by_zero"));
+			
+			instrList.add(new BLInstruction("__aeabi_idiv"));
+			
+			instrList.add(new Mov(destReg, ArmRegister.r0));
 			break;
 		case MOD:
 			break;
@@ -949,8 +1010,8 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
 					.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_int)) {
-			instrList.add(new Mov(ret, new ImmediateValue(Integer
-					.parseInt(valueExpr.getValue()))));
+			int intVal = Integer.parseInt(valueExpr.getValue());
+			instrList.add(new Ldr(ret, new ImmediateValue(intVal)));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
 			/*
 			 * textSection.add(new AssemblerDirective(".byte '" +
