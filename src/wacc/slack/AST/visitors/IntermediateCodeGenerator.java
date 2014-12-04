@@ -900,8 +900,8 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
 					.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_int)) {
-			instrList.add(new Mov(ret, new ImmediateValue(Integer
-					.parseInt(valueExpr.getValue()))));
+			int intVal = Integer.parseInt(valueExpr.getValue());
+			instrList.add(new Ldr(ret, new ImmediateValue(intVal)));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
 			/*textSection.add(new AssemblerDirective(".byte '"
 					+ valueExpr.getValue() + "'"));
