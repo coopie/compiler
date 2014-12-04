@@ -110,8 +110,9 @@ public class Compiler {
 		intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
 
 		GenerateAssembly psuedoInstructionVisitor = new GenerateAssemblyBuilder()
-		// .ignoringTemporaries()
-				.withOptimisationLevel(optimisationLevel).make();
+		 //.ignoringTemporaries()
+				.withOptimisationLevel(optimisationLevel)
+				.make();
 
 		String output = "";
 

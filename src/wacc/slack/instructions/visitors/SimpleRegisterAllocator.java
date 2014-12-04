@@ -220,7 +220,6 @@ public class SimpleRegisterAllocator implements
 		} else {
 			throw new RuntimeException("Str error in simple register allocator.");
 		}
-		
 		return l;
 	}
 

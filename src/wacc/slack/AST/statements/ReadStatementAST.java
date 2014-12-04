@@ -8,6 +8,7 @@ import wacc.slack.FilePosition;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.assignables.Assignable;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.AST.visitors.ASTVisitor;
 import wacc.slack.errorHandling.errorRecords.ErrorRecords;
 import wacc.slack.errorHandling.errorRecords.TypeMismatchError;
@@ -19,10 +20,10 @@ public class ReadStatementAST extends StatAST {
 	public ReadStatementAST(Assignable assignable, FilePosition filePos) {
 		super(filePos);
 		this.assignable = assignable;
-		if (!((assignable.getType() == BaseType.T_int) || (assignable.getType() == BaseType.T_char))) {
+		if (!((assignable.getType() == BaseType.T_int) || (assignable.getType() == BaseType.T_char) /* || (assignable.getType().equals(new WaccArrayType(BaseType.T_char) ))*/)) {
 			ErrorRecords.getInstance().record(
 					new TypeMismatchError(filePos, assignable.getType(),
-							BaseType.T_int, BaseType.T_char));
+							BaseType.T_int, BaseType.T_char,new WaccArrayType(BaseType.T_char)));
 		}
 	}
 
