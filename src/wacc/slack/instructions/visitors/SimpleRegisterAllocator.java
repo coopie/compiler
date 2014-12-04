@@ -203,7 +203,7 @@ public class SimpleRegisterAllocator implements
 			s2 = RC;
 		}
 		
-		l.add(new Str(s2, new Address((Register) s1), str.getCond()));
+		l.add(new Str(s2, s1, str.getCond()));
 		return l;
 	}
 
