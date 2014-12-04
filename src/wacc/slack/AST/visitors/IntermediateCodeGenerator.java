@@ -88,11 +88,6 @@ public class IntermediateCodeGenerator implements
 			new ValueExprAST(new StringLiter(
 					"\"DivideByZeroError: expression has divisor of zero .\"", null), null),
 			null);
-	
-	private static final PrintStatementAST DIVIDE_BY_ZERO_ERROR = new PrintStatementAST(
-			new ValueExprAST(new StringLiter(
-					"\"DivideByZeroError: expression has divisor of zero .\"", null), null),
-			null);
 
 	private static final PrintStatementAST LARGE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
@@ -233,34 +228,6 @@ public class IntermediateCodeGenerator implements
 			compilerDefinedFunctions.addAll(divideByZeroError());
 
 		}
-	}
-	
-	private Deque<PseudoInstruction> checkDivideByZero() {
-		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
-		instrList.add(new Label("p_check_divide_by_zero"));
-		instrList.add(new Push(ArmRegister.lr));
-		instrList.add(new Cmp(ArmRegister.r1, new ImmediateValue(0)));
-		
-		instrList.add(new BLInstruction("p_divide_by_zero_exception", Condition.EQ));
-		
-		instrList.add(new Pop(ArmRegister.pc));
-		
-		return instrList;
-	}
-	
-	private Deque<PseudoInstruction> divideByZeroError() {
-		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
-		instrList.add(new Label("p_divide_by_zero_exception"));
-		instrList.add(new Push(ArmRegister.lr));
-		
-		instrList.addAll(DIVIDE_BY_ZERO_ERROR.accept(this));
-
-		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
-		instrList.add(new BLInstruction("exit"));
-		
-		return instrList;
 	}
 	
 	private Deque<PseudoInstruction> checkDivideByZero() {
