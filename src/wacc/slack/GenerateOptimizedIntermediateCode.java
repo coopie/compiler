@@ -37,7 +37,7 @@ public class GenerateOptimizedIntermediateCode implements Callable<Deque<PseudoI
 		
 		Deque<PseudoInstruction> intermediateCode = ast.accept(visitor);
 		intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
-		regsUsed = Integer.parseInt(visitor.getTemporaryRegisterGenerator().getValue())*2;
+		regsUsed = Integer.parseInt(visitor.getTemporaryRegisterGenerator().getValue());
 		return intermediateCode;
 	}
 	

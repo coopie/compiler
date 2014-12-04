@@ -108,11 +108,15 @@ public class SimpleRegisterAllocator implements
 		
 		if (r.source instanceof ImmediateValue || r.source instanceof Address) {
 			l.add(new Ldr(r.dest, r.source, ldr.getCond()));
-		} else if (r.source instanceof Register){
+		} else if (r.source instanceof Register && r.source2 == null){
 			l.add(new Ldr(r.dest, new Address((Register) r.source), ldr.getCond()));
+		} else if (r.source instanceof Register && r.source2 != null) {
+			l.add(new Ldr(r.dest, new Address((Register) r.source,(Register)r.source2), ldr.getCond()));
 		} else {
 			throw new RuntimeException("Ldr error in simple register allocator.");
 		}
+		
+	
 		
 		l.addAll(r.destStore);
 
@@ -237,7 +241,7 @@ public class SimpleRegisterAllocator implements
 		int n = temporaryNumber(sourceReg);
 		if (n > 0) {
 			l.add(new Ldr(r, new Address(ArmRegister.sp, n * 4), cond));
-		}
+		} 
 		return n;
 	}
 
@@ -257,7 +261,8 @@ public class SimpleRegisterAllocator implements
 		if (storeDestRegIfNeccessary(destStore, dest, cond) > 0) {
 			dest = RA;
 		}
-
+		
+		returnTempRegOffset = null;
 		return new SwapReturn(destStore, dest, source, source2);
 	}
 
@@ -273,10 +278,18 @@ public class SimpleRegisterAllocator implements
 		if (storeDestRegIfNeccessary(destStore, dest, cond) > 0) {
 			dest = RA;
 		}
-
-		return new SwapReturn(destStore, dest, source);
+		
+		SwapReturn swapReturn = new SwapReturn(destStore, dest, source);
+		if(returnTempRegOffset != null && loadSourceReg1IfNeccessary(l, returnTempRegOffset, RC, cond) > 0) {
+			swapReturn = new SwapReturn(destStore,dest,source,RC);
+		}
+	
+		returnTempRegOffset = null;
+		
+		return swapReturn;
 	}
 
+	static Register returnTempRegOffset = null;
 	// -1 represents not temporary register
 	private int temporaryNumber(Operand r) {
 		if (r == null)
@@ -307,6 +320,9 @@ public class SimpleRegisterAllocator implements
 			@Override
 			public Integer visit(Address address) {
 				// TODO: won't work with register offest
+				if(address.getRegOffset() != null) {
+					SimpleRegisterAllocator.returnTempRegOffset = address.getRegOffset();
+				}
 				return address.getRegister().accept(this);
 			}
 
@@ -322,7 +338,7 @@ public class SimpleRegisterAllocator implements
 		public Deque<PseudoInstruction> destStore;
 		public Operand source;
 		public Operand dest;
-		public Operand source2;
+		public Operand source2 = null;
 
 		public SwapReturn(Deque<PseudoInstruction> destStore, Operand dest,
 				Operand source) {

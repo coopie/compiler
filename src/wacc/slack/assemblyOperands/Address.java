@@ -3,8 +3,8 @@ package wacc.slack.assemblyOperands;
 public class Address implements Operand {
 
 	private final Register r;
-	private Integer offset;
-	private Register regOffset;
+	private Integer offset = null;
+	private Register regOffset = null;
 	
 	public Address(Register r) {
 		this.r = r;
