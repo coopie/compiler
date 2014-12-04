@@ -105,7 +105,17 @@ public class SimpleRegisterAllocator implements
 
 		SwapReturn r = swapBinaryInstruction(l, ldr.getSource(), ldr.getDest(),
 				ldr.getCond());
-		l.add(new Ldr(r.dest, r.source, ldr.getCond()));
+		
+		if (r.source instanceof ImmediateValue) {
+			l.add(new Ldr(r.dest, r.source, ldr.getCond()));
+		} else if (r.source instanceof Register){
+			l.add(new Ldr(r.dest, new Address((Register) r.source), ldr.getCond()));
+		} else if (r.source instanceof Address){
+			l.add(new Ldr(r.dest, r.source, ldr.getCond()));
+		} else {
+			throw new RuntimeException("Ldr error in simple register allocator.");
+		}
+		
 		l.addAll(r.destStore);
 
 		return l;
@@ -142,7 +152,7 @@ public class SimpleRegisterAllocator implements
 			s2 = RC;
 		}
 		
-		l.add(new Cmp(s1, new Address((Register) s2), cmp.getCond()));
+		l.add(new Cmp(s1, s2, cmp.getCond()));
 
 		return l;
 	}
@@ -203,7 +213,14 @@ public class SimpleRegisterAllocator implements
 			s2 = RC;
 		}
 		
-		l.add(new Str(s2, new Address((Register) s1), str.getCond()));
+		if (s1 instanceof Register) {
+			l.add(new Str(s2, new Address((Register) s1), str.getCond()));
+		} else if (s1 instanceof Address) {
+			l.add(new Str(s2, s1, str.getCond()));
+		} else {
+			throw new RuntimeException("Str error in simple register allocator.");
+		}
+		
 		return l;
 	}
 
