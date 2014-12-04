@@ -403,12 +403,12 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-
+		
 		Register destReg = trg.generate(weight);
 		Register tr = trg.generate(weight);
 		instrList.addAll(assignStat.getRhs().accept(this));
 		instrList.add(new Mov(destReg, returnedOperand));
-
+		
 		// Set the variable identinfo to store this temp reg
 		if (!(destReg instanceof TemporaryRegister)) {
 			throw new RuntimeException(
@@ -447,6 +447,16 @@ public class IntermediateCodeGenerator implements
 
 			// Store the rhs in the array at offset index
 			instrList.add(new Str(destReg, new Address(arrayReg, index)));
+		} else if (assignStat.getLhs() instanceof FstAST) {
+			FstAST fst = (FstAST) assignStat.getLhs();
+			Register ret = fst.getScope().lookup(fst.getName())
+					.getTemporaryRegister();
+			instrList.add(new Str(destReg, new Address(ret)));
+		} else if (assignStat.getLhs() instanceof SndAST) {
+			SndAST snd = (SndAST) assignStat.getLhs();
+			Register ret = snd.getScope().lookup(snd.getName())
+					.getTemporaryRegister();
+			instrList.add(new Str(destReg, new Address(ret, 4)));
 		} else {
 			// Assigning variables
 			assignStat.getLhs().getScope()
@@ -709,6 +719,7 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Ldr(fstReg, new Address(ret)));
 
 		returnedOperand = fstReg;
+		
 		return instrList;
 	}
 
@@ -729,6 +740,7 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Ldr(sndReg, new Address(ret, sndAddr)));
 
 		returnedOperand = sndReg;
+		
 		return instrList;
 	}
 
@@ -800,25 +812,11 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		Register tr1 = trg.generate(weight);
-		// Register tr2 = trg.generate(weight);
 
 		// For storing two elements
 		final int PAIRSIZE = 8;
 
-		// Get element sizes
-		int typeSizeFst = 4;
-		int typeSizeSnd = 4;
-
-		if (newPair.getExprL().getType().equals(BaseType.T_bool)
-				|| newPair.getExprL().getType().equals(BaseType.T_char)) {
-			typeSizeFst = 1;
-		}
-
-		if (newPair.getExprR().getType().equals(BaseType.T_bool)
-				|| newPair.getExprR().getType().equals(BaseType.T_char)) {
-			typeSizeSnd = 1;
-		}
-
+		// Allocate memory for pair
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(PAIRSIZE)));
 		instrList.add(new BLInstruction("malloc"));
 		instrList.add(new Mov(tr1, ArmRegister.r0));
@@ -826,33 +824,12 @@ public class IntermediateCodeGenerator implements
 		// First element
 		instrList.addAll(newPair.getExprL().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Str(returnedOperand, new Address(tr1, 0)));
-		// instrList.add(new Mov(tr2, returnedOperand));
-		// We are no longer allocating memory for each element
-		// instrList.add(new Ldr(ArmRegister.r0, new
-		// ImmediateValue(typeSizeFst)));
-		// instrList.add(new BLInstruction("malloc"));
-		// This may need to be STRB for chars
-		// instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		// instrList.add(new Str(ArmRegister.r0, tr2));
+		instrList.add(new Str(returnedOperand, new Address(tr1)));
 
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE / 2)));
-		// instrList.add(new Mov(tr2, returnedOperand));
-		// We are no longer allocating memory for each element
-		// instrList.add(new Ldr(ArmRegister.r0, new
-		// ImmediateValue(typeSizeSnd)));
-		// instrList.add(new BLInstruction("malloc"));
-		// This may need to be STRB for chars
-		// instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		// instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
-
-		// Store register at tr1 in [sp]
-		// Don't need to do this as we are not storing on the stack, just
-		// keeping in register. Keep just in case we need later
-		// instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
+		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE/2)));
 
 		// Should store memory address of pair
 		returnedOperand = tr1;
