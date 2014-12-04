@@ -207,28 +207,9 @@ public class IntermediateCodeGenerator implements
 		if (true) {
 			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
 			compilerDefinedFunctions.addAll(checkNullPointerAsm());
-			compilerDefinedFunctions.addAll(freePairAsm());
 			compilerDefinedFunctions.addAll(nullReferenceErrorAsm());
 		}
 		
-	}
-	
-	private Deque<PseudoInstruction> freePairAsm() {
-		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		instrList.add(new Label("p_free_pair"));
-		instrList.add(new Push(ArmRegister.lr));
-		
-		// Check and see if the index is negative or 0 
-		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
-		instrList.add(new BLInstruction("p_null_reference_exception",
-				Condition.EQ));
-		
-		// Hopefully this should just free the whole pair
-		instrList.add(new BLInstruction("free"));
-		
-		instrList.add(new Pop(ArmRegister.pc));
-		
-		return instrList;
 	}
 	
 	// Needs to be added explicitly when fst/snd are used
@@ -503,8 +484,13 @@ public class IntermediateCodeGenerator implements
 		
 		instrList.add(new Mov(ArmRegister.r0, pair));
 		
-		// Need to explicitly add method when needed
-		instrList.add(new BLInstruction("p_free_pair"));
+		// Check and see if the index is negative or 0 
+		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
+		instrList.add(new BLInstruction("p_null_reference_exception",
+				Condition.EQ));
+		
+		// Hopefully this should just free the whole pair
+		instrList.add(new BLInstruction("free"));
 		
 		return instrList;
 	}
