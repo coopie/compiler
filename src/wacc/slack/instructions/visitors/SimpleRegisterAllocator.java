@@ -106,12 +106,15 @@ public class SimpleRegisterAllocator implements
 		SwapReturn r = swapBinaryInstruction(l, ldr.getSource(), ldr.getDest(),
 				ldr.getCond());
 		
+		
 		if (r.source instanceof ImmediateValue || r.source instanceof Address) {
 			l.add(new Ldr(r.dest, r.source, ldr.getCond()));
-		} else if (r.source instanceof Register && r.source2 == null){
+		} else if (r.source instanceof Register && r.source2 == null && !(ldr.getSource() instanceof Address)){
 			l.add(new Ldr(r.dest, new Address((Register) r.source), ldr.getCond()));
 		} else if (r.source instanceof Register && r.source2 != null) {
 			l.add(new Ldr(r.dest, new Address((Register) r.source,(Register)r.source2), ldr.getCond()));
+		} else if (r.source instanceof Register && ldr.getSource() instanceof Address) {
+			l.add(new Ldr(r.dest, new Address((Register) r.source,((Address)ldr.getSource()).getOffset()), ldr.getCond()));
 		} else {
 			throw new RuntimeException("Ldr error in simple register allocator.");
 		}
@@ -206,7 +209,8 @@ public class SimpleRegisterAllocator implements
 
 		Operand s1 = str.getDest();
 		Operand s2 = str.getSource();
-
+		Operand s3 = null;
+		
 		if (loadSourceReg1IfNeccessary(l, s1, RB, str.getCond()) > 0) {
 			s1 = RB;
 		}
@@ -215,8 +219,16 @@ public class SimpleRegisterAllocator implements
 			s2 = RC;
 		}
 		
+		if(returnTempRegOffset != null && loadSourceReg1IfNeccessary(l, returnTempRegOffset, RA, str.getCond()) > 0) {
+			s3 = RA;
+			l.add(new Str(s2, new Address((Register) s1,(Register) s3), str.getCond()));
+			returnTempRegOffset = null;
+			return l;
+		}
+		returnTempRegOffset = null;
+		
 		if (s1 instanceof Register) {
-			l.add(new Str(s2, new Address((Register) s1), str.getCond()));
+			l.add(new Str(s2, new Address((Register) s1,((Address)str.getDest()).getOffset()), str.getCond()));
 		} else if (s1 instanceof Address) {
 			l.add(new Str(s2, s1, str.getCond()));
 		} else {

@@ -17,5 +17,9 @@ public class Str extends GeneralArmInstruction implements PseudoInstruction {
 	public <T> T accept(InstructionVistor<T> visitor) {
 		return visitor.visit(this);
 	}
-
+	
+	@Override
+	public String toString() {
+		return "STR " + source + " " + dest;
+	}
 }

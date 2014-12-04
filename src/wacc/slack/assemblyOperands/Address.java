@@ -37,5 +37,16 @@ public class Address implements Operand {
 	public Register getRegOffset() {
 		return regOffset;
 	}
+	@Override
+	public String toString() {
+		String s = "[" + r + " ,";
+		if(offset != null) {
+			s += offset;
+		} else if(regOffset != null) {
+			s += regOffset;
+		}
+		s += "]";
+		return s;
+	}
 
 }
