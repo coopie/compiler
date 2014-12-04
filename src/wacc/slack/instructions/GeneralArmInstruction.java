@@ -29,6 +29,14 @@ abstract class GeneralArmInstruction {
 		this.dest = dest;
 	}
 	
+	public GeneralArmInstruction(Operand dest, Operand source,
+			Operand source2, Condition cond) {
+		this.source = source;
+		this.source2 = source2;
+		this.dest = dest;	
+		this.cond = cond;
+	}
+
 	public Operand getSource() {
 		return source;
 	}
