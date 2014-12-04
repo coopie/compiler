@@ -63,43 +63,44 @@ import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
+import wacc.slack.interferenceGraph.CompileProgramAST;
 
 // NB: use LinkedList 
 
 public class IntermediateCodeGenerator implements
 		ASTVisitor<Deque<PseudoInstruction>> {
 
-	private static final String STRING_FORMAT_LABEL = "string_format";
-	private static final String CHAR_FORMAT_LABEL = "char_format";
-	private static final String NEW_LINE_CHAR = "new_line_char";
-	private static final String INT_FORMAT_LABEL = "int_format";
-	private static final String INT_SCANF_STORE_LABEL = "intScanfStoreLabel";
-	private static final Label TRUE_LABEL = new Label("l_true");
-	private static final Label FALSE_LABEL = new Label("l_false");
+	public static final String STRING_FORMAT_LABEL = "string_format";
+	public static final String CHAR_FORMAT_LABEL = "char_format";
+	public static final String NEW_LINE_CHAR = "new_line_char";
+	public static final String INT_FORMAT_LABEL = "int_format";
+	public static final String INT_SCANF_STORE_LABEL = "intScanfStoreLabel";
+	public static final Label TRUE_LABEL = new Label("l_true");
+	public static final Label FALSE_LABEL = new Label("l_false");
 
 	// To print error messages, get a printstatementast.accept and add it to
 	// instrListSpilledRegistersHaveTheRestOfTheRegistersInThem
-	private static final PrintStatementAST NEGATIVE_INDEX_ERROR = new PrintStatementAST(
+	public static final PrintStatementAST NEGATIVE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: negative index.\"", null), null),
 			null);
 	
-	private static final PrintStatementAST DIVIDE_BY_ZERO_ERROR = new PrintStatementAST(
+	public static final PrintStatementAST DIVIDE_BY_ZERO_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
 					"\"DivideByZeroError: expression has divisor of zero .\"", null), null),
 			null);
 
-	private static final PrintStatementAST LARGE_INDEX_ERROR = new PrintStatementAST(
+	public static final PrintStatementAST LARGE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: index too large.\"", null), null),
 			null);
 	
-	private static final PrintStatementAST NULL_REFERENCE_ERROR = new PrintStatementAST(
+	public static final PrintStatementAST NULL_REFERENCE_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
 					"\"NullReferenceError: dereference a null reference.\"", null), null),
 			null);
 
-	private final class DefaultOperandVisitor implements
+	public final class DefaultOperandVisitor implements
 			OperandVisitor<Operand> {
 
 		@Override
@@ -138,9 +139,9 @@ public class IntermediateCodeGenerator implements
 
 	}
 
-	private Deque<PseudoInstruction> textSection = new LinkedList<>();
+/*	private Deque<PseudoInstruction> textSection = new LinkedList<>();
 	private Deque<PseudoInstruction> dataSection = new LinkedList<>();
-	private Deque<PseudoInstruction> compilerDefinedFunctions = new LinkedList<>();
+	private Deque<PseudoInstruction> compilerDefinedFunctions = new LinkedList<>();*/
 
 	private Register returnedOperand = null;
 
@@ -150,10 +151,13 @@ public class IntermediateCodeGenerator implements
 	 */
 	private int weight = 0;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
-
+	
+	
+	
 	@Override
 	public Deque<PseudoInstruction> visit(ProgramAST prog) {
-		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		throw new RuntimeException("there shouldn't be a program inside a program, ProgramAST should only  be visited in CompileProgramAST");
+		/*	Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		// d = doCFG(d) // replaces all the temporarz registers with real ones
 		// and do the optimization
@@ -163,13 +167,22 @@ public class IntermediateCodeGenerator implements
 
 		// --- implementation of the "main" function, i.e. the stats after the
 		// function definitions
+		
+		for(FuncAST f : prog.getFunctions()) {
+			Deque<PseudoInstruction>  function = f.accept(this);
+			//fancy stuff + calling convetions
+			
+			
+		}
 
 		Operand stackSpace = new ImmediateValue(trg);
 		
 		instrList.add(new Label("main"));
 		instrList.add(new Push(ArmRegister.lr));
 		instrList.add(new Sub(ArmRegister.sp, stackSpace));
+		
 		instrList.addAll(prog.getStatements().accept(this));
+		
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue("0")));
 		instrList.add(new Add(ArmRegister.sp, stackSpace));
 		instrList.add(new Pop(ArmRegister.pc));
@@ -185,9 +198,9 @@ public class IntermediateCodeGenerator implements
 		initTextSection();
 		instrList.addAll(textSection);
 
-		return instrList;
+		return instrList;*/
 	}
-	
+/*	
 	private void initDataSection() {
 		dataSection.add(new Label(INT_SCANF_STORE_LABEL));
 		dataSection.add(new AssemblerDirective(".word 0"));
@@ -366,7 +379,7 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Pop(ArmRegister.pc));
 		return instrList;
 	}
-
+*/
 	@Override
 	public Deque<PseudoInstruction> visit(FuncAST func) {
 		// TODO Auto-generated method stub
@@ -947,7 +960,7 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		// Literal is added to the .data section
-		textSection.add(literalLabel);
+		CompileProgramAST.getTextSection().add(literalLabel);
 
 		if (valueExpr.getLiter() instanceof ArrayElemAST) {
 			instrList
@@ -956,7 +969,7 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Ldr(ret, new ImmediateValue(0)));
 		} else if (valueExpr.getType().equals(
 				new WaccArrayType(BaseType.T_char))) {
-			textSection.add(new AssemblerDirective(".ascii \""
+			CompileProgramAST.getTextSection().add(new AssemblerDirective(".ascii \""
 					+ valueExpr.getValue() + "\\0\""));
 			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
 					.getName())));
@@ -987,5 +1000,9 @@ public class IntermediateCodeGenerator implements
 		returnedOperand = variable.getScope().lookup(variable.getName())
 				.getTemporaryRegister();
 		return instrList;
+	}
+	
+	public TemporaryRegisterGenerator getTemporaryRegisterGenerator() {
+		return trg;
 	}
 }
