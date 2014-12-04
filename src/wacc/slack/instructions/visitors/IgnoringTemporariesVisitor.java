@@ -48,11 +48,10 @@ public class IgnoringTemporariesVisitor implements OperandVisitor<String> {
 					+ address.getOffset() + "]";
 		} else if ((address.getOffset() == null || address.getOffset() == 0)
 				&& (address.getRegOffset() != null)) {
-			return "[" + address.getRegister().accept(this) + ", #"
+			return "[" + address.getRegister().accept(this) + ", "
 					+ address.getRegOffset().accept(this) + "]";
 		} else {
-			// TODO: If we need this
-			return null;
+			throw new RuntimeException("Trying to visit address in ignoring temporaries visitor that isn't supported yet.");
 		}
 	}
 

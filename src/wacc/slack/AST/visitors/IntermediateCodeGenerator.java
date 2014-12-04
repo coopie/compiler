@@ -83,11 +83,11 @@ public class IntermediateCodeGenerator implements
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: negative index.\"", null),
 					null), null);
-	
+
 	private static final PrintStatementAST DIVIDE_BY_ZERO_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
-					"\"DivideByZeroError: expression has divisor of zero .\"", null), null),
-			null);
+					"\"DivideByZeroError: expression has divisor of zero .\"",
+					null), null), null);
 
 	private static final PrintStatementAST LARGE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
@@ -229,53 +229,54 @@ public class IntermediateCodeGenerator implements
 
 		}
 	}
-	
+
 	private Deque<PseudoInstruction> checkDivideByZero() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		instrList.add(new Label("p_check_divide_by_zero"));
 		instrList.add(new Push(ArmRegister.lr));
 		instrList.add(new Cmp(ArmRegister.r1, new ImmediateValue(0)));
-		
-		instrList.add(new BLInstruction("p_divide_by_zero_exception", Condition.EQ));
-		
+
+		instrList.add(new BLInstruction("p_divide_by_zero_exception",
+				Condition.EQ));
+
 		instrList.add(new Pop(ArmRegister.pc));
-		
+
 		return instrList;
 	}
-	
+
 	private Deque<PseudoInstruction> divideByZeroError() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		instrList.add(new Label("p_divide_by_zero_exception"));
 		instrList.add(new Push(ArmRegister.lr));
-		
+
 		instrList.addAll(DIVIDE_BY_ZERO_ERROR.accept(this));
 
 		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
 		instrList.add(new BLInstruction("exit"));
-		
+
 		return instrList;
 	}
-	
+
 	private Deque<PseudoInstruction> freePairAsm() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		instrList.add(new Label("p_free_pair"));
 		instrList.add(new Push(ArmRegister.lr));
-		
-		// Check and see if the index is negative or 0 
+
+		// Check and see if the index is negative or 0
 		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
 		instrList.add(new BLInstruction("p_null_reference_exception",
 				Condition.EQ));
-		
+
 		// Hopefully this should just free the whole pair
 		instrList.add(new BLInstruction("free"));
-		
+
 		instrList.add(new Pop(ArmRegister.pc));
-		
+
 		return instrList;
 	}
-	
+
 	// Needs to be added explicitly when fst/snd are used
 	private Deque<PseudoInstruction> checkNullPointerAsm() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
@@ -423,7 +424,7 @@ public class IntermediateCodeGenerator implements
 			// Increment by one
 			instrList.add(new Mov(index, returnedOperand));
 			instrList.add(new Add(index, index, new ImmediateValue(1)));
-			
+
 			// Multiply by type size
 			instrList.add(new Mul(index, index, typeSizeReg));
 
@@ -511,7 +512,7 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(PrintStatementAST printStat) {
 		ExprAST expr = printStat.getExpr();
-		//System.out.println(returnedOperand);
+		// System.out.println(returnedOperand);
 		return printInstructionGenerator(expr.accept(this), returnedOperand,
 				expr.getType());
 	}
@@ -636,7 +637,7 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(ArrayElemAST arrayElem) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		int typeSize = 4;
 		if (arrayElem.getType().equals(BaseType.T_bool)
 				|| arrayElem.getType().equals(BaseType.T_char)) {
@@ -645,10 +646,10 @@ public class IntermediateCodeGenerator implements
 
 		// Get the element at expr[n] then treat the element at expr[n] as
 		// another array and get the element expr[n+1] in that array and so on
-
 		Register trOffset = trg.generate(weight);
-		Register tr = trg.generate(weight);
-		instrList.add(new Mov(tr, new ImmediateValue(typeSize)));
+		
+		Register typeSizeReg = trg.generate(weight);
+		instrList.add(new Mov(typeSizeReg, new ImmediateValue(typeSize)));
 
 		// ldr tr1, [sp]
 		// ldr tr1, [tr1 + typeSize * index]
@@ -661,17 +662,16 @@ public class IntermediateCodeGenerator implements
 		for (int i = 0; i < arrayElem.getExprs().size(); i++) {
 			instrList.addAll(arrayElem.getExprs().get(i).accept(this));
 
-			// Move the index to trOffset
-			instrList.add(new Mov(trOffset, returnedOperand));
-
-			// Mul the index with the typeSize to get the offset
-			instrList.add(new Mul(trOffset, trOffset, tr));
-
+			// Add 1 to the index as the first element is the size
+			instrList.add(new Add(trOffset, returnedOperand, new ImmediateValue(1)));
+			// Multiply the index by the size of the array
+			instrList.add(new Mul(trOffset, trOffset, typeSizeReg));
+			
 			// Load array element at offset into array (assuming it will be
 			// another array address
 			instrList.add(new Ldr(array, new Address(array, trOffset)));
 		}
-		
+
 		returnedOperand = array;
 		return instrList;
 	}
@@ -864,9 +864,9 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Mov(ArmRegister.r0, exprRegL));
 			instrList.add(new Mov(ArmRegister.r1, exprRegR));
 			instrList.add(new BLInstruction("p_check_divide_by_zero"));
-			
+
 			instrList.add(new BLInstruction("__aeabi_idiv"));
-			
+
 			instrList.add(new Mov(destReg, ArmRegister.r0));
 			break;
 		case MOD:
@@ -996,7 +996,7 @@ public class IntermediateCodeGenerator implements
 
 		// Literal is added to the .data section
 		textSection.add(literalLabel);
-		
+
 		if (valueExpr.getLiter() instanceof ArrayElemAST) {
 			instrList
 					.addAll(((ArrayElemAST) valueExpr.getLiter()).accept(this));

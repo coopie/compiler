@@ -106,12 +106,10 @@ public class SimpleRegisterAllocator implements
 		SwapReturn r = swapBinaryInstruction(l, ldr.getSource(), ldr.getDest(),
 				ldr.getCond());
 		
-		if (r.source instanceof ImmediateValue) {
+		if (r.source instanceof ImmediateValue || r.source instanceof Address) {
 			l.add(new Ldr(r.dest, r.source, ldr.getCond()));
 		} else if (r.source instanceof Register){
 			l.add(new Ldr(r.dest, new Address((Register) r.source), ldr.getCond()));
-		} else if (r.source instanceof Address){
-			l.add(new Ldr(r.dest, r.source, ldr.getCond()));
 		} else {
 			throw new RuntimeException("Ldr error in simple register allocator.");
 		}
