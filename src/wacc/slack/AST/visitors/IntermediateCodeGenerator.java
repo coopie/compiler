@@ -81,18 +81,18 @@ public class IntermediateCodeGenerator implements
 	// instrListSpilledRegistersHaveTheRestOfTheRegistersInThem
 	private static final PrintStatementAST NEGATIVE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
-					"\"ArrayOutOfBoundsException: negative index.\"", null), null),
-			null);
+					"\"ArrayOutOfBoundsException: negative index.\"", null),
+					null), null);
 
 	private static final PrintStatementAST LARGE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
-					"\"ArrayOutOfBoundsException: index too large.\"", null), null),
-			null);
-	
+					"\"ArrayOutOfBoundsException: index too large.\"", null),
+					null), null);
+
 	private static final PrintStatementAST NULL_REFERENCE_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
-					"\"NullReferenceError: dereference a null reference.\"", null), null),
-			null);
+					"\"NullReferenceError: dereference a null reference.\"",
+					null), null), null);
 
 	private final class DefaultOperandVisitor implements
 			OperandVisitor<Operand> {
@@ -160,7 +160,7 @@ public class IntermediateCodeGenerator implements
 		// function definitions
 
 		Operand stackSpace = new ImmediateValue(trg);
-		
+
 		instrList.add(new Label("main"));
 		instrList.add(new Push(ArmRegister.lr));
 		instrList.add(new Sub(ArmRegister.sp, stackSpace));
@@ -175,19 +175,19 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new AssemblerDirective(".data"));
 		initDataSection();
 		instrList.addAll(dataSection);
-		
+
 		instrList.add(new AssemblerDirective(".text"));
 		initTextSection();
 		instrList.addAll(textSection);
 
 		return instrList;
 	}
-	
+
 	private void initDataSection() {
 		dataSection.add(new Label(INT_SCANF_STORE_LABEL));
 		dataSection.add(new AssemblerDirective(".word 0"));
 	}
-	
+
 	private void initTextSection() {
 		textSection.add(new Label(NEW_LINE_CHAR));
 		textSection.add(new AssemblerDirective("\t.ascii \"\\n\\0\""));
@@ -213,31 +213,31 @@ public class IntermediateCodeGenerator implements
 
 	private void initCompilerDefinedFunctions() {
 
-		// TODO: Make sure checkArrayBoundsAsm() is only added when an array elem is seen in the code
+		// TODO: Make sure checkArrayBoundsAsm() is only added when an array
+		// elem is seen in the code
 		if (true) {
 			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
 			compilerDefinedFunctions.addAll(checkNullPointerAsm());
 			compilerDefinedFunctions.addAll(nullReferenceErrorAsm());
 		}
-		
 	}
-	
+
 	// Needs to be added explicitly when fst/snd are used
 	private Deque<PseudoInstruction> checkNullPointerAsm() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		instrList.add(new Label("p_check_null_pointer"));
 		instrList.add(new Push(ArmRegister.lr));
-		
-		// Check and see if the index is negative or 0 
+
+		// Check and see if the index is negative or 0
 		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
 		instrList.add(new BLInstruction("p_null_reference_exception",
 				Condition.LE));
-		
+
 		instrList.add(new Pop(ArmRegister.pc));
-		
+
 		return instrList;
 	}
-	
+
 	private Deque<PseudoInstruction> nullReferenceErrorAsm() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		instrList.add(new Label("p_null_reference_exception"));
@@ -332,10 +332,9 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		instrList.addAll(assignStat.getRhs().accept(this));
 		Register destReg = trg.generate(weight);
-
-		// This might be unnecessary
+		Register tr = trg.generate(weight);
+		instrList.addAll(assignStat.getRhs().accept(this));
 		instrList.add(new Mov(destReg, returnedOperand));
 
 		// Set the variable identinfo to store this temp reg
@@ -344,8 +343,44 @@ public class IntermediateCodeGenerator implements
 					"Variable assignRHS should never be put in a real register.");
 		}
 
-		assignStat.getLhs().getScope().lookup(assignStat.getLhs().getName())
-				.setTemporaryRegister((TemporaryRegister) destReg);
+		if (assignStat.getLhs() instanceof ArrayElemAST) {
+			// Assigning array elems
+			// Figure out the type size
+			Register typeSizeReg = trg.generate(weight);
+			int typeSize = 4;
+			if (((ArrayElemAST) assignStat.getLhs()).getType().equals(
+					BaseType.T_bool)
+					|| ((ArrayElemAST) assignStat.getLhs()).getType().equals(
+							BaseType.T_char)) {
+				typeSize = 1;
+			}
+			instrList.add(new Mov(typeSizeReg, new ImmediateValue(typeSize)));
+
+			// Array address is stored in this register
+			Register arrayReg = assignStat.getLhs().getScope()
+					.lookup(assignStat.getLhs().getName())
+					.getTemporaryRegister();
+
+			// TODO: Nested assignments and check array bounds
+			// Index is stored in this register
+			Register index = trg.generate(weight);
+			instrList.addAll(((ArrayElemAST) assignStat.getLhs()).getExprs()
+					.get(0).accept(this));
+			// Increment by one
+			instrList.add(new Mov(index, returnedOperand));
+			instrList.add(new Add(index, index, new ImmediateValue(1)));
+			
+			// Multiply by type size
+			instrList.add(new Mul(index, index, typeSizeReg));
+
+			// Store the rhs in the array at offset index
+			instrList.add(new Str(destReg, new Address(arrayReg, index)));
+		} else {
+			// Assigning variables
+			assignStat.getLhs().getScope()
+					.lookup(assignStat.getLhs().getName())
+					.setTemporaryRegister((TemporaryRegister) destReg);
+		}
 
 		returnedOperand = destReg;
 		return instrList;
@@ -411,7 +446,6 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(PrintlnStatementAST printlnStat) {
-
 		ExprAST expr = printlnStat.getExpr();
 		Deque<PseudoInstruction> instr = printInstructionGenerator(
 				expr.accept(this), returnedOperand, expr.getType());
@@ -423,13 +457,14 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(PrintStatementAST printStat) {
 		ExprAST expr = printStat.getExpr();
+		//System.out.println(returnedOperand);
 		return printInstructionGenerator(expr.accept(this), returnedOperand,
 				expr.getType());
 	}
 
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
-		
+
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
@@ -443,14 +478,17 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					CHAR_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_bool)) {
-			Label falsel = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+			Label falsel = new Label(
+					ControlFlowLabelGenerator.getNewUniqueLabel());
 			Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 			instr.addLast(new Cmp(retReg, new ImmediateValue(0)));
 			instr.addLast(new BranchInstruction(Condition.EQ, falsel));
-			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(TRUE_LABEL.getName())));
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(TRUE_LABEL
+					.getName())));
 			instr.addLast(new BranchInstruction(Condition.AL, end));
 			instr.addLast(falsel);
-			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(FALSE_LABEL.getName())));
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
+					FALSE_LABEL.getName())));
 			instr.addLast(end);
 		}
 
@@ -461,40 +499,50 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(ReadStatementAST readStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		// Chatley forgive me, for I have sinned
-		Register returnVal = readStat.getAssignable().getScope().lookup(readStat.getAssignable().getName()).getTemporaryRegister();
-		
-		//read int
-		if(readStat.getAssignable().getType().equals(BaseType.T_int)) {
-			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
-			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(INT_FORMAT_LABEL)));
+		Register returnVal = readStat.getAssignable().getScope()
+				.lookup(readStat.getAssignable().getName())
+				.getTemporaryRegister();
+
+		// read int
+		if (readStat.getAssignable().getType().equals(BaseType.T_int)) {
+			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
+					INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
+					INT_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
-			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
-			instrList.add(new Ldr(returnVal,new Address(ArmRegister.r1,0)));
-		//read char
-		} else if(readStat.getAssignable().getType().equals(BaseType.T_char)) {
-			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
-			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(CHAR_FORMAT_LABEL)));
+			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
+					INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1, 0)));
+			// read char
+		} else if (readStat.getAssignable().getType().equals(BaseType.T_char)) {
+			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
+					INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
+					CHAR_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
-			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
-			instrList.add(new Ldr(returnVal,new Address(ArmRegister.r1,0)));
-		//read string
-		}else if(readStat.getAssignable().getType().equals(new WaccArrayType(BaseType.T_char))) {
-			instrList.add(new Mov(ArmRegister.r1,new ImmediateValue(100)));
+			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
+					INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1, 0)));
+			// read string
+		} else if (readStat.getAssignable().getType()
+				.equals(new WaccArrayType(BaseType.T_char))) {
+			instrList.add(new Mov(ArmRegister.r1, new ImmediateValue(100)));
 			instrList.add(new BLInstruction("malloc"));
-			instrList.add(new Mov(returnVal,ArmRegister.r0));
-			instrList.add(new Mov(ArmRegister.r1,ArmRegister.r0));
-			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(STRING_FORMAT_LABEL)));
+			instrList.add(new Mov(returnVal, ArmRegister.r0));
+			instrList.add(new Mov(ArmRegister.r1, ArmRegister.r0));
+			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
+					STRING_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
 		}
-		
-		//returnedOperand = returnVal;
+
+		// returnedOperand = returnVal;
 		return instrList;
 	}
 
 	@Override
-	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) { 
+	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) {
 
 		// /* syscall exit(int status) */
 		// mov %r0, $0 /* status -> 0 */
@@ -514,27 +562,27 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(FreeStatementAST freeStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		instrList.addAll(freeStat.getExpr().accept(this));
 		Register pair = returnedOperand;
-		
+
 		instrList.add(new Mov(ArmRegister.r0, pair));
-		
-		// Check and see if the index is negative or 0 
+
+		// Check and see if the index is negative or 0
 		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
 		instrList.add(new BLInstruction("p_null_reference_exception",
 				Condition.EQ));
-		
+
 		// Hopefully this should just free the whole pair
 		instrList.add(new BLInstruction("free"));
-		
+
 		return instrList;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(ArrayElemAST arrayElem) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-
+		
 		int typeSize = 4;
 		if (arrayElem.getType().equals(BaseType.T_bool)
 				|| arrayElem.getType().equals(BaseType.T_char)) {
@@ -545,8 +593,8 @@ public class IntermediateCodeGenerator implements
 		// another array and get the element expr[n+1] in that array and so on
 
 		Register trOffset = trg.generate(weight);
-		Register destReg = trg.generate(weight);
 		Register tr = trg.generate(weight);
+		instrList.add(new Mov(tr, new ImmediateValue(typeSize)));
 
 		// ldr tr1, [sp]
 		// ldr tr1, [tr1 + typeSize * index]
@@ -561,36 +609,34 @@ public class IntermediateCodeGenerator implements
 
 			// Move the index to trOffset
 			instrList.add(new Mov(trOffset, returnedOperand));
-			
+
 			// Mul the index with the typeSize to get the offset
-			instrList.add(new Mov(tr, new ImmediateValue(typeSize)));
 			instrList.add(new Mul(trOffset, trOffset, tr));
 
 			// Load array element at offset into array (assuming it will be
 			// another array address
 			instrList.add(new Ldr(array, new Address(array, trOffset)));
 		}
-
-		// Array element is not another array element
-		instrList.add(new Mov(destReg, array));
-
-		returnedOperand = destReg;
+		
+		returnedOperand = array;
 		return instrList;
 	}
 
 	@Override
 	public Deque<PseudoInstruction> visit(FstAST fst) {
-		// should factor out code for fst/snd into one method as its basically identical accept the address
+		// should factor out code for fst/snd into one method as its basically
+		// identical accept the address
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		Register fstReg = trg.generate(weight);
-		
+
 		Register ret = fst.getScope().lookup(fst.getName())
 				.getTemporaryRegister();
-		
-		//This may only be the case if you want to assign fst (expr) to something?
+
+		// This may only be the case if you want to assign fst (expr) to
+		// something?
 		instrList.add(new Ldr(fstReg, new Address(ret)));
-		
+
 		returnedOperand = fstReg;
 		return instrList;
 	}
@@ -598,23 +644,23 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(SndAST snd) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		final int PAIRSIZE = 8;
-		int sndAddr = PAIRSIZE/2;
-		
+		int sndAddr = PAIRSIZE / 2;
+
 		Register sndReg = trg.generate(weight);
-		
+
 		Register ret = snd.getScope().lookup(snd.getName())
 				.getTemporaryRegister();
-		
-		//This may only be the case if you want to assign snd (expr) to something?
+
+		// This may only be the case iFf you want to assign snd (expr) to
+		// something?
 		instrList.add(new Ldr(sndReg, new Address(ret, sndAddr)));
-		
+
 		returnedOperand = sndReg;
 		return instrList;
 	}
 
-	// TODO: Replace arm registers with temp ones where possible. Check
 	@Override
 	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
@@ -657,7 +703,7 @@ public class IntermediateCodeGenerator implements
 		}
 
 		// Store size of array at offset 0
-		instrList.add(new Ldr(tr2, new ImmediateValue(arrayLiter.getExprList()
+		instrList.add(new Mov(tr2, new ImmediateValue(arrayLiter.getExprList()
 				.size())));
 		// Store contents of register r5 into [r4]
 		instrList.add(new Str(tr2, new Address(tr1, 0)));
@@ -679,15 +725,15 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(NewPairAST newPair) {
-		// This new Newpair implementation is now flattened 
+		// This new Newpair implementation is now flattened
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		Register tr1 = trg.generate(weight);
-		//Register tr2 = trg.generate(weight);
-		
+		// Register tr2 = trg.generate(weight);
+
 		// For storing two elements
 		final int PAIRSIZE = 8;
-		
+
 		// Get element sizes
 		int typeSizeFst = 4;
 		int typeSizeSnd = 4;
@@ -710,25 +756,27 @@ public class IntermediateCodeGenerator implements
 		instrList.addAll(newPair.getExprL().accept(this));
 		// Move the result of evaluating expr into tr2
 		instrList.add(new Str(returnedOperand, new Address(tr1, 0)));
-		//instrList.add(new Mov(tr2, returnedOperand));
+		// instrList.add(new Mov(tr2, returnedOperand));
 		// We are no longer allocating memory for each element
-		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeFst)));
-		//instrList.add(new BLInstruction("malloc"));
+		// instrList.add(new Ldr(ArmRegister.r0, new
+		// ImmediateValue(typeSizeFst)));
+		// instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
-		//instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		//instrList.add(new Str(ArmRegister.r0, tr2));
+		// instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		// instrList.add(new Str(ArmRegister.r0, tr2));
 
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE/2)));
-		//instrList.add(new Mov(tr2, returnedOperand));
+		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE / 2)));
+		// instrList.add(new Mov(tr2, returnedOperand));
 		// We are no longer allocating memory for each element
-		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeSnd)));
-		//instrList.add(new BLInstruction("malloc"));
+		// instrList.add(new Ldr(ArmRegister.r0, new
+		// ImmediateValue(typeSizeSnd)));
+		// instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
-		//instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		//instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
+		// instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		// instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
 
 		// Store register at tr1 in [sp]
 		// Don't need to do this as we are not storing on the stack, just
@@ -887,10 +935,11 @@ public class IntermediateCodeGenerator implements
 
 		// Literal is added to the .data section
 		textSection.add(literalLabel);
-
+		
 		if (valueExpr.getLiter() instanceof ArrayElemAST) {
 			instrList
 					.addAll(((ArrayElemAST) valueExpr.getLiter()).accept(this));
+			ret = returnedOperand;
 		} else if (valueExpr.getLiter() instanceof PairLiter) {
 			instrList.add(new Ldr(ret, new ImmediateValue(0)));
 		} else if (valueExpr.getType().equals(
@@ -903,11 +952,13 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Mov(ret, new ImmediateValue(Integer
 					.parseInt(valueExpr.getValue()))));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
-			/*textSection.add(new AssemblerDirective(".byte '"
-					+ valueExpr.getValue() + "'"));
-			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
-					.getName())));*/
-			instrList.add(new Mov(ret, new ImmediateValue(valueExpr.getValue(), true)));
+			/*
+			 * textSection.add(new AssemblerDirective(".byte '" +
+			 * valueExpr.getValue() + "'")); instrList.add(new Ldr(ret, new
+			 * ImmediateValue(literalLabel .getName())));
+			 */
+			instrList.add(new Mov(ret, new ImmediateValue(valueExpr.getValue(),
+					true)));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
 				instrList.add(new Mov(ret, new ImmediateValue(1)));
