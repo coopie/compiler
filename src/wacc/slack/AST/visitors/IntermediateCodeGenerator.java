@@ -645,7 +645,7 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		Register tr1 = trg.generate(weight);
-		Register tr2 = trg.generate(weight);
+		//Register tr2 = trg.generate(weight);
 		
 		// For storing two elements
 		final int PAIRSIZE = 8;
@@ -671,24 +671,26 @@ public class IntermediateCodeGenerator implements
 		// First element
 		instrList.addAll(newPair.getExprL().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Mov(tr2, returnedOperand));
+		instrList.add(new Str(returnedOperand, new Address(tr1, 0)));
+		//instrList.add(new Mov(tr2, returnedOperand));
 		// We are no longer allocating memory for each element
 		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeFst)));
 		//instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
-		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		instrList.add(new Str(ArmRegister.r0, tr2));
+		//instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		//instrList.add(new Str(ArmRegister.r0, tr2));
 
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Mov(tr2, returnedOperand));
+		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE/2)));
+		//instrList.add(new Mov(tr2, returnedOperand));
 		// We are no longer allocating memory for each element
 		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeSnd)));
 		//instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
-		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
+		//instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		//instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
 
 		// Store register at tr1 in [sp]
 		// Don't need to do this as we are not storing on the stack, just
