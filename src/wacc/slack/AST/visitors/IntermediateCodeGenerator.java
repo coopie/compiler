@@ -507,6 +507,7 @@ public class IntermediateCodeGenerator implements
 
 		Register trOffset = trg.generate(weight);
 		Register destReg = trg.generate(weight);
+		Register tr = trg.generate(weight);
 
 		// ldr tr1, [sp]
 		// ldr tr1, [tr1 + typeSize * index]
@@ -521,9 +522,10 @@ public class IntermediateCodeGenerator implements
 
 			// Move the index to trOffset
 			instrList.add(new Mov(trOffset, returnedOperand));
+			
 			// Mul the index with the typeSize to get the offset
-			instrList.add(new Mul(trOffset, trOffset, new ImmediateValue(
-					typeSize)));
+			instrList.add(new Mov(tr, new ImmediateValue(typeSize)));
+			instrList.add(new Mul(trOffset, trOffset, tr));
 
 			// Load array element at offset into array (assuming it will be
 			// another array address
