@@ -822,6 +822,13 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Mov(destReg, ArmRegister.r0));
 			break;
 		case MOD:
+			instrList.add(new Mov(ArmRegister.r0, exprRegL));
+			instrList.add(new Mov(ArmRegister.r1, exprRegR));
+			instrList.add(new BLInstruction("p_check_divide_by_zero"));
+			
+			instrList.add(new BLInstruction("__aeabi_idivmod"));
+			
+			instrList.add(new Mov(destReg, ArmRegister.r1));
 			break;
 		case PLUS:
 			// add destReg trL trR
