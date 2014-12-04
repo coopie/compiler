@@ -83,7 +83,7 @@ public class InterferenceGraphColourer {
 		for (int c = 1; c <= k; c++) {
 			boolean neighboursContainThisColour = false;
 
-			// check if any of the neighbours have this colour 
+			// check if any of the neighbours have this colour
 			for (InterferenceGraphNode neighbour : neighbours) {
 				if (neighbour.getColour() == c) {
 					neighboursContainThisColour = true;
@@ -158,21 +158,22 @@ public class InterferenceGraphColourer {
 				return false;
 			}
 
-				@Override
-				public Boolean visit(Address address) {
-					return address.getRegister().accept(this);
-				}
+			@Override
+			public Boolean visit(Address address) {
+				return address.getRegister().accept(this);
+			}
 
-				@Override
-				public Boolean visit(NoOperand noOperand) {
-					return false;
-				}
+			@Override
+			public Boolean visit(NoOperand noOperand) {
+				return false;
+			}
+
 			@Override
 			public Boolean visit(ImmediateValue immediateValue) {
 				return false;
 			}
-			
-			});
+
+		});
 	}
 
 	// can be used if we are looking for some optimisation
@@ -202,7 +203,7 @@ public class InterferenceGraphColourer {
 		});
 		return weightList;
 	}
-	
+
 	public TemporaryRegisterMapping generateTemporaryRegisterMappings() {
 		return generateTemporaryRegisterMappings(MAX_REGS);
 	}
@@ -210,7 +211,7 @@ public class InterferenceGraphColourer {
 	public TemporaryRegisterMapping generateTemporaryRegisterMappings(int k) {
 
 		// TODO: error with test with colour 0, k still seems to be one
-		
+
 		// try to colour the graph with no scratchpad registers
 		if (!colour(k, 0)) {
 			// then colour the graph allowing nodes to spill into memory,
@@ -220,54 +221,54 @@ public class InterferenceGraphColourer {
 			k -= 3;
 			colour(k, 3);
 		}
-//		System.out.println(ig);
-		
+		// System.out.println(ig);
+
 		Map<Integer, ArmRegister> key = new HashMap<Integer, ArmRegister>();
 		List<ArmRegister> armRegsSeen = new LinkedList<ArmRegister>();
-		
-		// find all the armNodes and use them as a basis for starting the mapping
+
+		// find all the armNodes and use them as a basis for starting the
+		// mapping
 		for (InterferenceGraphNode armNode : findArmRegisterNodes()) {
-			key.put(armNode.getColour(), (ArmRegister)armNode.getRegister());
-			armRegsSeen.add((ArmRegister)armNode.getRegister());
+			key.put(armNode.getColour(), (ArmRegister) armNode.getRegister());
+			armRegsSeen.add((ArmRegister) armNode.getRegister());
 		}
-		//generate colour mappings for other ArmRegisters
-		
+		// generate colour mappings for other ArmRegisters
+
 		for (ArmRegister r : ArmRegister.values()) {
-			if(!key.containsValue(r)) {
-				for (int i = 1; i <= k; i ++) {
-					if(!key.containsKey(i)) {
+			if (!key.containsValue(r)) {
+				for (int i = 1; i <= k; i++) {
+					if (!key.containsKey(i)) {
 						key.put(i, r);
 						break;
 					}
 				}
 			}
 		}
-		
+
 		System.out.println("key is : " + key);
-		
+
 		Map<TemporaryRegister, ArmRegister> temporaryMappings = new HashMap<TemporaryRegister, ArmRegister>();
-		
+
 		// get all the unspilled nodes
 		for (InterferenceGraphNode n : getUnspilledTemporaryNodes(k)) {
 			// use the key to find the armRegister corresponding to the colour
-			temporaryMappings.put((TemporaryRegister)n.getRegister(),
+			temporaryMappings.put((TemporaryRegister) n.getRegister(),
 					key.get(n.getColour()));
 		}
-		
+
 		// do arrange the spilled nodes to timotej's specifications
-		
+
 		TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
-		Map<TemporaryRegister, TemporaryRegister> spilledNodesMap =
-							new HashMap<TemporaryRegister, TemporaryRegister>();
-		
-		for(InterferenceGraphNode n : getSpilledTemporaryNodes(k)) {
-			spilledNodesMap.put((TemporaryRegister)n.getRegister(),
+		Map<TemporaryRegister, TemporaryRegister> spilledNodesMap = new HashMap<TemporaryRegister, TemporaryRegister>();
+
+		for (InterferenceGraphNode n : getSpilledTemporaryNodes(k)) {
+			spilledNodesMap.put((TemporaryRegister) n.getRegister(),
 					trg.generate(n.getWeight()));
 		}
-		
+
 		return new TemporaryRegisterMapping(temporaryMappings, spilledNodesMap);
 	}
-	
+
 	private List<InterferenceGraphNode> getSpilledTemporaryNodes(int k) {
 		List<InterferenceGraphNode> spilledNodes = new LinkedList<InterferenceGraphNode>();
 		for (InterferenceGraphNode n : ig) {
