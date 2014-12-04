@@ -903,10 +903,11 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Mov(ret, new ImmediateValue(Integer
 					.parseInt(valueExpr.getValue()))));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
-			textSection.add(new AssemblerDirective(".byte '"
+			/*textSection.add(new AssemblerDirective(".byte '"
 					+ valueExpr.getValue() + "'"));
 			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
-					.getName())));
+					.getName())));*/
+			instrList.add(new Mov(ret, new ImmediateValue(valueExpr.getValue(), true)));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {
 			if (valueExpr.getValue().equals("true")) {
 				instrList.add(new Mov(ret, new ImmediateValue(1)));

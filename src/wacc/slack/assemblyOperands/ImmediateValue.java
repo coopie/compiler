@@ -16,7 +16,10 @@ public class ImmediateValue implements Operand {
 		this.value = "" + n;
 		trg = null;
 	}
-
+	public ImmediateValue(String n, boolean isHack) {
+		this.value = "\'" + n + "\'";
+		trg = null;
+	}
 	
 	public ImmediateValue(FutureValue<String> trg) {
 		this.trg = trg;
