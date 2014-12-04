@@ -223,7 +223,7 @@ public class SimpleRegisterAllocator implements
 		return l;
 	}
 
-	// returns negative value if it hasn't done anything
+	// Returns negative value if it hasn't done anything
 	private int storeDestRegIfNeccessary(Deque<PseudoInstruction> l,
 			Operand destReg, Condition cond) {
 		int n = temporaryNumber(destReg);
@@ -233,7 +233,7 @@ public class SimpleRegisterAllocator implements
 		return n;
 	}
 
-	// returns negative value if it hasn't done anything
+	// Returns negative value if it hasn't done anything
 	private int loadSourceReg1IfNeccessary(Deque<PseudoInstruction> l,
 			Operand sourceReg, Register r, Condition cond) {
 		int n = temporaryNumber(sourceReg);
