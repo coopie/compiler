@@ -78,7 +78,7 @@ public class IntermediateCodeGenerator implements
 	private static final Label FALSE_LABEL = new Label("l_false");
 
 	// To print error messages, get a printstatementast.accept and add it to
-	// instrList
+	// instrListSpilledRegistersHaveTheRestOfTheRegistersInThem
 	private static final PrintStatementAST NEGATIVE_INDEX_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: negative index.\"", null), null),
@@ -217,28 +217,9 @@ public class IntermediateCodeGenerator implements
 		if (true) {
 			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
 			compilerDefinedFunctions.addAll(checkNullPointerAsm());
-			compilerDefinedFunctions.addAll(freePairAsm());
 			compilerDefinedFunctions.addAll(nullReferenceErrorAsm());
 		}
 		
-	}
-	
-	private Deque<PseudoInstruction> freePairAsm() {
-		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		instrList.add(new Label("p_free_pair"));
-		instrList.add(new Push(ArmRegister.lr));
-		
-		// Check and see if the index is negative or 0 
-		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
-		instrList.add(new BLInstruction("p_null_reference_exception",
-				Condition.EQ));
-		
-		// Hopefully this should just free the whole pair
-		instrList.add(new BLInstruction("free"));
-		
-		instrList.add(new Pop(ArmRegister.pc));
-		
-		return instrList;
 	}
 	
 	// Needs to be added explicitly when fst/snd are used
@@ -448,8 +429,6 @@ public class IntermediateCodeGenerator implements
 
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
-
-		
 		
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
@@ -473,7 +452,6 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(falsel);
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(FALSE_LABEL.getName())));
 			instr.addLast(end);
-			
 		}
 
 		instr.addLast(new BLInstruction("printf"));
@@ -542,8 +520,13 @@ public class IntermediateCodeGenerator implements
 		
 		instrList.add(new Mov(ArmRegister.r0, pair));
 		
-		// Need to explicitly add method when needed
-		instrList.add(new BLInstruction("p_free_pair"));
+		// Check and see if the index is negative or 0 
+		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
+		instrList.add(new BLInstruction("p_null_reference_exception",
+				Condition.EQ));
+		
+		// Hopefully this should just free the whole pair
+		instrList.add(new BLInstruction("free"));
 		
 		return instrList;
 	}
@@ -563,6 +546,7 @@ public class IntermediateCodeGenerator implements
 
 		Register trOffset = trg.generate(weight);
 		Register destReg = trg.generate(weight);
+		Register tr = trg.generate(weight);
 
 		// ldr tr1, [sp]
 		// ldr tr1, [tr1 + typeSize * index]
@@ -577,9 +561,10 @@ public class IntermediateCodeGenerator implements
 
 			// Move the index to trOffset
 			instrList.add(new Mov(trOffset, returnedOperand));
+			
 			// Mul the index with the typeSize to get the offset
-			instrList.add(new Mul(trOffset, trOffset, new ImmediateValue(
-					typeSize)));
+			instrList.add(new Mov(tr, new ImmediateValue(typeSize)));
+			instrList.add(new Mul(trOffset, trOffset, tr));
 
 			// Load array element at offset into array (assuming it will be
 			// another array address
@@ -698,7 +683,7 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		Register tr1 = trg.generate(weight);
-		Register tr2 = trg.generate(weight);
+		//Register tr2 = trg.generate(weight);
 		
 		// For storing two elements
 		final int PAIRSIZE = 8;
@@ -724,24 +709,26 @@ public class IntermediateCodeGenerator implements
 		// First element
 		instrList.addAll(newPair.getExprL().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Mov(tr2, returnedOperand));
+		instrList.add(new Str(returnedOperand, new Address(tr1, 0)));
+		//instrList.add(new Mov(tr2, returnedOperand));
 		// We are no longer allocating memory for each element
 		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeFst)));
 		//instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
-		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		instrList.add(new Str(ArmRegister.r0, tr2));
+		//instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		//instrList.add(new Str(ArmRegister.r0, tr2));
 
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Mov(tr2, returnedOperand));
+		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE/2)));
+		//instrList.add(new Mov(tr2, returnedOperand));
 		// We are no longer allocating memory for each element
 		//instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(typeSizeSnd)));
 		//instrList.add(new BLInstruction("malloc"));
 		// This may need to be STRB for chars
-		instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
-		instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
+		//instrList.add(new Str(tr2, new Address(ArmRegister.r0, 0)));
+		//instrList.add(new Str(ArmRegister.r0, new Address(tr1, PAIRSIZE/2)));
 
 		// Store register at tr1 in [sp]
 		// Don't need to do this as we are not storing on the stack, just
@@ -807,7 +794,7 @@ public class IntermediateCodeGenerator implements
 			// cmp trL trR
 			// movlt destReg, #1
 			// movge destReg, #0
-			instrList.add(new Cmp(exprRegR, exprRegL));
+			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LT));
 			instrList
@@ -817,7 +804,7 @@ public class IntermediateCodeGenerator implements
 			// cmp trL trR
 			// movle destReg, #1
 			// movgt destReg, #0
-			instrList.add(new Cmp(exprRegR, exprRegL));
+			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LE));
 			instrList
@@ -863,21 +850,23 @@ public class IntermediateCodeGenerator implements
 
 		instrList.addAll(unExpr.getExpr().accept(this));
 
-		Register tr = returnedOperand;
+		Register tr1 = returnedOperand;
+		Register tr2 = trg.generate(weight);
 
 		// TODO: Add instructions for each unary op
 		switch (unExpr.getUnaryOp()) {
 		case NOT:
 			// and tr tr 0
-			instrList.add(new Eor(tr, tr, new ImmediateValue(1)));
+			instrList.add(new Eor(tr1, tr1, new ImmediateValue(1)));
 			break;
 		case MINUS:
 			// sub tr 0 tr
-			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
+			instrList.add(new Mov(tr2, new ImmediateValue(0)));
+			instrList.add(new Sub(tr1, tr2, tr1));
 			break;
 		case LEN:
 			// ldr tr, [tr] (the element at index 0 is the length)
-			instrList.add(new Ldr(tr, new Address(tr, 0)));
+			instrList.add(new Ldr(tr1, new Address(tr1, 0)));
 			break;
 		case ORD:
 			break;
@@ -885,7 +874,7 @@ public class IntermediateCodeGenerator implements
 			break;
 		}
 
-		returnedOperand = tr;
+		returnedOperand = tr1;
 		return instrList;
 	}
 
