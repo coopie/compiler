@@ -824,21 +824,23 @@ public class IntermediateCodeGenerator implements
 
 		instrList.addAll(unExpr.getExpr().accept(this));
 
-		Register tr = returnedOperand;
+		Register tr1 = returnedOperand;
+		Register tr2 = trg.generate(weight);
 
 		// TODO: Add instructions for each unary op
 		switch (unExpr.getUnaryOp()) {
 		case NOT:
 			// and tr tr 0
-			instrList.add(new Eor(tr, tr, new ImmediateValue(1)));
+			instrList.add(new Eor(tr1, tr1, new ImmediateValue(1)));
 			break;
 		case MINUS:
 			// sub tr 0 tr
-			instrList.add(new Sub(tr, new ImmediateValue(0), tr));
+			instrList.add(new Mov(tr2, new ImmediateValue(0)));
+			instrList.add(new Sub(tr1, tr2, tr1));
 			break;
 		case LEN:
 			// ldr tr, [tr] (the element at index 0 is the length)
-			instrList.add(new Ldr(tr, new Address(tr, 0)));
+			instrList.add(new Ldr(tr1, new Address(tr1, 0)));
 			break;
 		case ORD:
 			break;
@@ -846,7 +848,7 @@ public class IntermediateCodeGenerator implements
 			break;
 		}
 
-		returnedOperand = tr;
+		returnedOperand = tr1;
 		return instrList;
 	}
 
