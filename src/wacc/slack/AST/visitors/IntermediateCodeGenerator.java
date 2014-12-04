@@ -667,8 +667,6 @@ public class IntermediateCodeGenerator implements
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.GT));
 			
-			instrList.add(new Cmp(exprRegL, exprRegR));
-			
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.LE));
 			break;
@@ -679,7 +677,6 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.GE));
-			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.LT));
 			break;
@@ -690,7 +687,6 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LT));
-			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.GE));
 			break;
@@ -701,7 +697,6 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.LE));
-			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.GT));
 			break;
@@ -712,7 +707,6 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.EQ));
-			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.NE));
 			break;
@@ -723,7 +717,6 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.NE));
-			instrList.add(new Cmp(exprRegL, exprRegR));
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.EQ));
 			break;
