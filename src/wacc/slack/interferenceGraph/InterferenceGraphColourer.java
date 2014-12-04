@@ -100,7 +100,7 @@ public class InterferenceGraphColourer {
 
 		// if we get here, then no colours (1 -> k) are free for the node,
 		// then try to colour node with a number bigger than k
-		for (int c = k + 1;; k++) {
+		for (int c = k + 1;; c++) {
 			boolean neighboursContainThisColour = false;
 
 			for (InterferenceGraphNode neighbour : neighbours) {
@@ -205,23 +205,36 @@ public class InterferenceGraphColourer {
 	}
 
 	public TemporaryRegisterMapping generateTemporaryRegisterMappings() {
-		return generateTemporaryRegisterMappings(MAX_REGS);
+		return generateTemporaryRegisterMappings(MAX_REGS, false);
 	}
+	
+	/**
+	 * 
+	 * @param k The number of registers available registers
+	 * @param useSpilledRegsFromStart Used to skip the attempt at colouring without using scratchpad registers for spills
+	 * @return
+	 */
+	public TemporaryRegisterMapping generateTemporaryRegisterMappings(int k, boolean useSpilledRegsFromStart) {
 
-	public TemporaryRegisterMapping generateTemporaryRegisterMappings(int k) {
-
-		// TODO: error with test with colour 0, k still seems to be one
 
 		// try to colour the graph with no scratchpad registers
-		if (!colour(k, 0)) {
-			// then colour the graph allowing nodes to spill into memory,
-			// accommodating this
-			// with 3 scratchpad registers
-			ig.clean();
-			k -= 3;
+		
+		if(useSpilledRegsFromStart) {
 			colour(k, 3);
+		} else {
+			if (!colour(k, 0)) {
+				// then colour the graph allowing nodes to spill into memory,
+				// accommodating this
+				// with 3 scratchpad registers
+				if (k >= 3) {
+					ig.clean();
+					k -= 3;
+					colour(k, 3);
+				}
+			}
 		}
-		// System.out.println(ig);
+		
+		System.out.println(ig);
 
 		Map<Integer, ArmRegister> key = new HashMap<Integer, ArmRegister>();
 		List<ArmRegister> armRegsSeen = new LinkedList<ArmRegister>();

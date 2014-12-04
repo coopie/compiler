@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
+import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.generators.TemporaryRegisterGenerator;
@@ -28,6 +29,7 @@ import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
+
 
 public class TemporaryRegisterMappingsTest {
 	
@@ -44,7 +46,7 @@ public class TemporaryRegisterMappingsTest {
 	public void largeGraphColuringWithOnlyTemporaries() {
 		bigTemporaryGraph();
 		InterferenceGraphColourer colourer = new InterferenceGraphColourer(ig);
-		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(3);
+		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(3, true);
 		
 		System.out.println(trm);
 		
@@ -54,10 +56,10 @@ public class TemporaryRegisterMappingsTest {
 	
 	
 	@Test
-	public void nodesConnectedToEachOtherCannotHaveTheSameMapping() {
+	public void nodesConnectedToEachOtherCannotHaveTheSameColouring() {
 		bigTemporaryGraph();
 		InterferenceGraphColourer colourer = new InterferenceGraphColourer(ig);
-		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(5);
+		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(5, false);
 		
 		assertThat(trm.getResolvedRegisters().get(t2), is(not(trm.getResolvedRegisters().get(t10))));
 		assertThat(trm.getResolvedRegisters().get(t1), is(not(trm.getResolvedRegisters().get(t2))));
@@ -69,22 +71,34 @@ public class TemporaryRegisterMappingsTest {
 	public void resolvedRegistersHaveOnlyKElementsInThem() {
 		bigTemporaryGraph();
 		InterferenceGraphColourer colourer = new InterferenceGraphColourer(ig);
-		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(5);
+		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(3, true);
 		
+		assertThat(trm.getResolvedRegisters().keySet(), hasItems(t1, t2, t3, t6, t10));
 		assertThat(trm.getResolvedRegisters().size(), is(5));
-		assertThat(trm.getResolvedRegisters().keySet(), hasItems(t1, t3, t6, t7, t10));
 	}
 	
 	@Test
 	public void SpilledRegistersHaveTheRestOfTheRegistersInThem() {
-		bigMixedGraph();
+		bigTemporaryGraph();
 		InterferenceGraphColourer colourer = new InterferenceGraphColourer(ig);
-		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(5);
+		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(3, true);
 		
 		System.out.println(trm);
 		
 		assertThat(trm.getSpilledRegisters().size(), is(1));
-		assertThat(trm.getSpilledRegisters().keySet(), hasItems(t2));
+		assertThat(trm.getSpilledRegisters().keySet(), hasItems(t7));
+	}
+	
+	@Test
+	public void graphContainingRealRegistersDoesntIncludeThemInMapping() {
+		bigMixedGraph();
+		InterferenceGraphColourer colourer = new InterferenceGraphColourer(ig);
+		TemporaryRegisterMapping trm = colourer.generateTemporaryRegisterMappings(3, true);
+		
+		System.out.println(trm);
+		
+		assertThat(trm.getSpilledRegisters().size(), is(1));
+		assertThat(trm.getSpilledRegisters().keySet(), hasItems(t7));
 	}
 
 	
