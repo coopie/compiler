@@ -20,7 +20,7 @@ public class ReadStatementAST extends StatAST {
 	public ReadStatementAST(Assignable assignable, FilePosition filePos) {
 		super(filePos);
 		this.assignable = assignable;
-		if (!((assignable.getType() == BaseType.T_int) || (assignable.getType() == BaseType.T_char) /* || (assignable.getType().equals(new WaccArrayType(BaseType.T_char) ))*/)) {
+		if (!((assignable.getType() == BaseType.T_int) || (assignable.getType() == BaseType.T_char)  || (assignable.getType().equals(new WaccArrayType(BaseType.T_char) )))) {
 			ErrorRecords.getInstance().record(
 					new TypeMismatchError(filePos, assignable.getType(),
 							BaseType.T_int, BaseType.T_char,new WaccArrayType(BaseType.T_char)));
