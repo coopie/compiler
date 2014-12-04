@@ -63,7 +63,6 @@ import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
-import wacc.slack.instructions.Swi;
 
 // NB: use LinkedList 
 
@@ -74,6 +73,7 @@ public class IntermediateCodeGenerator implements
 	private static final String CHAR_FORMAT_LABEL = "char_format";
 	private static final String NEW_LINE_CHAR = "new_line_char";
 	private static final String INT_FORMAT_LABEL = "int_format";
+	private static final String INT_SCANF_STORE_LABEL = "intScanfStoreLabel";
 	private static final Label TRUE_LABEL = new Label("l_true");
 	private static final Label FALSE_LABEL = new Label("l_false");
 
@@ -134,6 +134,7 @@ public class IntermediateCodeGenerator implements
 	}
 
 	private Deque<PseudoInstruction> textSection = new LinkedList<>();
+	private Deque<PseudoInstruction> dataSection = new LinkedList<>();
 	private Deque<PseudoInstruction> compilerDefinedFunctions = new LinkedList<>();
 
 	private Register returnedOperand = null;
@@ -171,13 +172,22 @@ public class IntermediateCodeGenerator implements
 		initCompilerDefinedFunctions();
 		instrList.addAll(compilerDefinedFunctions);
 
+		instrList.add(new AssemblerDirective(".data"));
+		initDataSection();
+		instrList.addAll(dataSection);
+		
 		instrList.add(new AssemblerDirective(".text"));
 		initTextSection();
 		instrList.addAll(textSection);
 
 		return instrList;
 	}
-
+	
+	private void initDataSection() {
+		dataSection.add(new Label(INT_SCANF_STORE_LABEL));
+		dataSection.add(new AssemblerDirective(".word 0"));
+	}
+	
 	private void initTextSection() {
 		textSection.add(new Label(NEW_LINE_CHAR));
 		textSection.add(new AssemblerDirective("\t.ascii \"\\n\\0\""));
@@ -449,7 +459,7 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					STRING_FORMAT_LABEL)));
-		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
+		} else if (t.equals(BaseType.T_char)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					CHAR_FORMAT_LABEL)));
@@ -472,12 +482,41 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ReadStatementAST readStat) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		// Chatley forgive me, for I have sinned
+		Register returnVal = readStat.getAssignable().getScope().lookup(readStat.getAssignable().getName()).getTemporaryRegister();
+		
+		//read int
+		if(readStat.getAssignable().getType().equals(BaseType.T_int)) {
+			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(INT_FORMAT_LABEL)));
+			instrList.add(new BLInstruction("scanf"));
+			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(returnVal,new Address(ArmRegister.r1,0)));
+		//read char
+		} else if(readStat.getAssignable().getType().equals(BaseType.T_char)) {
+			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(CHAR_FORMAT_LABEL)));
+			instrList.add(new BLInstruction("scanf"));
+			instrList.add(new Ldr(ArmRegister.r1,new ImmediateValue(INT_SCANF_STORE_LABEL)));
+			instrList.add(new Ldr(returnVal,new Address(ArmRegister.r1,0)));
+		//read string
+		}else if(readStat.getAssignable().getType().equals(new WaccArrayType(BaseType.T_char))) {
+			instrList.add(new Mov(ArmRegister.r1,new ImmediateValue(100)));
+			instrList.add(new BLInstruction("malloc"));
+			instrList.add(new Mov(returnVal,ArmRegister.r0));
+			instrList.add(new Mov(ArmRegister.r1,ArmRegister.r0));
+			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(STRING_FORMAT_LABEL)));
+			instrList.add(new BLInstruction("scanf"));
+		}
+		
+		//returnedOperand = returnVal;
+		return instrList;
 	}
 
 	@Override
-	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) {
+	public Deque<PseudoInstruction> visit(ExitStatementAST exitStat) { 
 
 		// /* syscall exit(int status) */
 		// mov %r0, $0 /* status -> 0 */
