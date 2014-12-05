@@ -38,4 +38,8 @@ public interface InstructionVistor<T> {
 
 	T visit(Eor eor);
 
+	T visit(StrB strB);
+
+	T visit(LdrB ldrB);
+
 }

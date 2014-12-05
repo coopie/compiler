@@ -20,12 +20,14 @@ import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
@@ -168,8 +170,23 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Eor eor) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Register> l = eor.getSource().accept(new GetRegsIfAny());
+		l.addAll(eor.getSource2().accept(new GetRegsIfAny()));
+		return l;
+	}
+
+	@Override
+	public List<Register> visit(StrB strB) {
+		// Unsure about this implementation, from my understanding the Str instruction does not modify 
+		// the values in either registers but reads from both
+		List<Register> l = strB.getSource().accept(new GetRegsIfAny());
+		l.addAll(strB.getDest().accept(new GetRegsIfAny()));
+		return l;
+	}
+
+	@Override
+	public List<Register> visit(LdrB ldrB) {
+		return ldrB.getSource().accept(new GetRegsIfAny());
 	}
 
 }

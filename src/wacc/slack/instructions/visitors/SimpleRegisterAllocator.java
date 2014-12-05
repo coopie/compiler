@@ -22,6 +22,7 @@ import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
@@ -29,9 +30,11 @@ import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
+// TODO: Factor out code in STR and STRB and likewise for LTR and LTRB
 // only treats all temporary registers as load/store before the command they are used
 public class SimpleRegisterAllocator implements
 		InstructionVistor<Deque<PseudoInstruction>> {
@@ -105,22 +108,25 @@ public class SimpleRegisterAllocator implements
 
 		SwapReturn r = swapBinaryInstruction(l, ldr.getSource(), ldr.getDest(),
 				ldr.getCond());
-		
-		
+
 		if (r.source instanceof ImmediateValue || r.source instanceof Address) {
 			l.add(new Ldr(r.dest, r.source, ldr.getCond()));
-		} else if (r.source instanceof Register && r.source2 == null && !(ldr.getSource() instanceof Address)){
-			l.add(new Ldr(r.dest, new Address((Register) r.source), ldr.getCond()));
+		} else if (r.source instanceof Register && r.source2 == null
+				&& !(ldr.getSource() instanceof Address)) {
+			l.add(new Ldr(r.dest, new Address((Register) r.source), ldr
+					.getCond()));
 		} else if (r.source instanceof Register && r.source2 != null) {
-			l.add(new Ldr(r.dest, new Address((Register) r.source,(Register)r.source2), ldr.getCond()));
-		} else if (r.source instanceof Register && ldr.getSource() instanceof Address) {
-			l.add(new Ldr(r.dest, new Address((Register) r.source,((Address)ldr.getSource()).getOffset()), ldr.getCond()));
+			l.add(new Ldr(r.dest, new Address((Register) r.source,
+					(Register) r.source2), ldr.getCond()));
+		} else if (r.source instanceof Register
+				&& ldr.getSource() instanceof Address) {
+			l.add(new Ldr(r.dest, new Address((Register) r.source,
+					((Address) ldr.getSource()).getOffset()), ldr.getCond()));
 		} else {
-			throw new RuntimeException("Ldr error in simple register allocator.");
+			throw new RuntimeException(
+					"Ldr error in simple register allocator.");
 		}
-		
-	
-		
+
 		l.addAll(r.destStore);
 
 		return l;
@@ -156,7 +162,7 @@ public class SimpleRegisterAllocator implements
 		if (loadSourceReg1IfNeccessary(l, s2, RC, cmp.getCond()) > 0) {
 			s2 = RC;
 		}
-		
+
 		l.add(new Cmp(s1, s2, cmp.getCond()));
 
 		return l;
@@ -210,7 +216,7 @@ public class SimpleRegisterAllocator implements
 		Operand s1 = str.getDest();
 		Operand s2 = str.getSource();
 		Operand s3 = null;
-		
+
 		if (loadSourceReg1IfNeccessary(l, s1, RB, str.getCond()) > 0) {
 			s1 = RB;
 		}
@@ -218,21 +224,26 @@ public class SimpleRegisterAllocator implements
 		if (loadSourceReg1IfNeccessary(l, s2, RC, str.getCond()) > 0) {
 			s2 = RC;
 		}
-		
-		if(returnTempRegOffset != null && loadSourceReg1IfNeccessary(l, returnTempRegOffset, RA, str.getCond()) > 0) {
+
+		if (returnTempRegOffset != null
+				&& loadSourceReg1IfNeccessary(l, returnTempRegOffset, RA,
+						str.getCond()) > 0) {
 			s3 = RA;
-			l.add(new Str(s2, new Address((Register) s1,(Register) s3), str.getCond()));
+			l.add(new Str(s2, new Address((Register) s1, (Register) s3), str
+					.getCond()));
 			returnTempRegOffset = null;
 			return l;
 		}
 		returnTempRegOffset = null;
-		
+
 		if (s1 instanceof Register) {
-			l.add(new Str(s2, new Address((Register) s1,((Address)str.getDest()).getOffset()), str.getCond()));
+			l.add(new Str(s2, new Address((Register) s1, ((Address) str
+					.getDest()).getOffset()), str.getCond()));
 		} else if (s1 instanceof Address) {
 			l.add(new Str(s2, s1, str.getCond()));
 		} else {
-			throw new RuntimeException("Str error in simple register allocator.");
+			throw new RuntimeException(
+					"Str error in simple register allocator.");
 		}
 		return l;
 	}
@@ -253,7 +264,7 @@ public class SimpleRegisterAllocator implements
 		int n = temporaryNumber(sourceReg);
 		if (n > 0) {
 			l.add(new Ldr(r, new Address(ArmRegister.sp, n * 4), cond));
-		} 
+		}
 		return n;
 	}
 
@@ -273,7 +284,7 @@ public class SimpleRegisterAllocator implements
 		if (storeDestRegIfNeccessary(destStore, dest, cond) > 0) {
 			dest = RA;
 		}
-		
+
 		returnTempRegOffset = null;
 		return new SwapReturn(destStore, dest, source, source2);
 	}
@@ -290,18 +301,20 @@ public class SimpleRegisterAllocator implements
 		if (storeDestRegIfNeccessary(destStore, dest, cond) > 0) {
 			dest = RA;
 		}
-		
+
 		SwapReturn swapReturn = new SwapReturn(destStore, dest, source);
-		if(returnTempRegOffset != null && loadSourceReg1IfNeccessary(l, returnTempRegOffset, RC, cond) > 0) {
-			swapReturn = new SwapReturn(destStore,dest,source,RC);
+		if (returnTempRegOffset != null
+				&& loadSourceReg1IfNeccessary(l, returnTempRegOffset, RC, cond) > 0) {
+			swapReturn = new SwapReturn(destStore, dest, source, RC);
 		}
-	
+
 		returnTempRegOffset = null;
-		
+
 		return swapReturn;
 	}
 
 	static Register returnTempRegOffset = null;
+
 	// -1 represents not temporary register
 	private int temporaryNumber(Operand r) {
 		if (r == null)
@@ -332,8 +345,9 @@ public class SimpleRegisterAllocator implements
 			@Override
 			public Integer visit(Address address) {
 				// TODO: won't work with register offest
-				if(address.getRegOffset() != null) {
-					SimpleRegisterAllocator.returnTempRegOffset = address.getRegOffset();
+				if (address.getRegOffset() != null) {
+					SimpleRegisterAllocator.returnTempRegOffset = address
+							.getRegOffset();
 				}
 				return address.getRegister().accept(this);
 			}
@@ -375,6 +389,75 @@ public class SimpleRegisterAllocator implements
 		SwapReturn r = swapTrinaryInstruction(l, eor.getSource(),
 				eor.getSource2(), eor.getDest(), eor.getCond());
 		l.add(new Eor(r.dest, r.source, r.source2, eor.getCond()));
+		l.addAll(r.destStore);
+
+		return l;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(StrB strB) {
+		Deque<PseudoInstruction> l = new LinkedList<>();
+
+		Operand s1 = strB.getDest();
+		Operand s2 = strB.getSource();
+		Operand s3 = null;
+
+		if (loadSourceReg1IfNeccessary(l, s1, RB, strB.getCond()) > 0) {
+			s1 = RB;
+		}
+
+		if (loadSourceReg1IfNeccessary(l, s2, RC, strB.getCond()) > 0) {
+			s2 = RC;
+		}
+
+		if (returnTempRegOffset != null
+				&& loadSourceReg1IfNeccessary(l, returnTempRegOffset, RA,
+						strB.getCond()) > 0) {
+			s3 = RA;
+			l.add(new Str(s2, new Address((Register) s1, (Register) s3), strB
+					.getCond()));
+			returnTempRegOffset = null;
+			return l;
+		}
+		returnTempRegOffset = null;
+
+		if (s1 instanceof Register) {
+			l.add(new Str(s2, new Address((Register) s1, ((Address) strB
+					.getDest()).getOffset()), strB.getCond()));
+		} else if (s1 instanceof Address) {
+			l.add(new Str(s2, s1, strB.getCond()));
+		} else {
+			throw new RuntimeException(
+					"Strb error in simple register allocator.");
+		}
+		return l;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(LdrB ldrB) {
+		Deque<PseudoInstruction> l = new LinkedList<>();
+
+		SwapReturn r = swapBinaryInstruction(l, ldrB.getSource(), ldrB.getDest(),
+				ldrB.getCond());
+
+		if (r.source instanceof ImmediateValue || r.source instanceof Address) {
+			l.add(new Ldr(r.dest, r.source, ldrB.getCond()));
+		} else if (r.source instanceof Register && r.source2 == null
+				&& !(ldrB.getSource() instanceof Address)) {
+			l.add(new Ldr(r.dest, new Address((Register) r.source), ldrB
+					.getCond()));
+		} else if (r.source instanceof Register && r.source2 != null) {
+			l.add(new Ldr(r.dest, new Address((Register) r.source,
+					(Register) r.source2), ldrB.getCond()));
+		} else if (r.source instanceof Register
+				&& ldrB.getSource() instanceof Address) {
+			l.add(new Ldr(r.dest, new Address((Register) r.source,
+					((Address) ldrB.getSource()).getOffset()), ldrB.getCond()));
+		} else {
+			throw new RuntimeException(
+					"Ldr error in simple register allocator.");
+		}
+
 		l.addAll(r.destStore);
 
 		return l;

@@ -55,11 +55,13 @@ import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.interferenceGraph.CompileProgramAST;
 
@@ -211,23 +213,32 @@ public class IntermediateCodeGenerator implements
 				instrList.addAll(((ArrayElemAST) assignStat.getLhs())
 						.getExprs().get(i).accept(this));
 
-				// Increment by one
-				instrList.add(new Add(index, returnedOperand,
-						new ImmediateValue(1)));
+				// Multiply the index by the size of the array
+				instrList.add(new Mul(index, returnedOperand, typeSizeReg));
 
-				// Multiply by type size
-				instrList.add(new Mul(index, index, typeSizeReg));
+				// Add 4 since the first element of every array is the size
+				// which is
+				// always 4 bytes
+				instrList.add(new Add(index, new ImmediateValue(4)));
 
 				if (i == ((ArrayElemAST) assignStat.getLhs()).getExprs().size() - 1) {
-					instrList
-							.add(new Str(destReg, new Address(arrayReg, index)));
+					if (typeSize == 4) {
+						instrList.add(new Str(destReg, new Address(arrayReg,
+								index)));
+					} else {
+						instrList.add(new StrB(destReg, new Address(arrayReg,
+								index)));
+					}
+
 				} else {
-					// Load array at index
+					// Load array at index. These will always be address so 4
+					// bytes
 					instrList.add(new Ldr(arrayReg,
 							new Address(arrayReg, index)));
+
 				}
 			}
-			
+
 			// Move array back into original register
 			instrList.add(new Mov(arrayReg, backUpArray));
 
@@ -336,6 +347,9 @@ public class IntermediateCodeGenerator implements
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
 
+		// Offset the size at the start
+		instr.add(new Ldr(retReg, new Address(retReg, 4)));
+		
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
@@ -465,13 +479,8 @@ public class IntermediateCodeGenerator implements
 		Register trOffset = trg.generate(weight);
 
 		Register typeSizeReg = trg.generate(weight);
-		instrList.add(new Mov(typeSizeReg, new ImmediateValue(typeSize)));
+		instrList.add(new Ldr(typeSizeReg, new ImmediateValue(typeSize)));
 
-		// ldr tr1, [sp]
-		// ldr tr1, [tr1 + typeSize * index]
-		// mov destReg, tr1
-
-		// register where array is stored
 		Register array = arrayElem.getScope().lookup(arrayElem.getName())
 				.getTemporaryRegister();
 		Register arrayCopy = trg.generate(weight);
@@ -480,15 +489,28 @@ public class IntermediateCodeGenerator implements
 		for (int i = 0; i < arrayElem.getExprs().size(); i++) {
 			instrList.addAll(arrayElem.getExprs().get(i).accept(this));
 
-			// Add 1 to the index as the first element is the size
-			instrList.add(new Add(trOffset, returnedOperand,
-					new ImmediateValue(1)));
 			// Multiply the index by the size of the array
-			instrList.add(new Mul(trOffset, trOffset, typeSizeReg));
+			instrList.add(new Mul(trOffset, returnedOperand, typeSizeReg));
+			// Add 4 since the first element of every array is the size which is
+			// always 4 bytes
+			instrList.add(new Add(trOffset, new ImmediateValue(4)));
 
 			// Load array element at offset into array (assuming it will be
 			// another array address
-			instrList.add(new Ldr(arrayCopy, new Address(arrayCopy, trOffset)));
+			// Only the last array will have the size of the typeSize, the
+			// others will have 4 bytes as they will be address to other arrays
+			if (i == arrayElem.getExprs().size() - 1) {
+				if (typeSize == 4) {
+					instrList.add(new Ldr(arrayCopy, new Address(arrayCopy,
+							trOffset)));
+				} else {
+					instrList.add(new LdrB(arrayCopy, new Address(arrayCopy,
+							trOffset)));
+				}
+			} else {
+				instrList.add(new Ldr(arrayCopy, new Address(arrayCopy,
+						trOffset)));
+			}
 		}
 
 		returnedOperand = arrayCopy;
@@ -540,14 +562,8 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		// Corresponding r4 and r5 to the reference compiler. May or may not be
-		// actual r4 or r5
 		Register tr1 = trg.generate(weight);
 		Register tr2 = trg.generate(weight);
-
-		// Needs to evaluate and add code for each expression in the array then
-		// find out which register the result is in and put it in the array...
-		// no lazy evaluation! this ain't no functional language
 
 		int typeSize = 4;
 		if (arrayLiter.getType().equals(BaseType.T_bool)
@@ -555,39 +571,41 @@ public class IntermediateCodeGenerator implements
 			typeSize = 1;
 		}
 
-		// Size should be the num of elems in the array + 1 * size of the type
-		// You add one to the num of elems because you need to store the size of
-		// the array as well
-		int size = (arrayLiter.getExprList().size() + 1) * typeSize;
+		// Size should be the num of elems in the array * size of the type + 4
+		// You add 4 because of the size of the array that you are storing in
+		// index 0
+		int size = arrayLiter.getExprList().size() * typeSize + 4;
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size)));
 
 		instrList.add(new BLInstruction("malloc"));
 
 		instrList.add(new Mov(tr1, ArmRegister.r0));
 
-		int offset = typeSize;
+		// The size of the first element of every array is 4 bytes for storing
+		// the length of the array
+		int offset = 4;
 		for (ExprAST expr : arrayLiter.getExprList()) {
 
 			instrList.addAll(expr.accept(this));
 
 			// Result of evaluating expr stored in returnedOperand
 			// Store register returnedOperand to memory at [r4, #offset]
-			instrList.add(new Str(returnedOperand, new Address(tr1, offset)));
+			if (typeSize == 4) {
+				instrList
+						.add(new Str(returnedOperand, new Address(tr1, offset)));
+			} else {
+				instrList.add(new StrB(returnedOperand,
+						new Address(tr1, offset)));
+			}
 
 			offset += typeSize;
 		}
 
 		// Store size of array at offset 0
-		instrList.add(new Mov(tr2, new ImmediateValue(arrayLiter.getExprList()
+		instrList.add(new Ldr(tr2, new ImmediateValue(arrayLiter.getExprList()
 				.size())));
-		// Store contents of register r5 into [r4]
-		instrList.add(new Str(tr2, new Address(tr1, 0)));
+		instrList.add(new Str(tr2, new Address(tr1)));
 
-		// Store the actual register that is at tr1 at [sp]
-		// instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
-
-		// returnedOperand is the temp reg which stores the memory address of
-		// the array
 		returnedOperand = tr1;
 		return instrList;
 	}
@@ -799,6 +817,8 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Ldr(ret, new ImmediateValue(0)));
 		} else if (valueExpr.getType().equals(
 				new WaccArrayType(BaseType.T_char))) {
+			CompileProgramAST.getTextSection().add(
+					new AssemblerDirective(".word " + valueExpr.getValue().length()));
 			CompileProgramAST.getTextSection().add(
 					new AssemblerDirective(".ascii \"" + valueExpr.getValue()
 							+ "\\0\""));

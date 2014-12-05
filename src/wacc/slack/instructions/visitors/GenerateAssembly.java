@@ -11,12 +11,14 @@ import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
@@ -159,6 +161,28 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	public String visit(Eor eor) {
 		return concatOperands("EOR", eor.getCond(), eor.getDest(),
 				eor.getSource(), eor.getSource2());
+	}
+
+	@Override
+	public String visit(StrB strB) {
+		// Because str uses =immediatevalue instead of #immediatevalue
+		String result = newLine(4) + "STRB" + strB.getCond() + " "
+				+ strB.getSource().accept(printOperand) + ", ";
+		printOperand.setImmediateValuePrefix("=");
+		result += strB.getDest().accept(printOperand);
+		printOperand.setImmediateValuePrefix("#");
+		return result;
+	}
+
+	@Override
+	public String visit(LdrB ldrB) {
+		// Because ldr uses =immediatevalue instead of #immediatevalue
+		String result = newLine(4) + "LDBR" + ldrB.getCond() + " "
+				+ ldrB.getDest().accept(printOperand) + ", ";
+		printOperand.setImmediateValuePrefix("=");
+		result += ldrB.getSource().accept(printOperand);
+		printOperand.setImmediateValuePrefix("#");
+		return result;
 	}
 
 }
