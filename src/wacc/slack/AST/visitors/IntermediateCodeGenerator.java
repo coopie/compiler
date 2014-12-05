@@ -813,7 +813,7 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		// Literal is added to the .data section
-		CompileProgramAST.getTextSection().add(literalLabel);
+		CompileProgramAST.getDataSection().add(literalLabel);
 		if (valueExpr.getLiter() instanceof ArrayElemAST) {
 			instrList
 					.addAll(((ArrayElemAST) valueExpr.getLiter()).accept(this));
@@ -822,9 +822,9 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Ldr(ret, new ImmediateValue(0)));
 		} else if (valueExpr.getType().equals(
 				new WaccArrayType(BaseType.T_char))) {
-			CompileProgramAST.getTextSection().add(
+			CompileProgramAST.getDataSection().add(
 					new AssemblerDirective(".word " + valueExpr.getValue().length()));
-			CompileProgramAST.getTextSection().add(
+			CompileProgramAST.getDataSection().add(
 					new AssemblerDirective(".ascii \"" + valueExpr.getValue()
 							+ "\\0\""));
 			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel

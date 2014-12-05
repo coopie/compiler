@@ -414,7 +414,7 @@ public class SimpleRegisterAllocator implements
 				&& loadSourceReg1IfNeccessary(l, returnTempRegOffset, RA,
 						strB.getCond()) > 0) {
 			s3 = RA;
-			l.add(new Str(s2, new Address((Register) s1, (Register) s3), strB
+			l.add(new StrB(s2, new Address((Register) s1, (Register) s3), strB
 					.getCond()));
 			returnTempRegOffset = null;
 			return l;
