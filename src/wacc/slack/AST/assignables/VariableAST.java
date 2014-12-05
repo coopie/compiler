@@ -56,4 +56,9 @@ public class VariableAST implements Assignable, ExprAST {
 	public SymbolTable<IdentInfo> getScope() {
 		return scope;
 	}
+	
+	@Override
+	public String toString() {
+		return id;
+	}
 }

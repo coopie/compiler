@@ -1,6 +1,6 @@
 package wacc.slack;
 
-public class FilePosition {
+public class FilePosition  implements Comparable<FilePosition>{
 
 	private final int lineNo;
 	private final int columnNo;
@@ -17,6 +17,11 @@ public class FilePosition {
 	@Override
 	public String toString() {
 		return getFilePosInfo();
+	}
+
+	@Override
+	public int compareTo(FilePosition fp) {
+		return ((lineNo * 200) + columnNo) - ((fp.lineNo * 200) + fp.columnNo);
 	}
 
 }
