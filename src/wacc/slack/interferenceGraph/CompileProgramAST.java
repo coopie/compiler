@@ -30,7 +30,7 @@ public class CompileProgramAST {
 	private final ProgramAST program;
 
 	private static Deque<PseudoInstruction> textSection = new LinkedList<>();
-	private Deque<PseudoInstruction> dataSection = new LinkedList<>();
+	private static Deque<PseudoInstruction> dataSection = new LinkedList<>();
 	private Deque<PseudoInstruction> compilerDefinedFunctions = new LinkedList<>();
 
 	public CompileProgramAST(ProgramAST program) {
@@ -304,6 +304,10 @@ public class CompileProgramAST {
 
 	public static Deque<PseudoInstruction> getTextSection() {
 		return textSection;
+	}
+	
+	public static Deque<PseudoInstruction> getDataSection() {
+		return dataSection;
 	}
 
 }
