@@ -15,6 +15,7 @@ import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.visitors.ComplexRegisterAllocator;
+import wacc.slack.instructions.visitors.SimpleRegisterAllocator;
 import wacc.slack.instructions.visitors.TemporaryReplacer;
 import wacc.slack.interferenceGraph.InterferenceGraph;
 import wacc.slack.interferenceGraph.InterferenceGraphColourer;

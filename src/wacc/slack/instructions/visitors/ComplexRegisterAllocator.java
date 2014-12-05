@@ -400,7 +400,7 @@ public class ComplexRegisterAllocator implements
 				if(i.hasNext()) {
 					ArmRegister scratchReg = i.next();
 					map.put(t, scratchReg);
-					s.add(new Ldr(scratchReg, new Address(ArmRegister.sp, t.getN() * 4)));
+					s.add(new Str(scratchReg, new Address(ArmRegister.sp, t.getN() * 4)));
 				} else {
 					throw new RuntimeException("not enough scracth registers for operand " + dest);
 				}
