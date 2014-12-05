@@ -25,6 +25,7 @@ import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
@@ -32,6 +33,7 @@ import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 import wacc.slack.interferenceGraph.RegisterMapping;
@@ -454,5 +456,44 @@ public class ComplexRegisterAllocator implements
 		} else {
 			return source;
 		}
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(StrB strB) {
+		Operand dest = strB.getDest();
+		Operand source = strB.getSource();
+		
+		dest = dest.accept(temporarySwapper);
+		source = source.accept(temporarySwapper);
+		
+		Deque<PseudoInstruction> l = new LinkedList<>();
+		
+		List<ArmRegister> scratch = new LinkedList<>(scratchRegisters);
+		
+		source = loadIfSpilled(l, source, scratch);
+		dest = loadIfSpilled(l, dest,scratch);
+		
+		l.add(new StrB(source,dest, strB.getCond()));
+		return l;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(LdrB ldrB) {
+		Operand dest = ldrB.getDest();
+		Operand source = ldrB.getSource();
+		
+		dest = dest.accept(temporarySwapper);
+		source = source.accept(temporarySwapper);
+		
+		Deque<PseudoInstruction> l = new LinkedList<>();
+		Deque<PseudoInstruction> s = new LinkedList<>();
+	
+		source = loadIfSpilled(l, source, new LinkedList<>(scratchRegisters));
+		dest = storeIfSpilled(s, dest, new LinkedList<>(scratchRegisters));
+		
+		l.add(new LdrB(dest,source, ldrB.getCond()));
+		l.addAll(s);
+		
+		return l;
 	}
 }

@@ -14,7 +14,7 @@ import wacc.slack.assemblyOperands.Register;
 import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.PseudoInstruction;
-import wacc.slack.instructions.visitors.SimpleRegisterAllocator;
+import wacc.slack.instructions.visitors.ComplexRegisterAllocator;
 import wacc.slack.instructions.visitors.TemporaryReplacer;
 import wacc.slack.interferenceGraph.InterferenceGraph;
 import wacc.slack.interferenceGraph.InterferenceGraphColourer;
@@ -69,7 +69,7 @@ public class GenerateOptimizedIntermediateCode implements Callable<Deque<PseudoI
 			Deque<PseudoInstruction> intermediateCode) {
 		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>();
 		for (PseudoInstruction ps : intermediateCode) {
-			finalCode.addAll(ps.accept(new SimpleRegisterAllocator()));
+			finalCode.addAll(ps.accept(new ComplexRegisterAllocator()));
 			finalCode.add(new AssemblerDirective("\n")); // for debugging
 															// purposes
 		}
