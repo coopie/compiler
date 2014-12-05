@@ -244,7 +244,9 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(BeginEndAST beginEnd) {
-		return new LinkedList<PseudoInstruction>();
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.addAll(beginEnd.getBody().accept(this));
+		return instrList;
 	}
 
 	@Override
