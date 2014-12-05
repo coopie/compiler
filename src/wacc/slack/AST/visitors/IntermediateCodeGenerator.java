@@ -474,6 +474,8 @@ public class IntermediateCodeGenerator implements
 		// register where array is stored
 		Register array = arrayElem.getScope().lookup(arrayElem.getName())
 				.getTemporaryRegister();
+		Register arrayCopy = trg.generate(weight);
+		instrList.add(new Mov(arrayCopy, array));
 
 		for (int i = 0; i < arrayElem.getExprs().size(); i++) {
 			instrList.addAll(arrayElem.getExprs().get(i).accept(this));
@@ -486,10 +488,10 @@ public class IntermediateCodeGenerator implements
 
 			// Load array element at offset into array (assuming it will be
 			// another array address
-			instrList.add(new Ldr(array, new Address(array, trOffset)));
+			instrList.add(new Ldr(arrayCopy, new Address(arrayCopy, trOffset)));
 		}
 
-		returnedOperand = array;
+		returnedOperand = arrayCopy;
 		return instrList;
 	}
 
