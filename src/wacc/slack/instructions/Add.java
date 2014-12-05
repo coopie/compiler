@@ -10,7 +10,7 @@ public class Add extends GeneralArmInstruction implements PseudoInstruction {
 	}
 
 	public Add(Operand sp, Operand stackSpace) {
-		super(sp, stackSpace);
+		super(sp,sp, stackSpace);
 	}
 
 	public Add(Operand dest, Operand source, Operand source2, Condition cond) {

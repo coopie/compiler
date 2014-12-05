@@ -10,7 +10,7 @@ public class Sub extends GeneralArmInstruction implements PseudoInstruction {
 	}
 	
 	public Sub(Operand dest, Operand source) {
-		super(dest, source);
+		super(dest, dest, source);
 	}
 
 	public Sub(Operand dest, Operand source, Operand source2, Condition cond) {
