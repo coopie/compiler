@@ -49,6 +49,11 @@ public class IdentInfo {
 		this.register = r;
 	}
 	
+	@Override
+	public String toString() {
+		return "[" + ident_type + ", " + declaredAt + ", " + register + "]"; 
+	}
+	
 	
 	
 }
