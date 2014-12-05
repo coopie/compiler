@@ -54,11 +54,11 @@ public class SymbolTable<T extends IdentInfo> {
 					return i;
 				}
 			} else {
-
+				return i;
 			}
 		}
-		throw new RuntimeException("problem with the symbolTable lookup for "
-				+ ident + " at: " + fp);
+//		throw new RuntimeException("problem with the symbolTable lookup for "
+//				+ ident + " at: " + fp);
 
 	}
 
@@ -76,5 +76,10 @@ public class SymbolTable<T extends IdentInfo> {
 
 	public T lookupCurrentScope(String key) {
 		return table.get(key);
+	}
+	
+	@Override
+	public String toString() {
+		return table.toString();
 	}
 }
