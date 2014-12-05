@@ -352,7 +352,7 @@ public class IntermediateCodeGenerator implements
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
 
 		// Offset the size at the start
-		instr.add(new Ldr(retReg, new Address(retReg, 4)));
+		instr.add(new Add(retReg, new ImmediateValue(4)));
 		
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
