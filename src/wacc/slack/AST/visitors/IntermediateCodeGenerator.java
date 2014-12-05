@@ -180,6 +180,7 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		Register destReg = trg.generate(weight);
+
 		Register tr = trg.generate(weight);
 		instrList.addAll(assignStat.getRhs().accept(this));
 		instrList.add(new Mov(destReg, returnedOperand));
@@ -254,9 +255,12 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Str(destReg, new Address(ret, 4)));
 		} else {
 			// Assigning variables
-			assignStat.getLhs().getScope()
-					.lookup(assignStat.getLhs().getName())
-					.setTemporaryRegister((TemporaryRegister) destReg);
+			assignStat
+					.getLhs()
+					.getScope()
+					.lookup(assignStat.getLhs().getName(),
+							assignStat.getLhs().getFilePosition())
+					.setTemporaryRegister((TemporaryRegister)destReg);
 		}
 
 		returnedOperand = destReg;

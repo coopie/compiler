@@ -5,6 +5,7 @@ import java.util.List;
 import wacc.slack.FilePosition;
 import wacc.slack.AST.types.Type;
 import wacc.slack.assemblyOperands.TemporaryRegister;
+import wacc.slack.generators.TemporaryRegisterGenerator;
 
 public class IdentInfo {
 
@@ -15,6 +16,7 @@ public class IdentInfo {
 	public IdentInfo(Type ident_type, FilePosition declaredAt) {
 		this.ident_type = ident_type;
 		this.declaredAt = declaredAt;
+		this.register = null;
 	}
 
 	public Type getType() {
@@ -34,8 +36,19 @@ public class IdentInfo {
 		return register;
 	}
 	
-	public void setTemporaryRegister(TemporaryRegister register) {
-		this.register = register;
+	
+	public TemporaryRegister getTemporaryRegister(TemporaryRegisterGenerator trg, int weight) {
+		if(register == null) {
+			this.register = trg.generate(weight);
+		}
+		return register;
 	}
+	
+
+	public void setTemporaryRegister(TemporaryRegister r) {
+		this.register = r;
+	}
+	
+	
 	
 }
