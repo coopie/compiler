@@ -351,15 +351,15 @@ public class IntermediateCodeGenerator implements
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
 
-		// Offset the size at the start
-		instr.add(new Add(retReg, new ImmediateValue(4)));
-		
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					INT_FORMAT_LABEL)));
 		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
+			// Offset the size at the start
+			instr.add(new Add(retReg, new ImmediateValue(4)));
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
+			instr.add(new Sub(retReg, new ImmediateValue(4)));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					STRING_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_char)) {
@@ -382,6 +382,7 @@ public class IntermediateCodeGenerator implements
 		}
 
 		instr.addLast(new BLInstruction("printf"));
+		
 		return instr;
 	}
 
