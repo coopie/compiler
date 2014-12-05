@@ -55,13 +55,13 @@ import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
-import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
-import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.interferenceGraph.CompileProgramAST;
 
@@ -84,7 +84,7 @@ public class IntermediateCodeGenerator implements
 			new ValueExprAST(new StringLiter(
 					"\"ArrayOutOfBoundsException: negative index.\"", null),
 					null), null);
-	
+
 	public static final PrintStatementAST DIVIDE_BY_ZERO_ERROR = new PrintStatementAST(
 			new ValueExprAST(new StringLiter(
 					"\"DivideByZeroError: expression has divisor of zero .\"",
@@ -100,8 +100,7 @@ public class IntermediateCodeGenerator implements
 					"\"NullReferenceError: dereference a null reference.\"",
 					null), null), null);
 
-	public final class DefaultOperandVisitor implements
-			OperandVisitor<Operand> {
+	public final class DefaultOperandVisitor implements OperandVisitor<Operand> {
 
 		@Override
 		public Operand visit(ArmRegister realRegister) {
@@ -139,9 +138,12 @@ public class IntermediateCodeGenerator implements
 
 	}
 
-/*	private Deque<PseudoInstruction> textSection = new LinkedList<>();
-	private Deque<PseudoInstruction> dataSection = new LinkedList<>();
-	private Deque<PseudoInstruction> compilerDefinedFunctions = new LinkedList<>();*/
+	/*
+	 * private Deque<PseudoInstruction> textSection = new LinkedList<>();
+	 * private Deque<PseudoInstruction> dataSection = new LinkedList<>();
+	 * private Deque<PseudoInstruction> compilerDefinedFunctions = new
+	 * LinkedList<>();
+	 */
 
 	private Register returnedOperand = null;
 
@@ -151,12 +153,11 @@ public class IntermediateCodeGenerator implements
 	 */
 	private int weight = 0;
 	private TemporaryRegisterGenerator trg = new TemporaryRegisterGenerator();
-	
-	
-	
+
 	@Override
 	public Deque<PseudoInstruction> visit(ProgramAST prog) {
-		throw new RuntimeException("there shouldn't be a program inside a program, ProgramAST should only  be visited in CompileProgramAST");
+		throw new RuntimeException(
+				"there shouldn't be a program inside a program, ProgramAST should only  be visited in CompileProgramAST");
 	}
 
 	@Override
@@ -177,12 +178,13 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		
+
 		Register destReg = trg.generate(weight);
+
 		Register tr = trg.generate(weight);
 		instrList.addAll(assignStat.getRhs().accept(this));
 		instrList.add(new Mov(destReg, returnedOperand));
-		
+
 		// Set the variable identinfo to store this temp reg
 		if (!(destReg instanceof TemporaryRegister)) {
 			throw new RuntimeException(
@@ -190,8 +192,6 @@ public class IntermediateCodeGenerator implements
 		}
 
 		if (assignStat.getLhs() instanceof ArrayElemAST) {
-			// Assigning array elems
-			// Figure out the type size
 			Register typeSizeReg = trg.generate(weight);
 			int typeSize = 4;
 			if (((ArrayElemAST) assignStat.getLhs()).getType().equals(
@@ -202,25 +202,47 @@ public class IntermediateCodeGenerator implements
 			}
 			instrList.add(new Mov(typeSizeReg, new ImmediateValue(typeSize)));
 
-			// Array address is stored in this register
 			Register arrayReg = assignStat.getLhs().getScope()
 					.lookup(assignStat.getLhs().getName())
 					.getTemporaryRegister();
+			Register backUpArray = trg.generate(weight);
+			instrList.add(new Mov(backUpArray, arrayReg));
 
-			// TODO: Nested assignments and check array bounds
-			// Index is stored in this register
 			Register index = trg.generate(weight);
-			instrList.addAll(((ArrayElemAST) assignStat.getLhs()).getExprs()
-					.get(0).accept(this));
-			// Increment by one
-			instrList.add(new Mov(index, returnedOperand));
-			instrList.add(new Add(index, index, new ImmediateValue(1)));
+			for (int i = 0; i < ((ArrayElemAST) assignStat.getLhs()).getExprs()
+					.size(); i++) {
+				instrList.addAll(((ArrayElemAST) assignStat.getLhs())
+						.getExprs().get(i).accept(this));
 
-			// Multiply by type size
-			instrList.add(new Mul(index, index, typeSizeReg));
+				// Multiply the index by the size of the array
+				instrList.add(new Mul(index, returnedOperand, typeSizeReg));
 
-			// Store the rhs in the array at offset index
-			instrList.add(new Str(destReg, new Address(arrayReg, index)));
+				// Add 4 since the first element of every array is the size
+				// which is
+				// always 4 bytes
+				instrList.add(new Add(index, new ImmediateValue(4)));
+
+				if (i == ((ArrayElemAST) assignStat.getLhs()).getExprs().size() - 1) {
+					if (typeSize == 4) {
+						instrList.add(new Str(destReg, new Address(arrayReg,
+								index)));
+					} else {
+						instrList.add(new StrB(destReg, new Address(arrayReg,
+								index)));
+					}
+
+				} else {
+					// Load array at index. These will always be address so 4
+					// bytes
+					instrList.add(new Ldr(arrayReg,
+							new Address(arrayReg, index)));
+
+				}
+			}
+
+			// Move array back into original register
+			instrList.add(new Mov(arrayReg, backUpArray));
+
 		} else if (assignStat.getLhs() instanceof FstAST) {
 			FstAST fst = (FstAST) assignStat.getLhs();
 			Register ret = fst.getScope().lookup(fst.getName())
@@ -233,9 +255,12 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Str(destReg, new Address(ret, 4)));
 		} else {
 			// Assigning variables
-			assignStat.getLhs().getScope()
-					.lookup(assignStat.getLhs().getName())
-					.setTemporaryRegister((TemporaryRegister) destReg);
+			assignStat
+					.getLhs()
+					.getScope()
+					.lookup(assignStat.getLhs().getName(),
+							assignStat.getLhs().getFilePosition())
+					.setTemporaryRegister((TemporaryRegister)destReg);
 		}
 
 		returnedOperand = destReg;
@@ -244,7 +269,9 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(BeginEndAST beginEnd) {
-		return new LinkedList<PseudoInstruction>();
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.addAll(beginEnd.getBody().accept(this));
+		return instrList;
 	}
 
 	@Override
@@ -279,17 +306,16 @@ public class IntermediateCodeGenerator implements
 
 		weight = weight * 10;
 
-		
 		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		instrList.add(new BranchInstruction(Condition.AL, end));
-		
+
 		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
 		instrList.add(start);
 		instrList.addAll(whileStat.getBody().accept(this));
-		
+
 		instrList.add(end);
 		instrList.addAll(whileStat.getCond().accept(this));
-		
+
 		instrList.add(new Cmp(returnedOperand, new ImmediateValue(1)));
 		instrList.add(new BranchInstruction(Condition.EQ, start));
 		weight = weight / 10;
@@ -330,7 +356,10 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					INT_FORMAT_LABEL)));
 		} else if (t.equals(new WaccArrayType(BaseType.T_char))) {
+			// Offset the size at the start
+			instr.add(new Add(retReg, new ImmediateValue(4)));
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
+			instr.add(new Sub(retReg, new ImmediateValue(4)));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					STRING_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_char)) {
@@ -353,6 +382,7 @@ public class IntermediateCodeGenerator implements
 		}
 
 		instr.addLast(new BLInstruction("printf"));
+		
 		return instr;
 	}
 
@@ -452,32 +482,43 @@ public class IntermediateCodeGenerator implements
 		// Get the element at expr[n] then treat the element at expr[n] as
 		// another array and get the element expr[n+1] in that array and so on
 		Register trOffset = trg.generate(weight);
-		
+
 		Register typeSizeReg = trg.generate(weight);
-		instrList.add(new Mov(typeSizeReg, new ImmediateValue(typeSize)));
+		instrList.add(new Ldr(typeSizeReg, new ImmediateValue(typeSize)));
 
-		// ldr tr1, [sp]
-		// ldr tr1, [tr1 + typeSize * index]
-		// mov destReg, tr1
-
-		// register where array is stored
 		Register array = arrayElem.getScope().lookup(arrayElem.getName())
 				.getTemporaryRegister();
+		Register arrayCopy = trg.generate(weight);
+		instrList.add(new Mov(arrayCopy, array));
 
 		for (int i = 0; i < arrayElem.getExprs().size(); i++) {
 			instrList.addAll(arrayElem.getExprs().get(i).accept(this));
 
-			// Add 1 to the index as the first element is the size
-			instrList.add(new Add(trOffset, returnedOperand, new ImmediateValue(1)));
 			// Multiply the index by the size of the array
-			instrList.add(new Mul(trOffset, trOffset, typeSizeReg));
-			
+			instrList.add(new Mul(trOffset, returnedOperand, typeSizeReg));
+			// Add 4 since the first element of every array is the size which is
+			// always 4 bytes
+			instrList.add(new Add(trOffset, new ImmediateValue(4)));
+
 			// Load array element at offset into array (assuming it will be
 			// another array address
-			instrList.add(new Ldr(array, new Address(array, trOffset)));
+			// Only the last array will have the size of the typeSize, the
+			// others will have 4 bytes as they will be address to other arrays
+			if (i == arrayElem.getExprs().size() - 1) {
+				if (typeSize == 4) {
+					instrList.add(new Ldr(arrayCopy, new Address(arrayCopy,
+							trOffset)));
+				} else {
+					instrList.add(new LdrB(arrayCopy, new Address(arrayCopy,
+							trOffset)));
+				}
+			} else {
+				instrList.add(new Ldr(arrayCopy, new Address(arrayCopy,
+						trOffset)));
+			}
 		}
 
-		returnedOperand = array;
+		returnedOperand = arrayCopy;
 		return instrList;
 	}
 
@@ -497,7 +538,7 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Ldr(fstReg, new Address(ret)));
 
 		returnedOperand = fstReg;
-		
+
 		return instrList;
 	}
 
@@ -518,7 +559,7 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Ldr(sndReg, new Address(ret, sndAddr)));
 
 		returnedOperand = sndReg;
-		
+
 		return instrList;
 	}
 
@@ -526,14 +567,8 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(ArrayLiterAST arrayLiter) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		// Corresponding r4 and r5 to the reference compiler. May or may not be
-		// actual r4 or r5
 		Register tr1 = trg.generate(weight);
 		Register tr2 = trg.generate(weight);
-
-		// Needs to evaluate and add code for each expression in the array then
-		// find out which register the result is in and put it in the array...
-		// no lazy evaluation! this ain't no functional language
 
 		int typeSize = 4;
 		if (arrayLiter.getType().equals(BaseType.T_bool)
@@ -541,39 +576,41 @@ public class IntermediateCodeGenerator implements
 			typeSize = 1;
 		}
 
-		// Size should be the num of elems in the array + 1 * size of the type
-		// You add one to the num of elems because you need to store the size of
-		// the array as well
-		int size = (arrayLiter.getExprList().size() + 1) * typeSize;
+		// Size should be the num of elems in the array * size of the type + 4
+		// You add 4 because of the size of the array that you are storing in
+		// index 0
+		int size = arrayLiter.getExprList().size() * typeSize + 4;
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(size)));
 
 		instrList.add(new BLInstruction("malloc"));
 
 		instrList.add(new Mov(tr1, ArmRegister.r0));
 
-		int offset = typeSize;
+		// The size of the first element of every array is 4 bytes for storing
+		// the length of the array
+		int offset = 4;
 		for (ExprAST expr : arrayLiter.getExprList()) {
 
 			instrList.addAll(expr.accept(this));
 
 			// Result of evaluating expr stored in returnedOperand
 			// Store register returnedOperand to memory at [r4, #offset]
-			instrList.add(new Str(returnedOperand, new Address(tr1, offset)));
+			if (typeSize == 4) {
+				instrList
+						.add(new Str(returnedOperand, new Address(tr1, offset)));
+			} else {
+				instrList.add(new StrB(returnedOperand,
+						new Address(tr1, offset)));
+			}
 
 			offset += typeSize;
 		}
 
 		// Store size of array at offset 0
-		instrList.add(new Mov(tr2, new ImmediateValue(arrayLiter.getExprList()
+		instrList.add(new Ldr(tr2, new ImmediateValue(arrayLiter.getExprList()
 				.size())));
-		// Store contents of register r5 into [r4]
-		instrList.add(new Str(tr2, new Address(tr1, 0)));
+		instrList.add(new Str(tr2, new Address(tr1)));
 
-		// Store the actual register that is at tr1 at [sp]
-		// instrList.add(new Str(tr1, new Address(ArmRegister.sp, 0)));
-
-		// returnedOperand is the temp reg which stores the memory address of
-		// the array
 		returnedOperand = tr1;
 		return instrList;
 	}
@@ -607,7 +644,7 @@ public class IntermediateCodeGenerator implements
 		// Second element
 		instrList.addAll(newPair.getExprR().accept(this));
 		// Move the result of evaluating expr into tr2
-		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE/2)));
+		instrList.add(new Str(returnedOperand, new Address(tr1, PAIRSIZE / 2)));
 
 		// Should store memory address of pair
 		returnedOperand = tr1;
@@ -645,9 +682,9 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Mov(ArmRegister.r0, exprRegL));
 			instrList.add(new Mov(ArmRegister.r1, exprRegR));
 			instrList.add(new BLInstruction("p_check_divide_by_zero"));
-			
+
 			instrList.add(new BLInstruction("__aeabi_idivmod"));
-			
+
 			instrList.add(new Mov(destReg, ArmRegister.r1));
 			break;
 		case PLUS:
@@ -663,10 +700,10 @@ public class IntermediateCodeGenerator implements
 			// movgt destReg, #1
 			// movle destReg, #0
 			instrList.add(new Cmp(exprRegL, exprRegR));
-			
+
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(1), Condition.GT));
-			
+
 			instrList
 					.add(new Mov(destReg, new ImmediateValue(0), Condition.LE));
 			break;
@@ -785,8 +822,11 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new Ldr(ret, new ImmediateValue(0)));
 		} else if (valueExpr.getType().equals(
 				new WaccArrayType(BaseType.T_char))) {
-			CompileProgramAST.getTextSection().add(new AssemblerDirective(".ascii \""
-					+ valueExpr.getValue() + "\\0\""));
+			CompileProgramAST.getTextSection().add(
+					new AssemblerDirective(".word " + valueExpr.getValue().length()));
+			CompileProgramAST.getTextSection().add(
+					new AssemblerDirective(".ascii \"" + valueExpr.getValue()
+							+ "\\0\""));
 			instrList.add(new Ldr(ret, new ImmediateValue(literalLabel
 					.getName())));
 		} else if (valueExpr.getType().equals(BaseType.T_int)) {
@@ -819,7 +859,7 @@ public class IntermediateCodeGenerator implements
 				.getTemporaryRegister();
 		return instrList;
 	}
-	
+
 	public TemporaryRegisterGenerator getTemporaryRegisterGenerator() {
 		return trg;
 	}

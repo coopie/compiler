@@ -11,12 +11,14 @@ import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Eor;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.Swi;
 
@@ -181,6 +183,24 @@ public class AbstractInstructionVisitor<T> implements InstructionVistor<T> {
 
 	@Override
 	public T visit(Eor eor) {
+		try {
+			return func.call();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public T visit(StrB strB) {
+		try {
+			return func.call();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public T visit(LdrB ldrB) {
 		try {
 			return func.call();
 		} catch (Exception e) {

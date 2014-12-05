@@ -9,6 +9,6 @@ public interface Assignable extends WaccAST, AssignRHS {
 	public String getName();
 
 	public SymbolTable<IdentInfo> getScope();
-	
+
 	public Type getType();
 }
