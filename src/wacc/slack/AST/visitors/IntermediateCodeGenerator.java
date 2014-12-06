@@ -187,7 +187,7 @@ public class IntermediateCodeGenerator implements
 			temporary = trg.generate(weight);
 			instrList.add(new Ldr(temporary, new Address(ArmRegister.lr, frameOffset*4)));
 			p.getScope().lookup(p.getIdent()).setTemporaryRegister(temporary);
-			frameOffset--;
+			frameOffset++;
 		}
 		instrList.addAll(func.getStat().accept(this));
 		//this is done by return
