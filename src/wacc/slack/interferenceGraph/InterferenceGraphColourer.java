@@ -14,6 +14,7 @@ import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.NoOperand;
+import wacc.slack.assemblyOperands.Operand2;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
@@ -170,6 +171,11 @@ public class InterferenceGraphColourer {
 
 			@Override
 			public Boolean visit(ImmediateValue immediateValue) {
+				return false;
+			}
+
+			@Override
+			public Boolean visit(Operand2 operand2) {
 				return false;
 			}
 

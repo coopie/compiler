@@ -17,6 +17,7 @@ import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Smull;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -116,7 +117,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Mul mul) {
-		return concatOperands("MULS", mul.getCond(), mul.getDest(),
+		return concatOperands("MUL", mul.getCond(), mul.getDest(),
 				mul.getSource(), mul.getSource2());
 	}
 
@@ -135,7 +136,8 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	private String concatOperands(String instr, Condition cond, Operand dest,
 			Operand source, Operand source2) {
 
-		String base = newLine(4) + instr + cond + " " + dest.accept(printOperand) + ", "
+		String base = newLine(4) + instr + cond + " "
+				+ dest.accept(printOperand) + ", "
 				+ source.accept(printOperand);
 		String source2String = source2.accept(printOperand);
 		if (source2String == "") {
@@ -183,6 +185,14 @@ public class GenerateAssembly implements InstructionVistor<String> {
 		result += ldrB.getSource().accept(printOperand);
 		printOperand.setImmediateValuePrefix("#");
 		return result;
+	}
+
+	@Override
+	public String visit(Smull smull) {
+		return newLine(4) + "SMULL " + smull.getRdLo().accept(printOperand)
+				+ ", " + smull.getRdHi().accept(printOperand) + ", "
+				+ smull.getRm().accept(printOperand) + ", "
+				+ smull.getRs().accept(printOperand);
 	}
 
 }

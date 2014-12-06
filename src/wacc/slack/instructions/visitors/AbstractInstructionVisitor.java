@@ -17,6 +17,7 @@ import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Smull;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -201,6 +202,15 @@ public class AbstractInstructionVisitor<T> implements InstructionVistor<T> {
 
 	@Override
 	public T visit(LdrB ldrB) {
+		try {
+			return func.call();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public T visit(Smull smull) {
 		try {
 			return func.call();
 		} catch (Exception e) {

@@ -4,11 +4,14 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedList;
 
+import javax.management.RuntimeErrorException;
+
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.assemblyOperands.Operand2;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
@@ -29,6 +32,7 @@ import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Smull;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -357,6 +361,12 @@ public class SimpleRegisterAllocator implements
 				return -1;
 			}
 
+			@Override
+			public Integer visit(Operand2 operand2) {
+				// TODO: I cannot be sure this works
+				return operand2.getR().accept(this);
+			}
+
 		}));
 	}
 
@@ -437,8 +447,8 @@ public class SimpleRegisterAllocator implements
 	public Deque<PseudoInstruction> visit(LdrB ldrB) {
 		Deque<PseudoInstruction> l = new LinkedList<>();
 
-		SwapReturn r = swapBinaryInstruction(l, ldrB.getSource(), ldrB.getDest(),
-				ldrB.getCond());
+		SwapReturn r = swapBinaryInstruction(l, ldrB.getSource(),
+				ldrB.getDest(), ldrB.getCond());
 
 		if (r.source instanceof ImmediateValue || r.source instanceof Address) {
 			l.add(new Ldr(r.dest, r.source, ldrB.getCond()));
@@ -461,5 +471,12 @@ public class SimpleRegisterAllocator implements
 		l.addAll(r.destStore);
 
 		return l;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(Smull smull) {
+		// TODO Auto-generated method stub
+		throw new RuntimeErrorException(null,
+				"smull used in simpleRegisterAllocator. no one told me how to do this");
 	}
 }

@@ -4,6 +4,7 @@ import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.NoOperand;
+import wacc.slack.assemblyOperands.Operand2;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.instructions.Label;
@@ -58,6 +59,11 @@ public class IgnoringTemporariesVisitor implements OperandVisitor<String> {
 	@Override
 	public String visit(NoOperand noOperand) {
 		return "";
+	}
+
+	@Override
+	public String visit(Operand2 operand2) {
+		return operand2.getR().accept(this) + ", " + operand2.getBarrelShifterArgument();
 	}
 
 }

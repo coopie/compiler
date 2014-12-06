@@ -21,6 +21,7 @@ import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Smull;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -155,6 +156,14 @@ public class TemporaryReplacer implements InstructionVistor<LinkedList<PseudoIns
 
 	@Override
 	public LinkedList<PseudoInstruction> visit(LdrB ldrB) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public LinkedList<PseudoInstruction> visit(Smull smull) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -16,4 +16,6 @@ public interface OperandVisitor<T> {
 
 	T visit(NoOperand noOperand);
 
+	T visit(Operand2 operand2);
+
 }

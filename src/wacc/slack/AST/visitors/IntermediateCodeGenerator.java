@@ -1,6 +1,5 @@
 package wacc.slack.AST.visitors;
 
-import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -44,6 +43,7 @@ import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.assemblyOperands.Operand2;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
@@ -66,6 +66,7 @@ import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Smull;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -145,6 +146,12 @@ public class IntermediateCodeGenerator implements
 
 		@Override
 		public Operand visit(NoOperand noOperand) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Operand visit(Operand2 operand2) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -847,9 +854,10 @@ public class IntermediateCodeGenerator implements
 		// TODO: Add instructions for each binary op
 		switch (binExpr.getBinaryOp()) {
 		case MUL:
-			// add destReg trL trR
-			instrList.add(new Mul(destReg, exprRegL, exprRegR));
-			instrList.addAll(checkIntegerOverFlow());
+			instrList.add(new Smull(destReg, exprRegL, exprRegL, exprRegR));
+			instrList.add(new Cmp(exprRegL, new Operand2(destReg, "ASR #31")));
+			
+			instrList.add(new BLInstruction("p_throw_overflow_error", Condition.NE));
 			break;
 		case DIV:
 			instrList.add(new Mov(ArmRegister.r0, exprRegL));

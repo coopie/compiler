@@ -42,4 +42,7 @@ public interface InstructionVistor<T> {
 
 	T visit(LdrB ldrB);
 
+	T visit(Smull smull);
+
+
 }

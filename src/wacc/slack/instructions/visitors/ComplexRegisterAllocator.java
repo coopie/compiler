@@ -15,6 +15,7 @@ import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.NoOperand;
 import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.assemblyOperands.Operand2;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
@@ -34,6 +35,7 @@ import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Smull;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -92,6 +94,11 @@ public class ComplexRegisterAllocator implements
 			return new LinkedList<>();
 		}
 
+		@Override
+		public List<TemporaryRegister> visit(Operand2 operand2) {
+			return operand2.getR().accept(this);
+		}
+
 	};
 	
 	private final class SwapRegisters implements OperandVisitor<Operand> {
@@ -137,6 +144,11 @@ public class ComplexRegisterAllocator implements
 		@Override
 		public Operand visit(NoOperand noOperand) {
 			return noOperand;
+		}
+
+		@Override
+		public Operand visit(Operand2 operand2) {
+			return new Operand2((Register)operand2.getR().accept(this),operand2.getBarrelShifterArgument());
 		}
 	}
 	
@@ -514,5 +526,29 @@ public class ComplexRegisterAllocator implements
 	
 	public Set<TemporaryRegister> getSpilledRegistersUsed() {
 		return spilledRegistersUsed;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(Smull smull) {
+		Operand dest = smull.getRdLo().accept(temporarySwapper);
+		Operand source = smull.getRm().accept(temporarySwapper);
+		Operand source2 = smull.getRs().accept(temporarySwapper);
+		
+		Deque<PseudoInstruction> l = new LinkedList<>();
+		Deque<PseudoInstruction> s = new LinkedList<>();
+		
+		List<ArmRegister> scratch = new LinkedList<>(scratchRegisters);
+		
+		source = loadIfSpilled(l, source, scratch);
+		source2 = loadIfSpilled(l, source2,scratch);
+		dest = storeIfSpilled(s, dest,scratch);
+		
+		scratch.add((ArmRegister)source);
+		source = storeIfSpilled(s, smull.getRm().accept(temporarySwapper),scratch);
+		 
+		l.add(new Smull(dest,source,source,source2));
+		l.addAll(s);
+		
+		return l;
 	}
 }

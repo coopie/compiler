@@ -8,6 +8,7 @@ import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.NoOperand;
+import wacc.slack.assemblyOperands.Operand2;
 import wacc.slack.assemblyOperands.OperandVisitor;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
@@ -26,6 +27,7 @@ import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Smull;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -66,6 +68,11 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 		@Override
 		public List<Register> visit(NoOperand noOperand) {
 			return new LinkedList<Register>();
+		}
+
+		@Override
+		public List<Register> visit(Operand2 operand2) {
+			return operand2.getR().accept(this);
 		}
 	}
 
@@ -187,6 +194,13 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 	@Override
 	public List<Register> visit(LdrB ldrB) {
 		return ldrB.getSource().accept(new GetRegsIfAny());
+	}
+
+	@Override
+	public List<Register> visit(Smull smull) {
+		List<Register> uses = smull.getRm().accept(new GetRegsIfAny());
+		uses.addAll(smull.getRs().accept(new GetRegsIfAny()));
+		return uses;
 	}
 
 }
