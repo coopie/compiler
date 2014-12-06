@@ -3,10 +3,12 @@ package wacc.slack.instructions.visitors;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
@@ -41,17 +43,25 @@ import wacc.slack.interferenceGraph.RegisterMapping;
 public class ComplexRegisterAllocator implements
 		InstructionVistor<Deque<PseudoInstruction>> {
 
+	private final Set<ArmRegister> armRegistersUsed;
+	private final Set<TemporaryRegister> spilledRegistersUsed = new HashSet<>();
+
+	
 	private final List<ArmRegister> scratchRegisters;
 	private final SwapRegisters temporarySwapper;
+	
+	//this is called for every operand, so it is a good place to remember all the registers used
 	private OperandVisitor<List<TemporaryRegister>> isTemporaryRegister = new OperandVisitor<List<TemporaryRegister>>(){
 
 		@Override
 		public List<TemporaryRegister> visit(ArmRegister realRegister) {
+			armRegistersUsed.add(realRegister);
 			return new LinkedList<>();
 		}
 
 		@Override
 		public List<TemporaryRegister> visit(TemporaryRegister temporaryRegister) {
+			spilledRegistersUsed.add(temporaryRegister);
 			return Arrays.asList(temporaryRegister);
 		}
 
@@ -83,7 +93,7 @@ public class ComplexRegisterAllocator implements
 		}
 
 	};
-
+	
 	private final class SwapRegisters implements OperandVisitor<Operand> {
 		private final RegisterMapping mapping;
 		
@@ -137,6 +147,7 @@ public class ComplexRegisterAllocator implements
 	public ComplexRegisterAllocator(RegisterMapping mapping, List<ArmRegister> scratchRegister) {
 		scratchRegisters = scratchRegister;
 		this.temporarySwapper = new SwapRegisters(mapping);
+		this.armRegistersUsed = new HashSet<>(scratchRegister);
 	}
 	
 	public ComplexRegisterAllocator(RegisterMapping mapping) {
@@ -495,5 +506,13 @@ public class ComplexRegisterAllocator implements
 		l.addAll(s);
 		
 		return l;
+	}
+	
+	public Set<ArmRegister> getArmRegistersUsed() {
+		return armRegistersUsed;
+	}
+	
+	public Set<TemporaryRegister> getSpilledRegistersUsed() {
+		return spilledRegistersUsed;
 	}
 }

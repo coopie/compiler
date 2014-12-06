@@ -1,6 +1,7 @@
 package wacc.slack.AST.visitors;
 
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import wacc.slack.AST.ProgramAST;
@@ -14,6 +15,7 @@ import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.FuncAST;
 import wacc.slack.AST.assignables.NewPairAST;
+import wacc.slack.AST.assignables.Param;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
 import wacc.slack.AST.literals.ArrayLiterAST;
@@ -61,6 +63,7 @@ import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Mul;
 import wacc.slack.instructions.Orr;
 import wacc.slack.instructions.PseudoInstruction;
+import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
 import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
@@ -161,10 +164,35 @@ public class IntermediateCodeGenerator implements
 				"there shouldn't be a program inside a program, ProgramAST should only  be visited in CompileProgramAST");
 	}
 
+	/*
+	 * Stack at call
+	 * 					|	param 3  	|
+	 * 					|	param 2  	|
+	 * 					|	param 1  	|
+	 * 	ArmRegister.lr->|	caller pc  	|
+	 * 					|	saved reg  	|
+	 * 					|	saved reg 	|
+	 * 					|	saved reg 	|
+	 * 
+	 * 
+	 */
 	@Override
 	public Deque<PseudoInstruction> visit(FuncAST func) {
-		// TODO Auto-generated method stub
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		//frame needs to be offset by one because lr is stored there on the stack
+		int frameOffset = -1;
+		TemporaryRegister temporary;
+		for(Param p : func.getParamList()) {
+			temporary = trg.generate(weight);
+			instrList.add(new Ldr(temporary, new Address(ArmRegister.lr, frameOffset*4)));
+			p.getScope().lookup(p.getIdent()).setTemporaryRegister(temporary);
+			frameOffset--;
+		}
+		instrList.addAll(func.getStat().accept(this));
+		//this is done by return
+		//	instrList.add(new Mov(ArmRegister.r0, returnedOperand));
+		
+		return instrList;
 	}
 
 	@Override
@@ -180,16 +208,30 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		Register destReg = trg.generate(weight);
+		Register destReg;
+		if (assignStat
+				.getLhs()
+				.getScope()
+				.lookup(assignStat.getLhs().getName(),
+						assignStat.getFilePosition()).getTemporaryRegister() != null) {
+			destReg = assignStat
+					.getLhs()
+					.getScope()
+					.lookup(assignStat.getLhs().getName(),
+							assignStat.getFilePosition())
+					.getTemporaryRegister();
+		} else {
+			destReg = trg.generate(weight);
+		}
 
-		Register tr = trg.generate(weight);
 		instrList.addAll(assignStat.getRhs().accept(this));
 		instrList.add(new Mov(destReg, returnedOperand));
 
 		// Set the variable identinfo to store this temp reg
 		if (!(destReg instanceof TemporaryRegister)) {
 			throw new RuntimeException(
-					"Variable assignRHS should never be put in a real register.");
+					"Variable assignRHS should never be put in a real register, "
+							+ destReg);
 		}
 
 		if (assignStat.getLhs() instanceof ArrayElemAST) {
@@ -261,7 +303,7 @@ public class IntermediateCodeGenerator implements
 					.getScope()
 					.lookup(assignStat.getLhs().getName(),
 							assignStat.getLhs().getFilePosition())
-					.setTemporaryRegister((TemporaryRegister)destReg);
+					.setTemporaryRegister((TemporaryRegister) destReg);
 		}
 
 		returnedOperand = destReg;
@@ -326,9 +368,13 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(ReturnStatementAST exprStat) {
-		// TODO Auto-generated method stub
-
-		return null;
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.addAll(exprStat.getExpr().accept(this));
+		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
+		instrList.add(new BranchInstruction(Condition.AL, new Label(exprStat.getFunction() + "_end")));
+		
+		returnedOperand = null;
+		return instrList;
 	}
 
 	@Override
@@ -387,7 +433,7 @@ public class IntermediateCodeGenerator implements
 		}
 
 		instr.addLast(new BLInstruction("printf"));
-		
+
 		return instr;
 	}
 
@@ -622,8 +668,19 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(CallAST call) {
-		// TODO Auto-generated method stub
-		return null;
+		Iterator<ExprAST> i = call.getArgList().getExprList().descendingIterator();
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+
+		while(i.hasNext()) {
+			instrList.addAll(i.next().accept(this));
+			instrList.add(new Push(returnedOperand));
+		}
+		instrList.add(new BLInstruction(call.getIdent()));
+		//remove all the arguemnts from the stack
+		instrList.add(new Add(ArmRegister.sp, new ImmediateValue(call.getArgList().getExprList().size()*4)));
+		
+		returnedOperand = ArmRegister.r0;
+		return instrList;
 	}
 
 	@Override
@@ -828,7 +885,8 @@ public class IntermediateCodeGenerator implements
 		} else if (valueExpr.getType().equals(
 				new WaccArrayType(BaseType.T_char))) {
 			CompileProgramAST.getDataSection().add(
-					new AssemblerDirective(".word " + valueExpr.getValue().length()));
+					new AssemblerDirective(".word "
+							+ valueExpr.getValue().length()));
 			CompileProgramAST.getDataSection().add(
 					new AssemblerDirective(".ascii \"" + valueExpr.getValue()
 							+ "\\0\""));
