@@ -477,12 +477,13 @@ public class IntermediateCodeGenerator implements
 
 		} else if (readStat.getAssignable() instanceof SndAST) {
 			storeTo = returnVal;
-			instrList.add(new Add(storeTo, returnVal, new ImmediateValue(4)));
 
 			// Check for null pointers
 			instrList.add(new Mov(ArmRegister.r0, storeTo));
 			instrList.add(new BLInstruction("p_check_null_pointer"));
 
+			instrList.add(new Add(storeTo, returnVal, new ImmediateValue(4)));
+			
 		} else if (readStat.getAssignable() instanceof ArrayElemAST) {
 			ArrayElemAST arrayElem = (ArrayElemAST) readStat.getAssignable();
 
