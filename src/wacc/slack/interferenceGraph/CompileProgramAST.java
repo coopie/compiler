@@ -126,6 +126,9 @@ public class CompileProgramAST {
 		dataSection.add(new Label(
 				IntermediateCodeGenerator.INT_SCANF_STORE_LABEL));
 		dataSection.add(new AssemblerDirective(".word 0"));
+		dataSection.add(new Label("msg_0"));
+		dataSection.add(new AssemblerDirective(".word 3"));
+		dataSection.add(new AssemblerDirective("\t.ascii \"%p\\0\""));
 	}
 
 	private void initTextSection() {

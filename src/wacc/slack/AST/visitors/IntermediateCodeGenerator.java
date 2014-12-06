@@ -34,6 +34,7 @@ import wacc.slack.AST.statements.SkipStatementAST;
 import wacc.slack.AST.statements.StatListAST;
 import wacc.slack.AST.statements.WhileStatementAST;
 import wacc.slack.AST.types.BaseType;
+import wacc.slack.AST.types.PairType;
 import wacc.slack.AST.types.Type;
 import wacc.slack.AST.types.WaccArrayType;
 import wacc.slack.assemblyOperands.Address;
@@ -396,7 +397,7 @@ public class IntermediateCodeGenerator implements
 
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
-
+		
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
@@ -425,6 +426,10 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					FALSE_LABEL.getName())));
 			instr.addLast(end);
+		} else if (t.equals(new PairType(null, null, null))) {
+			instr.addLast(new Mov(ArmRegister.r1, retReg));
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue("msg_0")));
+			instr.addLast(new Add(ArmRegister.r0, ArmRegister.r0, new ImmediateValue(4)));
 		}
 
 		instr.addLast(new BLInstruction("printf"));
