@@ -8,7 +8,6 @@ import wacc.slack.GenerateOptimizedIntermediateCode;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.assignables.FuncAST;
 import wacc.slack.AST.visitors.IntermediateCodeGenerator;
-import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
@@ -219,7 +218,6 @@ public class CompileProgramAST {
 
 		// Hopefully this should just free the whole pair
 		instrList.add(new BLInstruction("free"));
-
 		instrList.add(new Pop(ArmRegister.pc));
 
 		return instrList;
@@ -234,10 +232,9 @@ public class CompileProgramAST {
 		// Check and see if the index is negative or 0
 		instrList.add(new Cmp(ArmRegister.r0, new ImmediateValue(0)));
 		instrList.add(new BLInstruction("p_null_reference_exception",
-				Condition.LE));
-
+				Condition.EQ));
 		instrList.add(new Pop(ArmRegister.pc));
-
+		
 		return instrList;
 	}
 
@@ -307,6 +304,7 @@ public class CompileProgramAST {
 		// IntermediateCodeGenerator()));
 		instrList.addAll(new GenerateOptimizedIntermediateCode(
 				IntermediateCodeGenerator.LARGE_INDEX_ERROR, 0).call());
+		
 		// Exit the program
 		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
 		instrList.add(new BLInstruction("exit"));

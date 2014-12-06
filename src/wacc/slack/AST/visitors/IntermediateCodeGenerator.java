@@ -11,6 +11,7 @@ import wacc.slack.AST.Expr.ExprAST;
 import wacc.slack.AST.Expr.UnaryExprAST;
 import wacc.slack.AST.Expr.ValueExprAST;
 import wacc.slack.AST.assignables.ArrayElemAST;
+import wacc.slack.AST.assignables.Assignable;
 import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.FuncAST;
@@ -286,11 +287,21 @@ public class IntermediateCodeGenerator implements
 			FstAST fst = (FstAST) assignStat.getLhs();
 			Register ret = fst.getScope().lookup(fst.getName())
 					.getTemporaryRegister();
+
+			// Check for null pointers
+			// instrList.add(new Mov(ArmRegister.r0, ret));
+			// instrList.add(new BLInstruction("p_check_null_pointer"));
+
 			instrList.add(new Str(rhsReg, new Address(ret)));
 		} else if (assignStat.getLhs() instanceof SndAST) {
 			SndAST snd = (SndAST) assignStat.getLhs();
 			Register ret = snd.getScope().lookup(snd.getName())
 					.getTemporaryRegister();
+
+			// Check for null pointers
+			// instrList.add(new Mov(ArmRegister.r0, ret));
+			// instrList.add(new BLInstruction("p_check_null_pointer"));
+
 			instrList.add(new Str(rhsReg, new Address(ret, 4)));
 		} else {
 			// Assigning variables
@@ -428,12 +439,12 @@ public class IntermediateCodeGenerator implements
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					FALSE_LABEL.getName())));
 			instr.addLast(end);
-		} else if (t.equals(new PairType(null, null, null))) {
-			instr.addLast(new Mov(ArmRegister.r1, retReg));
-			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue("msg_0")));
-			instr.addLast(new Add(ArmRegister.r0, ArmRegister.r0,
-					new ImmediateValue(4)));
-		}
+		} /*
+		 * else if (t.equals(new PairType(null, null, null))) {
+		 * instr.addLast(new Mov(ArmRegister.r1, retReg)); instr.addLast(new
+		 * Ldr(ArmRegister.r0, new ImmediateValue("msg_0"))); instr.addLast(new
+		 * Add(ArmRegister.r0, ArmRegister.r0, new ImmediateValue(4))); }
+		 */
 
 		instr.addLast(new BLInstruction("printf"));
 
@@ -444,12 +455,11 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(ReadStatementAST readStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		// Chatley forgive me, for I have sinned
 		Register returnVal = readStat.getAssignable().getScope()
 				.lookup(readStat.getAssignable().getName())
 				.getTemporaryRegister();
-
-		// read int
+		
+		// read int, etc and store in tr
 		if (readStat.getAssignable().getType().equals(BaseType.T_int)) {
 			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
 					INT_SCANF_STORE_LABEL)));
@@ -458,7 +468,7 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new BLInstruction("scanf"));
 			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
 					INT_SCANF_STORE_LABEL)));
-			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1, 0)));
+			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1)));
 			// read char
 		} else if (readStat.getAssignable().getType().equals(BaseType.T_char)) {
 			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
@@ -468,7 +478,7 @@ public class IntermediateCodeGenerator implements
 			instrList.add(new BLInstruction("scanf"));
 			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
 					INT_SCANF_STORE_LABEL)));
-			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1, 0)));
+			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1)));
 			// read string
 		} else if (readStat.getAssignable().getType()
 				.equals(new WaccArrayType(BaseType.T_char))) {
@@ -593,12 +603,13 @@ public class IntermediateCodeGenerator implements
 		Register ret = fst.getScope().lookup(fst.getName())
 				.getTemporaryRegister();
 
-		// This may only be the case if you want to assign fst (expr) to
-		// something?
+		// Check for null pointers
+		instrList.add(new Mov(ArmRegister.r0, ret));
+		instrList.add(new BLInstruction("p_check_null_pointer"));
+
 		instrList.add(new Ldr(fstReg, new Address(ret)));
 
 		returnedOperand = fstReg;
-
 		return instrList;
 	}
 
@@ -614,8 +625,10 @@ public class IntermediateCodeGenerator implements
 		Register ret = snd.getScope().lookup(snd.getName())
 				.getTemporaryRegister();
 
-		// This may only be the case iFf you want to assign snd (expr) to
-		// something?
+		// Check for null pointers
+		instrList.add(new Mov(ArmRegister.r0, ret));
+		instrList.add(new BLInstruction("p_check_null_pointer"));
+
 		instrList.add(new Ldr(sndReg, new Address(ret, sndAddr)));
 
 		returnedOperand = sndReg;
