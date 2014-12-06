@@ -470,22 +470,22 @@ public class IntermediateCodeGenerator implements
 
 		if (readStat.getAssignable() instanceof FstAST) {
 			storeTo = returnVal;
-			
+
 			// Check for null pointers
 			instrList.add(new Mov(ArmRegister.r0, storeTo));
 			instrList.add(new BLInstruction("p_check_null_pointer"));
-			
+
 		} else if (readStat.getAssignable() instanceof SndAST) {
 			storeTo = returnVal;
 			instrList.add(new Add(storeTo, returnVal, new ImmediateValue(4)));
-			
+
 			// Check for null pointers
 			instrList.add(new Mov(ArmRegister.r0, storeTo));
 			instrList.add(new BLInstruction("p_check_null_pointer"));
-			
+
 		} else if (readStat.getAssignable() instanceof ArrayElemAST) {
 			ArrayElemAST arrayElem = (ArrayElemAST) readStat.getAssignable();
-			
+
 			int typeSize = 4;
 			if (arrayElem.getType().equals(BaseType.T_bool)
 					|| arrayElem.getType().equals(BaseType.T_char)) {
@@ -493,7 +493,8 @@ public class IntermediateCodeGenerator implements
 			}
 
 			// Get the element at expr[n] then treat the element at expr[n] as
-			// another array and get the element expr[n+1] in that array and so on
+			// another array and get the element expr[n+1] in that array and so
+			// on
 			Register trOffset = trg.generate(weight);
 
 			Register typeSizeReg = trg.generate(weight);
@@ -507,7 +508,8 @@ public class IntermediateCodeGenerator implements
 			for (int i = 0; i < arrayElem.getExprs().size(); i++) {
 				instrList.addAll(arrayElem.getExprs().get(i).accept(this));
 
-				// r0 is the index and r1 is the size of the array. This is used for
+				// r0 is the index and r1 is the size of the array. This is used
+				// for
 				// checking that the index is correct
 				instrList.add(new Mov(ArmRegister.r0, returnedOperand));
 				instrList.add(new Ldr(ArmRegister.r1, new Address(arrayCopy)));
@@ -515,7 +517,8 @@ public class IntermediateCodeGenerator implements
 
 				// Multiply the index by the size of the array
 				instrList.add(new Mul(trOffset, returnedOperand, typeSizeReg));
-				// Add 4 since the first element of every array is the size which is
+				// Add 4 since the first element of every array is the size
+				// which is
 				// always 4 bytes
 				instrList.add(new Add(trOffset, new ImmediateValue(4)));
 
@@ -523,7 +526,7 @@ public class IntermediateCodeGenerator implements
 				// another array address
 				if (i == arrayElem.getExprs().size() - 1) {
 					instrList.add(new Add(storeTo, arrayCopy, trOffset));
-					
+
 					// Check for null pointers
 					instrList.add(new Mov(ArmRegister.r0, storeTo));
 					instrList.add(new BLInstruction("p_check_null_pointer"));
@@ -537,14 +540,24 @@ public class IntermediateCodeGenerator implements
 
 		if (readStat.getAssignable().getType().equals(BaseType.T_int)) {
 
-			instrList.add(new Mov(ArmRegister.r1, storeTo));
+			if (storeTo instanceof Register) {
+				instrList.add(new Mov(ArmRegister.r1, storeTo));
+			} else {
+				instrList.add(new Ldr(ArmRegister.r1, storeTo));
+			}
+
 			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
 					INT_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
 
 		} else if (readStat.getAssignable().getType().equals(BaseType.T_char)) {
 
-			instrList.add(new Mov(ArmRegister.r1, storeTo));
+			if (storeTo instanceof Register) {
+				instrList.add(new Mov(ArmRegister.r1, storeTo));
+			} else {
+				instrList.add(new Ldr(ArmRegister.r1, storeTo));
+			}
+
 			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
 					CHAR_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
