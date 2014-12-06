@@ -1,5 +1,6 @@
 package wacc.slack.AST.visitors;
 
+import java.util.Collection;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -105,6 +106,12 @@ public class IntermediateCodeGenerator implements
 			new ValueExprAST(new StringLiter(
 					"\"NullReferenceError: dereference a null reference.\"",
 					null), null), null);
+
+	public static final PrintStatementAST INTEGER_ERROR = new PrintStatementAST(
+			new ValueExprAST(
+					new StringLiter(
+							"\"IntegerValueException: the value of an integer is too large or too small.\"",
+							null), null), null);
 
 	public final class DefaultOperandVisitor implements OperandVisitor<Operand> {
 
@@ -737,6 +744,13 @@ public class IntermediateCodeGenerator implements
 		return instrList;
 	}
 
+	
+	private Deque<PseudoInstruction> checkIntegerOverFlow() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new BLInstruction("p_throw_overflow_error", Condition.VS));
+		return instrList;
+	}
+	
 	@Override
 	public Deque<PseudoInstruction> visit(BinaryExprAST binExpr) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
@@ -754,6 +768,7 @@ public class IntermediateCodeGenerator implements
 		case MUL:
 			// add destReg trL trR
 			instrList.add(new Mul(destReg, exprRegL, exprRegR));
+			instrList.addAll(checkIntegerOverFlow());
 			break;
 		case DIV:
 			instrList.add(new Mov(ArmRegister.r0, exprRegL));
@@ -776,10 +791,12 @@ public class IntermediateCodeGenerator implements
 		case PLUS:
 			// add destReg trL trR
 			instrList.add(new Add(destReg, exprRegL, exprRegR));
+			instrList.addAll(checkIntegerOverFlow());
 			break;
 		case MINUS:
 			// sub destReg trL trR
 			instrList.add(new Sub(destReg, exprRegL, exprRegR));
+			instrList.addAll(checkIntegerOverFlow());
 			break;
 		case GT:
 			// cmp trL trR

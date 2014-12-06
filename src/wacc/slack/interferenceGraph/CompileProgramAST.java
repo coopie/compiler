@@ -11,6 +11,7 @@ import wacc.slack.AST.visitors.IntermediateCodeGenerator;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.assemblyOperands.Register;
 import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.instructions.Add;
 import wacc.slack.instructions.AssemblerDirective;
@@ -170,6 +171,7 @@ public class CompileProgramAST {
 			compilerDefinedFunctions.addAll(nullReferenceErrorAsm());
 			compilerDefinedFunctions.addAll(checkDivideByZero());
 			compilerDefinedFunctions.addAll(divideByZeroError());
+			compilerDefinedFunctions.addAll(IntegerOverflowError());
 
 		}
 	}
@@ -320,7 +322,22 @@ public class CompileProgramAST {
 
 		instrList.add(new Pop(ArmRegister.pc));
 		return instrList;
+		
 	}
+	
+	private Deque<PseudoInstruction> IntegerOverflowError() throws Exception {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		instrList.add(new Label("p_throw_overflow_error"));
+		
+		instrList.addAll(new GenerateOptimizedIntermediateCode(
+				IntermediateCodeGenerator.INTEGER_ERROR, 0).call());
+		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(-1)));
+		instrList.add(new BLInstruction("exit"));
+
+		
+		return instrList;
+	}
+	
 
 	private Deque<PseudoInstruction> addFunctionToItsBody(
 			Deque<PseudoInstruction> body, String functionName,
