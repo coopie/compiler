@@ -288,7 +288,7 @@ public class ComplexRegisterAllocator implements
 		source = loadIfSpilled(l, source, scratch);
 		dest = loadIfSpilled(l, dest,scratch);
 		
-		l.add(new Cmp(source,dest, cmp.getCond()));
+		l.add(new Cmp(dest,source, cmp.getCond()));
 		return l;
 	}
 
