@@ -268,7 +268,6 @@ public class CompileProgramAST {
 				Condition.LT));
 
 		// Check and see if the index is too large
-		instrList.add(new Ldr(ArmRegister.r1, new Address(ArmRegister.r1)));
 		instrList.add(new Cmp(ArmRegister.r0, ArmRegister.r1));
 		instrList
 				.add(new BLInstruction("p_large_index_exception", Condition.CS));

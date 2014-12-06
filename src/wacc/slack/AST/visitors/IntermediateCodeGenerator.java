@@ -166,33 +166,28 @@ public class IntermediateCodeGenerator implements
 	}
 
 	/*
-	 * Stack at call
-	 * 					|	param 3  	| ...
-	 * 					|	param 2  	| [lr + 8]
-	 * 					|	param 1  	| [lr + 4]
-	 * 	ArmRegister.lr->|	caller pc  	| [lr]
-	 * 					|	saved reg  	| [lr - 4]
-	 * 					|	saved reg 	|  ...
-	 * 					|	saved reg 	| [sp]
-	 * 
-	 * 
+	 * Stack at call | param 3 | ... | param 2 | [lr + 8] | param 1 | [lr + 4]
+	 * ArmRegister.lr->| caller pc | [lr] | saved reg | [lr - 4] | saved reg |
+	 * ... | saved reg | [sp]
 	 */
 	@Override
 	public Deque<PseudoInstruction> visit(FuncAST func) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		//frame needs to be offset by one because lr is stored there on the stack
+		// frame needs to be offset by one because lr is stored there on the
+		// stack
 		int frameOffset = 1;
 		TemporaryRegister temporary;
-		for(Param p : func.getParamList()) {
+		for (Param p : func.getParamList()) {
 			temporary = trg.generate(weight);
-			instrList.add(new Ldr(temporary, new Address(ArmRegister.lr, frameOffset*4)));
+			instrList.add(new Ldr(temporary, new Address(ArmRegister.lr,
+					frameOffset * 4)));
 			p.getScope().lookup(p.getIdent()).setTemporaryRegister(temporary);
 			frameOffset--;
 		}
 		instrList.addAll(func.getStat().accept(this));
-		//this is done by return
-		//	instrList.add(new Mov(ArmRegister.r0, returnedOperand));
-		
+		// this is done by return
+		// instrList.add(new Mov(ArmRegister.r0, returnedOperand));
+
 		return instrList;
 	}
 
@@ -211,7 +206,7 @@ public class IntermediateCodeGenerator implements
 
 		instrList.addAll(assignStat.getRhs().accept(this));
 		Register rhsReg = returnedOperand;
-		
+
 		Register varReg;
 		if (assignStat
 				.getLhs()
@@ -227,8 +222,7 @@ public class IntermediateCodeGenerator implements
 		} else {
 			varReg = trg.generate(weight);
 		}
-	
-	
+
 		// Set the variable identinfo to store this temp reg
 		if (!(varReg instanceof TemporaryRegister)) {
 			throw new RuntimeException(
@@ -374,8 +368,9 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		instrList.addAll(exprStat.getExpr().accept(this));
 		instrList.add(new Mov(ArmRegister.r0, returnedOperand));
-		instrList.add(new BranchInstruction(Condition.AL, new Label(exprStat.getFunction() + "_end")));
-		
+		instrList.add(new BranchInstruction(Condition.AL, new Label(exprStat
+				.getFunction() + "_end")));
+
 		returnedOperand = null;
 		return instrList;
 	}
@@ -399,7 +394,7 @@ public class IntermediateCodeGenerator implements
 
 	private Deque<PseudoInstruction> printInstructionGenerator(
 			Deque<PseudoInstruction> instr, Register retReg, Type t) {
-		
+
 		if (t.equals(BaseType.T_int)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
@@ -436,7 +431,8 @@ public class IntermediateCodeGenerator implements
 		} else if (t.equals(new PairType(null, null, null))) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue("msg_0")));
-			instr.addLast(new Add(ArmRegister.r0, ArmRegister.r0, new ImmediateValue(4)));
+			instr.addLast(new Add(ArmRegister.r0, ArmRegister.r0,
+					new ImmediateValue(4)));
 		}
 
 		instr.addLast(new BLInstruction("printf"));
@@ -551,6 +547,12 @@ public class IntermediateCodeGenerator implements
 
 		for (int i = 0; i < arrayElem.getExprs().size(); i++) {
 			instrList.addAll(arrayElem.getExprs().get(i).accept(this));
+
+			// r0 is the index and r1 is the size of the array. This is used for
+			// checking that the index is correct
+			instrList.add(new Mov(ArmRegister.r0, returnedOperand));
+			instrList.add(new Ldr(ArmRegister.r1, new Address(arrayCopy)));
+			instrList.add(new BLInstruction("p_check_array_bounds"));
 
 			// Multiply the index by the size of the array
 			instrList.add(new Mul(trOffset, returnedOperand, typeSizeReg));
@@ -675,17 +677,19 @@ public class IntermediateCodeGenerator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(CallAST call) {
-		Iterator<ExprAST> i = call.getArgList().getExprList().descendingIterator();
+		Iterator<ExprAST> i = call.getArgList().getExprList()
+				.descendingIterator();
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		while(i.hasNext()) {
+		while (i.hasNext()) {
 			instrList.addAll(i.next().accept(this));
 			instrList.add(new Push(returnedOperand));
 		}
 		instrList.add(new BLInstruction(call.getIdent()));
-		//remove all the arguemnts from the stack
-		instrList.add(new Add(ArmRegister.sp, new ImmediateValue(call.getArgList().getExprList().size()*4)));
-		
+		// remove all the arguemnts from the stack
+		instrList.add(new Add(ArmRegister.sp, new ImmediateValue(call
+				.getArgList().getExprList().size() * 4)));
+
 		returnedOperand = ArmRegister.r0;
 		return instrList;
 	}
