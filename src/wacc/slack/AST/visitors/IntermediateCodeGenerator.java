@@ -208,30 +208,31 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		Register destReg;
+		instrList.addAll(assignStat.getRhs().accept(this));
+		Register rhsReg = returnedOperand;
+		
+		Register varReg;
 		if (assignStat
 				.getLhs()
 				.getScope()
 				.lookup(assignStat.getLhs().getName(),
 						assignStat.getFilePosition()).getTemporaryRegister() != null) {
-			destReg = assignStat
+			varReg = assignStat
 					.getLhs()
 					.getScope()
 					.lookup(assignStat.getLhs().getName(),
 							assignStat.getFilePosition())
 					.getTemporaryRegister();
 		} else {
-			destReg = trg.generate(weight);
+			varReg = trg.generate(weight);
 		}
-
-		instrList.addAll(assignStat.getRhs().accept(this));
-		instrList.add(new Mov(destReg, returnedOperand));
-
+	
+	
 		// Set the variable identinfo to store this temp reg
-		if (!(destReg instanceof TemporaryRegister)) {
+		if (!(varReg instanceof TemporaryRegister)) {
 			throw new RuntimeException(
 					"Variable assignRHS should never be put in a real register, "
-							+ destReg);
+							+ varReg);
 		}
 
 		if (assignStat.getLhs() instanceof ArrayElemAST) {
@@ -267,10 +268,10 @@ public class IntermediateCodeGenerator implements
 
 				if (i == ((ArrayElemAST) assignStat.getLhs()).getExprs().size() - 1) {
 					if (typeSize == 4) {
-						instrList.add(new Str(destReg, new Address(arrayReg,
+						instrList.add(new Str(rhsReg, new Address(arrayReg,
 								index)));
 					} else {
-						instrList.add(new StrB(destReg, new Address(arrayReg,
+						instrList.add(new StrB(rhsReg, new Address(arrayReg,
 								index)));
 					}
 
@@ -290,23 +291,24 @@ public class IntermediateCodeGenerator implements
 			FstAST fst = (FstAST) assignStat.getLhs();
 			Register ret = fst.getScope().lookup(fst.getName())
 					.getTemporaryRegister();
-			instrList.add(new Str(destReg, new Address(ret)));
+			instrList.add(new Str(rhsReg, new Address(ret)));
 		} else if (assignStat.getLhs() instanceof SndAST) {
 			SndAST snd = (SndAST) assignStat.getLhs();
 			Register ret = snd.getScope().lookup(snd.getName())
 					.getTemporaryRegister();
-			instrList.add(new Str(destReg, new Address(ret, 4)));
+			instrList.add(new Str(rhsReg, new Address(ret, 4)));
 		} else {
 			// Assigning variables
+			instrList.add(new Mov(varReg, rhsReg));
 			assignStat
 					.getLhs()
 					.getScope()
 					.lookup(assignStat.getLhs().getName(),
 							assignStat.getLhs().getFilePosition())
-					.setTemporaryRegister((TemporaryRegister) destReg);
+					.setTemporaryRegister((TemporaryRegister) varReg);
 		}
 
-		returnedOperand = destReg;
+		returnedOperand = varReg;
 		return instrList;
 	}
 
