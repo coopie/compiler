@@ -4,6 +4,7 @@ public class ImmediateValue implements Operand {
 
 	private final String value;
 	private final FutureValue<String> trg;
+	private int forStackCountInComplexRegAllcoator = 0;
 
 	public ImmediateValue(String value) {
 		this.value = "=" + value;
@@ -11,10 +12,15 @@ public class ImmediateValue implements Operand {
 	}
 
 	public ImmediateValue(int n) {
+		forStackCountInComplexRegAllcoator = n;
 		this.value = "" + n;
 		trg = null;
 	}
-
+	
+	public int getStackCount() {
+		return forStackCountInComplexRegAllcoator;
+	}
+	
 	// HACK: Boolean parameter is to differentiate from constructor at the top.
 	public ImmediateValue(String n, boolean isHack) {
 		this.value = "\'" + n + "\'";

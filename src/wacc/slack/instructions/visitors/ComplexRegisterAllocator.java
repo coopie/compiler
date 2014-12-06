@@ -48,7 +48,7 @@ public class ComplexRegisterAllocator implements
 	private final Set<ArmRegister> armRegistersUsed;
 	private final Set<TemporaryRegister> spilledRegistersUsed = new HashSet<>();
 
-	
+	private int stackCount = 0;
 	private final List<ArmRegister> scratchRegisters;
 	private final SwapRegisters temporarySwapper;
 	
@@ -280,6 +280,8 @@ public class ComplexRegisterAllocator implements
 		s.add(new Pop(o));
 		s.addAll(s);
 		
+		stackCount--;
+		
 		return s;
 	}
 
@@ -292,6 +294,8 @@ public class ComplexRegisterAllocator implements
 		o = loadIfSpilled(l, o, new LinkedList<>(scratchRegisters));
 		
 		l.add(new Push(o));
+		
+		stackCount++;
 		
 		return l;
 	}
@@ -329,6 +333,9 @@ public class ComplexRegisterAllocator implements
 
 	@Override
 	public Deque<PseudoInstruction> visit(final Add add) {
+		if(add.getDest().equals(ArmRegister.sp) ) {
+			stackCount = stackCount - ((ImmediateValue)add.getSource2()).getStackCount() / 4;
+		}
 		return trinaryInstructionSwap(add.getDest(), add.getSource(), add.getSource2(), new InsturctionGenerator() {
 			@Override
 			public PseudoInstruction make(Operand dest, Operand source,
@@ -423,7 +430,7 @@ public class ComplexRegisterAllocator implements
 				if(i.hasNext()) {
 					ArmRegister scratchReg = i.next();
 					map.put(t, scratchReg);
-					s.add(new Str(scratchReg, new Address(ArmRegister.sp, t.getN() * 4)));
+					s.add(new Str(scratchReg, new Address(ArmRegister.sp, t.getN() * 4 + stackCount*4)));
 				} else {
 					throw new RuntimeException("not enough scracth registers for operand " + dest);
 				}
@@ -457,7 +464,7 @@ public class ComplexRegisterAllocator implements
 				if(i.hasNext()) {
 					ArmRegister scratchReg = i.next();
 					map.put(t, scratchReg);
-					l.add(new Ldr(scratchReg, new Address(ArmRegister.sp, t.getN() * 4)));
+					l.add(new Ldr(scratchReg, new Address(ArmRegister.sp, t.getN() * 4 + stackCount*4)));
 				} else {
 					throw new RuntimeException("not enough scracth registers for operand " + source);
 				}
