@@ -296,8 +296,8 @@ public class IntermediateCodeGenerator implements
 					.getTemporaryRegister();
 
 			// Check for null pointers
-			// instrList.add(new Mov(ArmRegister.r0, ret));
-			// instrList.add(new BLInstruction("p_check_null_pointer"));
+			instrList.add(new Mov(ArmRegister.r0, ret));
+			instrList.add(new BLInstruction("p_check_null_pointer"));
 
 			instrList.add(new Str(rhsReg, new Address(ret)));
 		} else if (assignStat.getLhs() instanceof SndAST) {
@@ -306,8 +306,8 @@ public class IntermediateCodeGenerator implements
 					.getTemporaryRegister();
 
 			// Check for null pointers
-			// instrList.add(new Mov(ArmRegister.r0, ret));
-			// instrList.add(new BLInstruction("p_check_null_pointer"));
+			instrList.add(new Mov(ArmRegister.r0, ret));
+			instrList.add(new BLInstruction("p_check_null_pointer"));
 
 			instrList.add(new Str(rhsReg, new Address(ret, 4)));
 		} else {
