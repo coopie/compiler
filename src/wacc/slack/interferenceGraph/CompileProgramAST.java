@@ -3,7 +3,6 @@ package wacc.slack.interferenceGraph;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Stack;
 
 import wacc.slack.GenerateOptimizedIntermediateCode;
 import wacc.slack.AST.ProgramAST;
@@ -39,7 +38,6 @@ public class CompileProgramAST {
 
 	public CompileProgramAST(ProgramAST program) {
 		this.program = program;
-
 	}
 
 	public String compile() {
@@ -49,24 +47,26 @@ public class CompileProgramAST {
 		try {
 			Deque<PseudoInstruction> fbody;
 			GenerateOptimizedIntermediateCode codeGen;
-			for(FuncAST f : program.getFunctions()) {
-				codeGen = new GenerateOptimizedIntermediateCode(f, optimisationLevel);
+			for (FuncAST f : program.getFunctions()) {
+				codeGen = new GenerateOptimizedIntermediateCode(f,
+						optimisationLevel);
 				fbody = codeGen.call();
-				instrList.addAll(addFunctionToItsBody(fbody, f.getIdent(), codeGen.getRegistersUsed(), codeGen.getSpilledRegisters()));
-				
+				instrList.addAll(addFunctionToItsBody(fbody, f.getIdent(),
+						codeGen.getRegistersUsed(),
+						codeGen.getSpilledRegisters()));
+
 			}
 
 			instrList.add(new AssemblerDirective(".global main"));
 
 			codeGen = new GenerateOptimizedIntermediateCode(
 					program.getStatements(), optimisationLevel);
-			Deque<PseudoInstruction> body = codeGen
-					.call();
+			Deque<PseudoInstruction> body = codeGen.call();
 
 			// TODO: allocating stackspace is wrong, it should be without *2,
 			// but that causes segfault on exiting the program
-			Operand stackSpace = new ImmediateValue(
-					stackSpaceNeeded(codeGen.getSpilledRegisters().size()));
+			Operand stackSpace = new ImmediateValue(stackSpaceNeeded(codeGen
+					.getSpilledRegisters().size()));
 
 			instrList.add(new Label("main"));
 			instrList.add(new Push(ArmRegister.lr));
@@ -95,11 +95,13 @@ public class CompileProgramAST {
 
 		return printCode(optimisationLevel, instrList);
 	}
+
 	private int stackSpaceNeeded(int i) {
-		//TODO: should be * 4
+		// TODO: should be * 4
 		return i * 8;
-		
+
 	}
+
 	private String printCode(int optimisationLevel,
 			Deque<PseudoInstruction> optimizedCode) {
 		GenerateAssembly psuedoInstructionVisitor = new GenerateAssemblyBuilder()
@@ -145,6 +147,10 @@ public class CompileProgramAST {
 		textSection.add(new Label(IntermediateCodeGenerator.INT_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%d\\0\""));
 
+		textSection.add(new Label(
+				IntermediateCodeGenerator.ADDRESS_FORMAT_LABEL));
+		textSection.add(new AssemblerDirective("\t.ascii \"%p\\0\""));
+
 		textSection.add(new Label(IntermediateCodeGenerator.TRUE_LABEL
 				.getName()));
 		textSection.add(new AssemblerDirective("\t.ascii \"true\\0\""));
@@ -157,10 +163,8 @@ public class CompileProgramAST {
 	// COMPILER ADDED FUNCTIONS
 	// ie. p_check_array_bounds etc
 
+	// TODO: Set flags for when these are true
 	private void initCompilerDefinedFunctions() throws Exception {
-
-		// TODO: Make sure checkArrayBoundsAsm() is only added when an array
-		// elem is seen in the code
 		if (true) {
 			compilerDefinedFunctions.addAll(checkArrayBoundsAsm());
 			compilerDefinedFunctions.addAll(checkNullPointerAsm());
@@ -169,7 +173,6 @@ public class CompileProgramAST {
 			compilerDefinedFunctions.addAll(divideByZeroError());
 
 		}
-
 	}
 
 	private Deque<PseudoInstruction> checkDivideByZero() {
@@ -321,44 +324,47 @@ public class CompileProgramAST {
 		instrList.add(new Pop(ArmRegister.pc));
 		return instrList;
 	}
-	
-	private Deque<PseudoInstruction> addFunctionToItsBody(Deque<PseudoInstruction> body, String functionName, Set<ArmRegister> regsUsed, Set<TemporaryRegister> regsSpilled) {
+
+	private Deque<PseudoInstruction> addFunctionToItsBody(
+			Deque<PseudoInstruction> body, String functionName,
+			Set<ArmRegister> regsUsed, Set<TemporaryRegister> regsSpilled) {
 		Deque<PseudoInstruction> function = new LinkedList<>();
 		Deque<ArmRegister> pushStack = new LinkedList<>();
 		int spillStackSpace = stackSpaceNeeded(regsSpilled.size());
-		
-		
-		//removes the registers that should not be saved
+
+		// removes the registers that should not be saved
 		regsUsed.remove(ArmRegister.r0);
 		regsUsed.remove(ArmRegister.lr);
-		
+
 		function.add(new Label(functionName));
 		function.add(new Push(ArmRegister.lr));
-		//save the sp, to a frame pointer, frame pointer is chosen to be lr, since we have just saved it
+		// save the sp, to a frame pointer, frame pointer is chosen to be lr,
+		// since we have just saved it
 		function.add(new Mov(ArmRegister.lr, ArmRegister.sp));
-		for(ArmRegister r : regsUsed) {
+		for (ArmRegister r : regsUsed) {
 			function.add(new Push(r));
 			pushStack.push(r);
 		}
-		function.add(new Sub(ArmRegister.sp, new ImmediateValue(spillStackSpace)));
-		
+		function.add(new Sub(ArmRegister.sp,
+				new ImmediateValue(spillStackSpace)));
+
 		function.addAll(body);
-		
+
 		function.add(new Label(functionName + "_end"));
-		function.add(new Add(ArmRegister.sp, new ImmediateValue(spillStackSpace)));
-		for(ArmRegister r : pushStack) {
+		function.add(new Add(ArmRegister.sp,
+				new ImmediateValue(spillStackSpace)));
+		for (ArmRegister r : pushStack) {
 			function.add(new Pop(r));
 		}
 		function.add(new Pop(ArmRegister.pc));
-		
+
 		return function;
 	}
-	
 
 	public static Deque<PseudoInstruction> getTextSection() {
 		return textSection;
 	}
-	
+
 	public static Deque<PseudoInstruction> getDataSection() {
 		return dataSection;
 	}
