@@ -66,7 +66,7 @@ public class CompileProgramAST {
 			// TODO: allocating stackspace is wrong, it should be without *2,
 			// but that causes segfault on exiting the program
 			Operand stackSpace = new ImmediateValue(
-					codeGen.getSpilledRegisters().size() * 2);
+					stackSpaceNeeded(codeGen.getSpilledRegisters().size()));
 
 			instrList.add(new Label("main"));
 			instrList.add(new Push(ArmRegister.lr));
@@ -95,7 +95,11 @@ public class CompileProgramAST {
 
 		return printCode(optimisationLevel, instrList);
 	}
-
+	private int stackSpaceNeeded(int i) {
+		//TODO: should be * 4
+		return i * 8;
+		
+	}
 	private String printCode(int optimisationLevel,
 			Deque<PseudoInstruction> optimizedCode) {
 		GenerateAssembly psuedoInstructionVisitor = new GenerateAssemblyBuilder()
