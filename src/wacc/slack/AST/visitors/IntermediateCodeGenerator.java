@@ -983,6 +983,7 @@ public class IntermediateCodeGenerator implements
 			// sub tr 0 tr
 			instrList.add(new Mov(tr2, new ImmediateValue(0)));
 			instrList.add(new Sub(tr1, tr2, tr1));
+			instrList.addAll(checkIntegerOverFlow());
 			break;
 		case LEN:
 			// ldr tr, [tr] (the element at index 0 is the length)
