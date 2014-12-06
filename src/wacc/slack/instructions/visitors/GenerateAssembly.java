@@ -116,19 +116,19 @@ public class GenerateAssembly implements InstructionVistor<String> {
 
 	@Override
 	public String visit(Mul mul) {
-		return concatOperands("MUL", mul.getCond(), mul.getDest(),
+		return concatOperands("MULS", mul.getCond(), mul.getDest(),
 				mul.getSource(), mul.getSource2());
 	}
 
 	@Override
 	public String visit(Add add) {
-		return concatOperands("ADD", add.getCond(), add.getDest(),
+		return concatOperands("ADDS", add.getCond(), add.getDest(),
 				add.getSource(), add.getSource2());
 	}
 
 	@Override
 	public String visit(Sub sub) {
-		return concatOperands("SUB", sub.getCond(), sub.getDest(),
+		return concatOperands("SUBS", sub.getCond(), sub.getDest(),
 				sub.getSource(), sub.getSource2());
 	}
 
