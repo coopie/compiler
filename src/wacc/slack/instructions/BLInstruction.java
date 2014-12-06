@@ -8,11 +8,11 @@ public class BLInstruction implements PseudoInstruction {
 	private Condition cond = Condition.AL;
 	
 	public BLInstruction(String string) {
-		this.string = string;
+		this(string,Condition.AL);
 	}
 	
 	public BLInstruction(String string, Condition cond) {
-		this.string = string;
+		this.string = Label.gasComforomLabel(string);
 		this.cond = cond;
 	}
 

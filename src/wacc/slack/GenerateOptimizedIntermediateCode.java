@@ -27,7 +27,6 @@ public class GenerateOptimizedIntermediateCode implements
 	private ComplexRegisterAllocator registerAllocator = new ComplexRegisterAllocator();
 	private final WaccAST ast;
 	private final int optimisationLevel;
-	private int regsUsed = 0;
 
 	public GenerateOptimizedIntermediateCode(WaccAST ast, int optimisationLevel) {
 		this.ast = ast;
@@ -41,8 +40,6 @@ public class GenerateOptimizedIntermediateCode implements
 
 		Deque<PseudoInstruction> intermediateCode = ast.accept(visitor);
 		intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
-		regsUsed = Integer.parseInt(visitor.getTemporaryRegisterGenerator()
-				.getValue());
 		return intermediateCode;
 	}
 
@@ -64,9 +61,7 @@ public class GenerateOptimizedIntermediateCode implements
 					mapping)));
 		}
 
-		// TODO: probably wrong
-		regsUsed = cfg.getAllRegs().size();
-
+	
 		return codeWithoutTemporaries;
 	}
 

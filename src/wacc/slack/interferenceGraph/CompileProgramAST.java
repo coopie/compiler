@@ -322,7 +322,12 @@ public class CompileProgramAST {
 	private Deque<PseudoInstruction> addFunctionToItsBody(Deque<PseudoInstruction> body, String functionName, Set<ArmRegister> regsUsed, Set<TemporaryRegister> regsSpilled) {
 		Deque<PseudoInstruction> function = new LinkedList<>();
 		Deque<ArmRegister> pushStack = new LinkedList<>();
-		int spillStackSpace = regsSpilled.size()*2;
+		int spillStackSpace = stackSpaceNeeded(regsSpilled.size());
+		
+		
+		//removes the registers that should not be saved
+		regsUsed.remove(ArmRegister.r0);
+		regsUsed.remove(ArmRegister.lr);
 		
 		function.add(new Label(functionName));
 		function.add(new Push(ArmRegister.lr));

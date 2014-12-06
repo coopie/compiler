@@ -9,9 +9,12 @@ public class Label implements PseudoInstruction, Operand {
 	private final String name;
 	
 	public Label(String name) {
-		this.name = name;
+		this.name = gasComforomLabel(name);
 	}
 
+	public static String gasComforomLabel(String name) {
+		return  name.replaceAll("\\*", "_");
+	}
 	@Override
 	public <T> T accept(InstructionVistor<T> visitor) {
 		return visitor.visit(this);

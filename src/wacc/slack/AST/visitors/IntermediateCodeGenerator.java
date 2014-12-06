@@ -165,13 +165,13 @@ public class IntermediateCodeGenerator implements
 
 	/*
 	 * Stack at call
-	 * 					|	param 3  	|
-	 * 					|	param 2  	|
-	 * 					|	param 1  	|
-	 * 	ArmRegister.lr->|	caller pc  	|
-	 * 					|	saved reg  	|
-	 * 					|	saved reg 	|
-	 * 					|	saved reg 	|
+	 * 					|	param 3  	| ...
+	 * 					|	param 2  	| [lr + 8]
+	 * 					|	param 1  	| [lr + 4]
+	 * 	ArmRegister.lr->|	caller pc  	| [lr]
+	 * 					|	saved reg  	| [lr - 4]
+	 * 					|	saved reg 	|  ...
+	 * 					|	saved reg 	| [sp]
 	 * 
 	 * 
 	 */
@@ -179,7 +179,7 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(FuncAST func) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		//frame needs to be offset by one because lr is stored there on the stack
-		int frameOffset = -1;
+		int frameOffset = 1;
 		TemporaryRegister temporary;
 		for(Param p : func.getParamList()) {
 			temporary = trg.generate(weight);
