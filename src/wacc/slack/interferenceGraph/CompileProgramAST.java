@@ -349,6 +349,7 @@ public class CompileProgramAST {
 		// removes the registers that should not be saved
 		regsUsed.remove(ArmRegister.r0);
 		regsUsed.remove(ArmRegister.lr);
+		regsUsed.remove(ArmRegister.sp);
 
 		function.add(new Label(functionName));
 		function.add(new Push(ArmRegister.lr));
