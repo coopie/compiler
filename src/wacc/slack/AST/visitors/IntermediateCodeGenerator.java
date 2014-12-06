@@ -79,6 +79,7 @@ public class IntermediateCodeGenerator implements
 	public static final String NEW_LINE_CHAR = "new_line_char";
 	public static final String INT_FORMAT_LABEL = "int_format";
 	public static final String INT_SCANF_STORE_LABEL = "intScanfStoreLabel";
+	public static final String ADDRESS_FORMAT_LABEL = "address_format";
 	public static final Label TRUE_LABEL = new Label("l_true");
 	public static final Label FALSE_LABEL = new Label("l_false");
 
@@ -390,7 +391,6 @@ public class IntermediateCodeGenerator implements
 	@Override
 	public Deque<PseudoInstruction> visit(PrintStatementAST printStat) {
 		ExprAST expr = printStat.getExpr();
-		// System.out.println(returnedOperand);
 		return printInstructionGenerator(expr.accept(this), returnedOperand,
 				expr.getType());
 	}
@@ -409,6 +409,11 @@ public class IntermediateCodeGenerator implements
 			instr.add(new Sub(retReg, new ImmediateValue(4)));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					STRING_FORMAT_LABEL)));
+		/*else if (t.equals(new WaccArrayType()) || t.equals(new PairType())) {
+			// If it is a pair or array, print the address
+			instr.addLast(new Mov(ArmRegister.r1, retReg));
+			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
+					ADDRESS_FORMAT_LABEL)));*/
 		} else if (t.equals(BaseType.T_char)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
@@ -896,11 +901,6 @@ public class IntermediateCodeGenerator implements
 			int intVal = Integer.parseInt(valueExpr.getValue());
 			instrList.add(new Ldr(ret, new ImmediateValue(intVal)));
 		} else if (valueExpr.getType().equals(BaseType.T_char)) {
-			/*
-			 * textSection.add(new AssemblerDirective(".byte '" +
-			 * valueExpr.getValue() + "'")); instrList.add(new Ldr(ret, new
-			 * ImmediateValue(literalLabel .getName())));
-			 */
 			instrList.add(new Mov(ret, new ImmediateValue(valueExpr.getValue(),
 					true)));
 		} else if (valueExpr.getType().equals(BaseType.T_bool)) {

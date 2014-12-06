@@ -10,6 +10,10 @@ public class WaccArrayType implements Type {
 	public WaccArrayType(Type type) {
 		this.type = type;
 	}
+	
+	public WaccArrayType() {
+		this(null);
+	}
 
 	@Override
 	public FilePosition getFilePosition() {
