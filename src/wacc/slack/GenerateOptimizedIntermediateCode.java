@@ -21,7 +21,8 @@ import wacc.slack.instructions.visitors.TemporaryReplacer;
 import wacc.slack.interferenceGraph.InterferenceGraph;
 import wacc.slack.interferenceGraph.InterferenceGraphColourer;
 
-public class GenerateOptimizedIntermediateCode implements Callable<Deque<PseudoInstruction>> {
+public class GenerateOptimizedIntermediateCode implements
+		Callable<Deque<PseudoInstruction>> {
 
 	private ComplexRegisterAllocator registerAllocator = new ComplexRegisterAllocator();
 	private final WaccAST ast;
@@ -31,19 +32,20 @@ public class GenerateOptimizedIntermediateCode implements Callable<Deque<PseudoI
 	public GenerateOptimizedIntermediateCode(WaccAST ast, int optimisationLevel) {
 		this.ast = ast;
 		this.optimisationLevel = optimisationLevel;
-		
+
 	}
-	
+
 	@Override
 	public Deque<PseudoInstruction> call() throws Exception {
 		IntermediateCodeGenerator visitor = new IntermediateCodeGenerator();
-		
+
 		Deque<PseudoInstruction> intermediateCode = ast.accept(visitor);
 		intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
-		regsUsed = Integer.parseInt(visitor.getTemporaryRegisterGenerator().getValue());
+		regsUsed = Integer.parseInt(visitor.getTemporaryRegisterGenerator()
+				.getValue());
 		return intermediateCode;
 	}
-	
+
 	private Deque<PseudoInstruction> doOptimisations(
 			Deque<PseudoInstruction> intermediateCode, int optimizationLevel) {
 		if (optimizationLevel == 0) {
@@ -61,10 +63,10 @@ public class GenerateOptimizedIntermediateCode implements Callable<Deque<PseudoI
 			codeWithoutTemporaries.addAll(i.accept(new TemporaryReplacer(
 					mapping)));
 		}
-		
-		//TODO: probably wrong
+
+		// TODO: probably wrong
 		regsUsed = cfg.getAllRegs().size();
-		
+
 		return codeWithoutTemporaries;
 	}
 
