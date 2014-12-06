@@ -2,14 +2,18 @@ package wacc.slack.interferenceGraph;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.Stack;
 
 import wacc.slack.GenerateOptimizedIntermediateCode;
 import wacc.slack.AST.ProgramAST;
+import wacc.slack.AST.assignables.FuncAST;
 import wacc.slack.AST.visitors.IntermediateCodeGenerator;
 import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
+import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.instructions.Add;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BLInstruction;
@@ -43,17 +47,26 @@ public class CompileProgramAST {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		try {
+			Deque<PseudoInstruction> fbody;
+			GenerateOptimizedIntermediateCode codeGen;
+			for(FuncAST f : program.getFunctions()) {
+				codeGen = new GenerateOptimizedIntermediateCode(f, optimisationLevel);
+				fbody = codeGen.call();
+				instrList.addAll(addFunctionToItsBody(fbody, f.getIdent(), codeGen.getRegistersUsed(), codeGen.getSpilledRegisters()));
+				
+			}
+
 			instrList.add(new AssemblerDirective(".global main"));
 
-			GenerateOptimizedIntermediateCode generateOptimizedIntermediateCode = new GenerateOptimizedIntermediateCode(
+			codeGen = new GenerateOptimizedIntermediateCode(
 					program.getStatements(), optimisationLevel);
-			Deque<PseudoInstruction> body = generateOptimizedIntermediateCode
+			Deque<PseudoInstruction> body = codeGen
 					.call();
 
 			// TODO: allocating stackspace is wrong, it should be without *2,
 			// but that causes segfault on exiting the program
 			Operand stackSpace = new ImmediateValue(
-					generateOptimizedIntermediateCode.getNumberOfRegsUsed() * 2);
+					codeGen.getSpilledRegisters().size() * 2);
 
 			instrList.add(new Label("main"));
 			instrList.add(new Push(ArmRegister.lr));
@@ -301,6 +314,34 @@ public class CompileProgramAST {
 		instrList.add(new Pop(ArmRegister.pc));
 		return instrList;
 	}
+	
+	private Deque<PseudoInstruction> addFunctionToItsBody(Deque<PseudoInstruction> body, String functionName, Set<ArmRegister> regsUsed, Set<TemporaryRegister> regsSpilled) {
+		Deque<PseudoInstruction> function = new LinkedList<>();
+		Deque<ArmRegister> pushStack = new LinkedList<>();
+		int spillStackSpace = regsSpilled.size()*2;
+		
+		function.add(new Label(functionName));
+		function.add(new Push(ArmRegister.lr));
+		//save the sp, to a frame pointer, frame pointer is chosen to be lr, since we have just saved it
+		function.add(new Mov(ArmRegister.lr, ArmRegister.sp));
+		for(ArmRegister r : regsUsed) {
+			function.add(new Push(r));
+			pushStack.push(r);
+		}
+		function.add(new Sub(ArmRegister.sp, new ImmediateValue(spillStackSpace)));
+		
+		function.addAll(body);
+		
+		function.add(new Label(functionName + "_end"));
+		function.add(new Add(ArmRegister.sp, new ImmediateValue(spillStackSpace)));
+		for(ArmRegister r : pushStack) {
+			function.add(new Pop(r));
+		}
+		function.add(new Pop(ArmRegister.pc));
+		
+		return function;
+	}
+	
 
 	public static Deque<PseudoInstruction> getTextSection() {
 		return textSection;

@@ -185,7 +185,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	@Override
 	public ArgList visitArgList(ArgListContext ctx) {
-		List<ExprAST> exprList = new LinkedList<>();
+		LinkedList<ExprAST> exprList = new LinkedList<>();
 		final FilePosition filePos;
 		if (ctx != null) {
 			filePos = new FilePosition(ctx.start.getLine(),
@@ -221,7 +221,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 				ctx.start.getCharPositionInLine());
 		if (type == null)
 			type = BaseType.T_int;
-		return new Param(ident, type, filePos);
+		return new Param(ident, type, scope, filePos);
 	}
 
 	@Override
@@ -458,7 +458,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 				 */
 			}
 		}
-		return new ReturnStatementAST(expr, filePos);
+		return new ReturnStatementAST(expr, currentFunction, filePos);
 	}
 
 	@Override
@@ -683,6 +683,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public FuncAST visitFunc(FuncContext ctx) {
 		List<Param> paramList = new LinkedList<>();
 		List<Type> paramTypes = new LinkedList<>();
+		
+		// Rembering top scope so I can add the function Identifier to it after
+		// I add the params to the function scope and extract the types of
+		// params
+		SymbolTable<IdentInfo> topScope = scope;
+		//new scope initialized before params are visited so they get the right scope
+		scope = scope.initializeNewScope();
 
 		if (ctx.paramList() != null) {
 			paramList = visitParamList(ctx.paramList()).getParamList();
@@ -694,12 +701,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 		currentFunction = FuncAST.encodeFuncName(ctx.IDENT().getText());
 
-		// Rembering top scope so I can add the function Identifier to it after
-		// I add the params to the function scope and extract the types of
-		// params
-		SymbolTable<IdentInfo> topScope = scope;
-		scope = scope.initializeNewScope();
-
+	
 		for (Param p : paramList) {
 			paramTypes.add(p.getType());
 			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));

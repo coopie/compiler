@@ -1,5 +1,6 @@
 package wacc.slack.AST.assignables;
 
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,10 +10,10 @@ import wacc.slack.AST.Expr.ExprAST;
 
 public class ArgList implements ParseTreeReturnable, Iterable<ExprAST> {
 
-	private final List<ExprAST> exprList;
+	private final Deque<ExprAST> exprList;
 	private final FilePosition filePos;
 
-	public ArgList(List<ExprAST> exprList2, FilePosition filePos) {
+	public ArgList(Deque<ExprAST> exprList2, FilePosition filePos) {
 		this.exprList = exprList2;
 		this.filePos = filePos;
 	}
@@ -22,7 +23,7 @@ public class ArgList implements ParseTreeReturnable, Iterable<ExprAST> {
 		return filePos;
 	}
 
-	public List<ExprAST> getExprList() {
+	public Deque<ExprAST> getExprList() {
 		return exprList;
 	}
 
