@@ -540,10 +540,10 @@ public class IntermediateCodeGenerator implements
 
 		if (readStat.getAssignable().getType().equals(BaseType.T_int)) {
 
-			if (storeTo instanceof Register) {
-				instrList.add(new Mov(ArmRegister.r1, storeTo));
-			} else {
+			if (readStat.getAssignable() instanceof VariableAST) {
 				instrList.add(new Ldr(ArmRegister.r1, storeTo));
+			} else {
+				instrList.add(new Mov(ArmRegister.r1, storeTo));
 			}
 
 			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
@@ -552,10 +552,10 @@ public class IntermediateCodeGenerator implements
 
 		} else if (readStat.getAssignable().getType().equals(BaseType.T_char)) {
 
-			if (storeTo instanceof Register) {
-				instrList.add(new Mov(ArmRegister.r1, storeTo));
-			} else {
+			if (readStat.getAssignable() instanceof VariableAST) {
 				instrList.add(new Ldr(ArmRegister.r1, storeTo));
+			} else {
+				instrList.add(new Mov(ArmRegister.r1, storeTo));
 			}
 
 			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
@@ -575,7 +575,7 @@ public class IntermediateCodeGenerator implements
 		 */
 
 		if (readStat.getAssignable() instanceof VariableAST) {
-			instrList.add(new Mov(ArmRegister.r1, storeTo));
+			instrList.add(new Ldr(ArmRegister.r1, storeTo));
 			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1)));
 		}
 
