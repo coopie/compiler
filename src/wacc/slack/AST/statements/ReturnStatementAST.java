@@ -6,8 +6,11 @@ import wacc.slack.AST.visitors.ASTVisitor;
 
 public class ReturnStatementAST extends ExprStatementAST {
 
-	public ReturnStatementAST(ExprAST exprAST, FilePosition filePos) {
+	private final String function;
+
+	public ReturnStatementAST(ExprAST exprAST, String currentFunction, FilePosition filePos) {
 		super(exprAST, filePos);
+		this.function = currentFunction;
 	}
 
 	@Override
@@ -18,6 +21,10 @@ public class ReturnStatementAST extends ExprStatementAST {
 	@Override
 	public <T> T accept(ASTVisitor<T> visitor) {
 		return visitor.visit(this);
+	}
+
+	public String getFunction() {
+		return function;
 	}
 
 }

@@ -5,12 +5,14 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.visitors.IntermediateCodeGenerator;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.Register;
+import wacc.slack.assemblyOperands.TemporaryRegister;
 import wacc.slack.controlFlow.ControlFlowGraph;
 import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.PseudoInstruction;
@@ -22,6 +24,7 @@ import wacc.slack.interferenceGraph.InterferenceGraphColourer;
 public class GenerateOptimizedIntermediateCode implements
 		Callable<Deque<PseudoInstruction>> {
 
+	private ComplexRegisterAllocator registerAllocator = new ComplexRegisterAllocator();
 	private final WaccAST ast;
 	private final int optimisationLevel;
 	private int regsUsed = 0;
@@ -71,15 +74,18 @@ public class GenerateOptimizedIntermediateCode implements
 			Deque<PseudoInstruction> intermediateCode) {
 		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>();
 		for (PseudoInstruction ps : intermediateCode) {
-			finalCode.addAll(ps.accept(new ComplexRegisterAllocator()));
+			finalCode.addAll(ps.accept(registerAllocator));
 			finalCode.add(new AssemblerDirective("\n")); // for debugging
 															// purposes
 		}
 		return finalCode;
 	}
 
-	public int getNumberOfRegsUsed() {
-		return regsUsed;
+	public Set<ArmRegister> getRegistersUsed() {
+		return registerAllocator.getArmRegistersUsed();
 	}
-
+	
+	public Set<TemporaryRegister> getSpilledRegisters() {
+		return registerAllocator.getSpilledRegistersUsed();
+	}
 }

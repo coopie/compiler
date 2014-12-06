@@ -1,5 +1,9 @@
 package wacc.slack.assemblyOperands;
 
+/*
+ * Positive temporary registers represent the ones to be spilled or used in grpah colouring
+ * Negative ones represent stack variables before the frame pointer
+ */
 public class TemporaryRegister implements Register {
 	
 	private final int n;
