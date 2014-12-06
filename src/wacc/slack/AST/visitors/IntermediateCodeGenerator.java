@@ -411,11 +411,11 @@ public class IntermediateCodeGenerator implements
 			instr.add(new Sub(retReg, new ImmediateValue(4)));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
 					STRING_FORMAT_LABEL)));
-		/*else if (t.equals(new WaccArrayType()) || t.equals(new PairType())) {
+		} else if (t.equals(new WaccArrayType()) || t.equals(new PairType())) {
 			// If it is a pair or array, print the address
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
-					ADDRESS_FORMAT_LABEL)));*/
+					ADDRESS_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_char)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
