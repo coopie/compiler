@@ -465,37 +465,105 @@ public class IntermediateCodeGenerator implements
 		Register returnVal = readStat.getAssignable().getScope()
 				.lookup(readStat.getAssignable().getName())
 				.getTemporaryRegister();
-		
-		// read int, etc and store in tr
+
+		Operand storeTo = new ImmediateValue(INT_SCANF_STORE_LABEL);
+
+		if (readStat.getAssignable() instanceof FstAST) {
+			storeTo = returnVal;
+			
+			// Check for null pointers
+			instrList.add(new Mov(ArmRegister.r0, storeTo));
+			instrList.add(new BLInstruction("p_check_null_pointer"));
+			
+		} else if (readStat.getAssignable() instanceof SndAST) {
+			storeTo = returnVal;
+			instrList.add(new Add(storeTo, returnVal, new ImmediateValue(4)));
+			
+			// Check for null pointers
+			instrList.add(new Mov(ArmRegister.r0, storeTo));
+			instrList.add(new BLInstruction("p_check_null_pointer"));
+			
+		} else if (readStat.getAssignable() instanceof ArrayElemAST) {
+			ArrayElemAST arrayElem = (ArrayElemAST) readStat.getAssignable();
+			
+			int typeSize = 4;
+			if (arrayElem.getType().equals(BaseType.T_bool)
+					|| arrayElem.getType().equals(BaseType.T_char)) {
+				typeSize = 1;
+			}
+
+			// Get the element at expr[n] then treat the element at expr[n] as
+			// another array and get the element expr[n+1] in that array and so on
+			Register trOffset = trg.generate(weight);
+
+			Register typeSizeReg = trg.generate(weight);
+			instrList.add(new Ldr(typeSizeReg, new ImmediateValue(typeSize)));
+
+			Register array = arrayElem.getScope().lookup(arrayElem.getName())
+					.getTemporaryRegister();
+			Register arrayCopy = trg.generate(weight);
+			instrList.add(new Mov(arrayCopy, array));
+
+			for (int i = 0; i < arrayElem.getExprs().size(); i++) {
+				instrList.addAll(arrayElem.getExprs().get(i).accept(this));
+
+				// r0 is the index and r1 is the size of the array. This is used for
+				// checking that the index is correct
+				instrList.add(new Mov(ArmRegister.r0, returnedOperand));
+				instrList.add(new Ldr(ArmRegister.r1, new Address(arrayCopy)));
+				instrList.add(new BLInstruction("p_check_array_bounds"));
+
+				// Multiply the index by the size of the array
+				instrList.add(new Mul(trOffset, returnedOperand, typeSizeReg));
+				// Add 4 since the first element of every array is the size which is
+				// always 4 bytes
+				instrList.add(new Add(trOffset, new ImmediateValue(4)));
+
+				// Load array element at offset into array (assuming it will be
+				// another array address
+				if (i == arrayElem.getExprs().size() - 1) {
+					instrList.add(new Add(storeTo, arrayCopy, trOffset));
+					
+					// Check for null pointers
+					instrList.add(new Mov(ArmRegister.r0, storeTo));
+					instrList.add(new BLInstruction("p_check_null_pointer"));
+
+				} else {
+					instrList.add(new Ldr(arrayCopy, new Address(arrayCopy,
+							trOffset)));
+				}
+			}
+		}
+
 		if (readStat.getAssignable().getType().equals(BaseType.T_int)) {
-			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
-					INT_SCANF_STORE_LABEL)));
+
+			instrList.add(new Mov(ArmRegister.r1, storeTo));
 			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
 					INT_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
-			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
-					INT_SCANF_STORE_LABEL)));
-			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1)));
-			// read char
+
 		} else if (readStat.getAssignable().getType().equals(BaseType.T_char)) {
-			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
-					INT_SCANF_STORE_LABEL)));
+
+			instrList.add(new Mov(ArmRegister.r1, storeTo));
 			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
 					CHAR_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
-			instrList.add(new Ldr(ArmRegister.r1, new ImmediateValue(
-					INT_SCANF_STORE_LABEL)));
+
+		} /*
+		 * else if (readStat.getAssignable().getType() .equals(new
+		 * WaccArrayType(BaseType.T_char))) {
+		 * 
+		 * instrList.add(new Mov(ArmRegister.r1, new ImmediateValue(100)));
+		 * instrList.add(new BLInstruction("malloc")); instrList.add(new
+		 * Mov(returnVal, ArmRegister.r0)); instrList.add(new
+		 * Mov(ArmRegister.r1, ArmRegister.r0)); instrList.add(new
+		 * Ldr(ArmRegister.r0, new ImmediateValue( STRING_FORMAT_LABEL)));
+		 * instrList.add(new BLInstruction("scanf")); }
+		 */
+
+		if (readStat.getAssignable() instanceof VariableAST) {
+			instrList.add(new Mov(ArmRegister.r1, storeTo));
 			instrList.add(new Ldr(returnVal, new Address(ArmRegister.r1)));
-			// read string
-		} else if (readStat.getAssignable().getType()
-				.equals(new WaccArrayType(BaseType.T_char))) {
-			instrList.add(new Mov(ArmRegister.r1, new ImmediateValue(100)));
-			instrList.add(new BLInstruction("malloc"));
-			instrList.add(new Mov(returnVal, ArmRegister.r0));
-			instrList.add(new Mov(ArmRegister.r1, ArmRegister.r0));
-			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
-					STRING_FORMAT_LABEL)));
-			instrList.add(new BLInstruction("scanf"));
 		}
 
 		// returnedOperand = returnVal;
@@ -744,13 +812,13 @@ public class IntermediateCodeGenerator implements
 		return instrList;
 	}
 
-	
 	private Deque<PseudoInstruction> checkIntegerOverFlow() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
-		instrList.add(new BLInstruction("p_throw_overflow_error", Condition.VS));
+		instrList
+				.add(new BLInstruction("p_throw_overflow_error", Condition.VS));
 		return instrList;
 	}
-	
+
 	@Override
 	public Deque<PseudoInstruction> visit(BinaryExprAST binExpr) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
