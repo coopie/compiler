@@ -179,16 +179,30 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(AssignStatAST assignStat) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
-		Register destReg = trg.generate(weight);
+		Register destReg;
+		if (assignStat
+				.getLhs()
+				.getScope()
+				.lookup(assignStat.getLhs().getName(),
+						assignStat.getFilePosition()).getTemporaryRegister() != null) {
+			destReg = assignStat
+					.getLhs()
+					.getScope()
+					.lookup(assignStat.getLhs().getName(),
+							assignStat.getFilePosition())
+					.getTemporaryRegister();
+		} else {
+			destReg = trg.generate(weight);
+		}
 
-		Register tr = trg.generate(weight);
 		instrList.addAll(assignStat.getRhs().accept(this));
 		instrList.add(new Mov(destReg, returnedOperand));
 
 		// Set the variable identinfo to store this temp reg
 		if (!(destReg instanceof TemporaryRegister)) {
 			throw new RuntimeException(
-					"Variable assignRHS should never be put in a real register.");
+					"Variable assignRHS should never be put in a real register, "
+							+ destReg);
 		}
 
 		if (assignStat.getLhs() instanceof ArrayElemAST) {
@@ -260,7 +274,7 @@ public class IntermediateCodeGenerator implements
 					.getScope()
 					.lookup(assignStat.getLhs().getName(),
 							assignStat.getLhs().getFilePosition())
-					.setTemporaryRegister((TemporaryRegister)destReg);
+					.setTemporaryRegister((TemporaryRegister) destReg);
 		}
 
 		returnedOperand = destReg;
@@ -382,7 +396,7 @@ public class IntermediateCodeGenerator implements
 		}
 
 		instr.addLast(new BLInstruction("printf"));
-		
+
 		return instr;
 	}
 
@@ -823,7 +837,8 @@ public class IntermediateCodeGenerator implements
 		} else if (valueExpr.getType().equals(
 				new WaccArrayType(BaseType.T_char))) {
 			CompileProgramAST.getDataSection().add(
-					new AssemblerDirective(".word " + valueExpr.getValue().length()));
+					new AssemblerDirective(".word "
+							+ valueExpr.getValue().length()));
 			CompileProgramAST.getDataSection().add(
 					new AssemblerDirective(".ascii \"" + valueExpr.getValue()
 							+ "\\0\""));
