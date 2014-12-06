@@ -177,7 +177,7 @@ public class GenerateAssembly implements InstructionVistor<String> {
 	@Override
 	public String visit(LdrB ldrB) {
 		// Because ldr uses =immediatevalue instead of #immediatevalue
-		String result = newLine(4) + "LDBR" + ldrB.getCond() + " "
+		String result = newLine(4) + "LDRB" + ldrB.getCond() + " "
 				+ ldrB.getDest().accept(printOperand) + ", ";
 		printOperand.setImmediateValuePrefix("=");
 		result += ldrB.getSource().accept(printOperand);
