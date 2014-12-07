@@ -54,6 +54,7 @@ public class CompileProgramAST {
 				instrList.addAll(addFunctionToItsBody(fbody, f.getIdent(),
 						codeGen.getRegistersUsed(),
 						codeGen.getSpilledRegisters()));
+				
 
 			}
 
@@ -146,7 +147,7 @@ public class CompileProgramAST {
 		textSection.add(new AssemblerDirective("\t.ascii \"%s\\0\""));
 
 		textSection.add(new Label(IntermediateCodeGenerator.CHAR_FORMAT_LABEL));
-		textSection.add(new AssemblerDirective("\t.ascii \"%c\\0\""));
+		textSection.add(new AssemblerDirective("\t.ascii \"%s[1]\\0\""));
 
 		textSection.add(new Label(IntermediateCodeGenerator.INT_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%d\\0\""));
@@ -376,6 +377,7 @@ public class CompileProgramAST {
 			function.add(new Pop(r));
 		}
 		function.add(new Pop(ArmRegister.pc));
+		function.add(new AssemblerDirective(".ltorg"));
 
 		return function;
 	}

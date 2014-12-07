@@ -2,4 +2,4 @@
 filename=$(basename "$1")
 NAME="${filename%.*}"
 arm-linux-gnueabi-gcc -o $NAME -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ${NAME}.s 
-qemu-arm -L /usr/arm-linux-gnueabi/ $NAME
+qemu-arm -L /usr/arm-linux-gnueabi/ $NAME < t.in
