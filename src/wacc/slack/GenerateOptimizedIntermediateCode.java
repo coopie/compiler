@@ -20,10 +20,12 @@ import wacc.slack.instructions.visitors.ComplexRegisterAllocator;
 import wacc.slack.instructions.visitors.TemporaryReplacer;
 import wacc.slack.interferenceGraph.InterferenceGraph;
 import wacc.slack.interferenceGraph.InterferenceGraphColourer;
+import wacc.slack.interferenceGraph.RegisterMapping;
 
 public class GenerateOptimizedIntermediateCode implements
 		Callable<Deque<PseudoInstruction>> {
 
+	private static final int NUMBER_OF_INSTRUCTIONS_BEFEFORE_CONSTANT_POOL_CLOSE = 350;
 	private ComplexRegisterAllocator registerAllocator = new ComplexRegisterAllocator();
 	private final WaccAST ast;
 	private final int optimisationLevel;
@@ -49,29 +51,33 @@ public class GenerateOptimizedIntermediateCode implements
 			return simpleRegisterAllocation(intermediateCode);
 		}
 
-		Deque<PseudoInstruction> codeWithoutTemporaries = new LinkedList<>();
-		final Map<Register, ArmRegister> mapping = new HashMap<>();
 		ControlFlowGraph cfg = new ControlFlowGraph(intermediateCode);
 		InterferenceGraph ig = new InterferenceGraph(cfg);
 		InterferenceGraphColourer igc = new InterferenceGraphColourer(ig);
+		RegisterMapping mapping = igc.generateTemporaryRegisterMappings();
+		registerAllocator = new ComplexRegisterAllocator(mapping);
 		// igc.generateTemporaryRegisterMappings(mapping);
 
-		for (PseudoInstruction i : intermediateCode) {
-			codeWithoutTemporaries.addAll(i.accept(new TemporaryReplacer(
-					mapping)));
-		}
+		
 
 	
-		return codeWithoutTemporaries;
+		return simpleRegisterAllocation(intermediateCode);
 	}
 
 	private Deque<PseudoInstruction> simpleRegisterAllocation(
 			Deque<PseudoInstruction> intermediateCode) {
 		Deque<PseudoInstruction> finalCode = new ArrayDeque<PseudoInstruction>();
+		
+		int numInstruction = 0;
 		for (PseudoInstruction ps : intermediateCode) {
 			finalCode.addAll(ps.accept(registerAllocator));
 			finalCode.add(new AssemblerDirective("\n")); // for debugging
 															// purposes
+			numInstruction++;
+			//splits the constant pool and shit
+			if(numInstruction % NUMBER_OF_INSTRUCTIONS_BEFEFORE_CONSTANT_POOL_CLOSE == 0) {
+				finalCode.add(new AssemblerDirective(".ltorg"));
+			}
 		}
 		return finalCode;
 	}

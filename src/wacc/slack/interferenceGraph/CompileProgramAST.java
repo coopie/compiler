@@ -98,7 +98,11 @@ public class CompileProgramAST {
 
 	private int stackSpaceNeeded(int i) {
 		// TODO: should be * 4
-		return i * 8;
+		if(i*4 % 8 == 0) {
+			return i*4 + 80;
+		} else {
+			return i*4 + 84;
+		}
 
 	}
 
