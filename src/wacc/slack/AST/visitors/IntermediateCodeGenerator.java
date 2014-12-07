@@ -742,8 +742,8 @@ public class IntermediateCodeGenerator implements
 		Register tr2 = trg.generate(weight);
 
 		int typeSize = 4;
-		if (arrayLiter.getType().equals(BaseType.T_bool)
-				|| arrayLiter.getType().equals(BaseType.T_char)) {
+		if (arrayLiter.getType().equals(new WaccArrayType(BaseType.T_bool))
+				|| arrayLiter.getType().equals(new WaccArrayType(BaseType.T_char))) {
 			typeSize = 1;
 		}
 
