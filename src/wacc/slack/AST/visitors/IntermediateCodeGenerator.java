@@ -78,7 +78,9 @@ public class IntermediateCodeGenerator implements
 		ASTVisitor<Deque<PseudoInstruction>> {
 
 	public static final String STRING_FORMAT_LABEL = "string_format";
-	public static final String CHAR_FORMAT_LABEL = "char_format";
+	public static final String PRINT_CHAR_FORMAT_LABEL = "print_char_format";
+	public static final String SCAN_CHAR_FORMAT_LABEL = "scan_char_format";
+
 	public static final String NEW_LINE_CHAR = "new_line_char";
 	public static final String INT_FORMAT_LABEL = "int_format";
 	public static final String INT_SCANF_STORE_LABEL = "intScanfStoreLabel";
@@ -439,7 +441,7 @@ public class IntermediateCodeGenerator implements
 		} else if (t.equals(BaseType.T_char)) {
 			instr.addLast(new Mov(ArmRegister.r1, retReg));
 			instr.addLast(new Ldr(ArmRegister.r0, new ImmediateValue(
-					CHAR_FORMAT_LABEL)));
+					PRINT_CHAR_FORMAT_LABEL)));
 		} else if (t.equals(BaseType.T_bool)) {
 			Label falsel = new Label(
 					ControlFlowLabelGenerator.getNewUniqueLabel());
@@ -567,7 +569,7 @@ public class IntermediateCodeGenerator implements
 			}
 
 			instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(
-					CHAR_FORMAT_LABEL)));
+					SCAN_CHAR_FORMAT_LABEL)));
 			instrList.add(new BLInstruction("scanf"));
 
 		} /*

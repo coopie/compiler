@@ -146,9 +146,13 @@ public class CompileProgramAST {
 				.add(new Label(IntermediateCodeGenerator.STRING_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%s\\0\""));
 
-		textSection.add(new Label(IntermediateCodeGenerator.CHAR_FORMAT_LABEL));
+		textSection.add(new Label(IntermediateCodeGenerator.SCAN_CHAR_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%s[1]\\0\""));
 
+		textSection.add(new Label(IntermediateCodeGenerator.PRINT_CHAR_FORMAT_LABEL));
+		textSection.add(new AssemblerDirective("\t.ascii \"%c\\0\""));
+
+		
 		textSection.add(new Label(IntermediateCodeGenerator.INT_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%d\\0\""));
 
