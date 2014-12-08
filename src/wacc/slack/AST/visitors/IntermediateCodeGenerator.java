@@ -248,6 +248,7 @@ public class IntermediateCodeGenerator implements
 		}
 
 		if (assignStat.getLhs() instanceof ArrayElemAST) {
+			weight = weight * 5;
 			Register typeSizeReg = trg.generate(weight);
 			int typeSize = 4;
 			if (((ArrayElemAST) assignStat.getLhs()).getType().equals(
@@ -298,7 +299,7 @@ public class IntermediateCodeGenerator implements
 
 			// Move array back into original register
 			instrList.add(new Mov(arrayReg, backUpArray));
-
+			weight = weight * 5;
 		} else if (assignStat.getLhs() instanceof FstAST) {
 			FstAST fst = (FstAST) assignStat.getLhs();
 			Register ret = fst.getScope().lookup(fst.getName())
@@ -635,6 +636,8 @@ public class IntermediateCodeGenerator implements
 	public Deque<PseudoInstruction> visit(ArrayElemAST arrayElem) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
+		weight = weight * 5;
+		
 		int typeSize = 4;
 		if (arrayElem.getType().equals(BaseType.T_bool)
 				|| arrayElem.getType().equals(BaseType.T_char)) {
@@ -685,7 +688,8 @@ public class IntermediateCodeGenerator implements
 						trOffset)));
 			}
 		}
-
+		weight = weight / 5;
+		
 		returnedOperand = arrayCopy;
 		return instrList;
 	}

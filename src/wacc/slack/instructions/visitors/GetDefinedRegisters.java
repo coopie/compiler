@@ -63,7 +63,11 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 		@Override
 		public List<Register> visit(Address address) {
-			return address.getRegister().accept(this);
+			List<Register> l =  address.getRegister().accept(this);
+			if(address.getRegOffset() != null) {
+				l.addAll(address.getRegOffset().accept(this));
+			}
+			return l;
 		}
 
 		@Override
@@ -94,19 +98,17 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Label label) {
-		return label.accept(new GetRegsIfAny());
+		return new LinkedList<Register>();
 	}
 
 	@Override
 	public List<Register> visit(AssemblerDirective assemblerDirective) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<>();
 	}
 
 	@Override
 	public List<Register> visit(Swi swi) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<>();
 	}
 
 	@Override
@@ -116,13 +118,12 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(BLInstruction blInsturction) {
-		// TODO Auto-generated method stub
-		return null;
+		return Arrays.asList((Register)ArmRegister.lr, ArmRegister.r0, ArmRegister.r1);
 	}
 
 	@Override
 	public List<Register> visit(Pop pop) {
-		return new LinkedList<Register>();
+		return pop.getOperand().accept(new GetRegsIfAny());
 	}
 
 	@Override
@@ -152,7 +153,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(BranchInstruction b) {
-		return b.getLabel().accept(new GetRegsIfAny());
+		return new LinkedList<>();
 	}
 
 	@Override
@@ -162,7 +163,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(Eor eor) {
-		return new LinkedList<Register>();
+		return eor.getDest().accept(new GetRegsIfAny());
 	}
 
 	@Override
@@ -172,7 +173,7 @@ public class GetDefinedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(LdrB ldrB) {
-		return new LinkedList<Register>();
+		return ldrB.getDest().accept(new GetRegsIfAny());
 	}
 
 	@Override

@@ -41,7 +41,9 @@ public class GenerateOptimizedIntermediateCode implements
 		IntermediateCodeGenerator visitor = new IntermediateCodeGenerator();
 
 		Deque<PseudoInstruction> intermediateCode = ast.accept(visitor);
-		intermediateCode = doOptimisations(intermediateCode, optimisationLevel);
+		if(optimisationLevel > -1) {
+			intermediateCode = doOptimisations(intermediateCode, optimisationLevel);	
+		}
 		return intermediateCode;
 	}
 

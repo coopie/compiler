@@ -1,6 +1,6 @@
 #!/bin/bash
 filename=$(basename "$1")
 NAME="${filename%.*}"
-./compile $1 
+./compile $1 $2
 arm-linux-gnueabi-gcc -o $NAME -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ${NAME}.s 
 qemu-arm -L /usr/arm-linux-gnueabi/ $NAME

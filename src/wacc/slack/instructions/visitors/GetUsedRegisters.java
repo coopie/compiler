@@ -62,7 +62,11 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 		@Override
 		public List<Register> visit(Address address) {
-			return address.getRegister().accept(this);
+			List<Register> l =  address.getRegister().accept(this);
+			if(address.getRegOffset() != null) {
+				l.addAll(address.getRegOffset().accept(this));
+			}
+			return l;
 		}
 
 		@Override
@@ -102,14 +106,12 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(AssemblerDirective assemblerDirective) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<>();
 	}
 
 	@Override
 	public List<Register> visit(Swi swi) {
-		// TODO Auto-generated method stub
-		return null;
+		return new LinkedList<>();
 	}
 
 	@Override
@@ -119,13 +121,12 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(BLInstruction blInsturction) {
-		// TODO Auto-generated method stub
-		return null;
+		return Arrays.asList((Register)ArmRegister.r0,ArmRegister.r1,ArmRegister.r2, ArmRegister.r3);
 	}
 
 	@Override
 	public List<Register> visit(Pop pop) {
-		return pop.getOperand().accept(new GetRegsIfAny());
+		return new LinkedList<>();
 	}
 
 	@Override
@@ -163,7 +164,7 @@ public class GetUsedRegisters implements InstructionVistor<List<Register>> {
 
 	@Override
 	public List<Register> visit(BranchInstruction b) {
-		return b.getLabel().accept(new GetRegsIfAny());
+		return new LinkedList<>();
 	}
 
 	@Override

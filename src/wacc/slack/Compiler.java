@@ -25,7 +25,8 @@ public class Compiler {
 		String inputFile = null;
 		String outputFile = null;
 		Compiler compiler = new Compiler();
-
+		int optimisationLevel = 0;
+		
 		if (args.length > 0) {
 			inputFile = args[0];
 
@@ -36,6 +37,9 @@ public class Compiler {
 
 			outputFile = args[0].substring(0, args[0].length() - 5) + ".s";
 			outputFile = outputFile.replaceAll(".*/", "");
+			if(args.length > 1 && args[1].startsWith("-O")) {
+				optimisationLevel = Integer.parseInt(args[1].substring(2));
+			}
 		}
 
 		InputStream is = System.in;
@@ -46,7 +50,7 @@ public class Compiler {
 
 		PrintStream out = new PrintStream(new File(outputFile));
 
-		out.print(compiler.compile(is));
+		out.print(compiler.compile(is,optimisationLevel));
 
 		out.print('\n');
 		out.close();
@@ -58,7 +62,7 @@ public class Compiler {
 
 	}
 
-	public String compile(InputStream is) throws Exception {
+	public String compile(InputStream is, int optimisationLevel) throws Exception {
 
 		ANTLRInputStream input = new ANTLRInputStream(is);
 		WaccLexer lexer = new WaccLexer(input);
@@ -88,7 +92,7 @@ public class Compiler {
 			System.exit(ErrorRecords.getInstance().getExitCode());
 		}
 		
-		return new CompileProgramAST((ProgramAST)ast).compile();
+		return new CompileProgramAST((ProgramAST)ast).compile(optimisationLevel);
 	}
 
 	

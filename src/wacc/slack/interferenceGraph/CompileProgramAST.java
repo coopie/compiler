@@ -40,8 +40,7 @@ public class CompileProgramAST {
 		this.program = program;
 	}
 
-	public String compile() {
-		int optimisationLevel = 0;
+	public String compile(int optimisationLevel) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
 		try {

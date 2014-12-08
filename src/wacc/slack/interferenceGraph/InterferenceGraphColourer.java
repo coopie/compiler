@@ -50,6 +50,7 @@ public class InterferenceGraphColourer {
 			currentColour++;
 		}
 
+		
 		// try to colour all of the constrained nodes, not too worried about the
 		// order of this
 		for (InterferenceGraphNode constrainedNode : findConstrainedNodes(k)) {
@@ -57,9 +58,9 @@ public class InterferenceGraphColourer {
 				tryToColour(constrainedNode, k);
 			}
 		}
-
 		// deal with unconstrained nodes in weight
 		List<InterferenceGraphNode> sortedByWeight = getSortedListOfNodesByWeight();
+				
 		for (InterferenceGraphNode n : sortedByWeight) {
 			if (!n.isColoured()) {
 				tryToColour(n, k);
@@ -122,7 +123,7 @@ public class InterferenceGraphColourer {
 	private Set<InterferenceGraphNode> findConstrainedNodes(int k) {
 		Set<InterferenceGraphNode> constrainedNodes = new HashSet<>();
 
-		for (InterferenceGraphNode n : ig) {
+		for (InterferenceGraphNode n : getSortedListOfNodesByWeight()) {
 			if (ig.isConstrained(n, k)) {
 				constrainedNodes.add(n);
 			}
@@ -240,7 +241,7 @@ public class InterferenceGraphColourer {
 			}
 		}
 		
-		System.out.println(ig);
+		//System.out.println(ig);
 
 		Map<Integer, ArmRegister> key = new HashMap<Integer, ArmRegister>();
 		List<ArmRegister> armRegsSeen = new LinkedList<ArmRegister>();
@@ -264,7 +265,7 @@ public class InterferenceGraphColourer {
 			}
 		}
 
-		System.out.println("key is : " + key);
+	//	System.out.println("key is : " + key);
 
 		Map<TemporaryRegister, ArmRegister> temporaryMappings = new HashMap<TemporaryRegister, ArmRegister>();
 

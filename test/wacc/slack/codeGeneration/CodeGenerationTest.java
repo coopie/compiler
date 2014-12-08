@@ -16,7 +16,7 @@ public class CodeGenerationTest {
 		InputStream stream = new ByteArrayInputStream(in.getBytes(StandardCharsets.UTF_8));
 		String s = null;
 		try {
-			s = compiler.compile(stream);
+			s = compiler.compile(stream,0);
 		} catch (Exception e) {
 			// should not happen as only valid programs should be tested
 		}
