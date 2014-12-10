@@ -124,8 +124,9 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				for(CFGNode sn : succN) {
 					liveOutN.addAll(liveIn.get(sn));
 				}
-				allRegisters.addAll(liveOutN);
-				
+				//allRegisters.addAll(liveOutN);
+				allRegisters.addAll(n.defs);
+				allRegisters.addAll(n.uses);
 				
 			}
 		}while(isChanged(liveIn,liveInPrevSize) ||  isChanged(liveOut,liveOutPrevSize));
@@ -136,6 +137,7 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 	}
 	
 	public Set<Register> getAllRegs() {
+		
 		return allRegisters;
 	}
 	

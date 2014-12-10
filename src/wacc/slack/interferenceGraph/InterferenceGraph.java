@@ -22,7 +22,7 @@ public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 		// For each temporary t 
 		for(Register t : allRegisters) {
 			// For each node id 
-			for(CFGNode id: liveOut.keySet()) {
+			for(CFGNode id : liveOut.keySet()) {
 				liveOutId = liveOut.get(id); 
 				// If t is in liveOut(id)
 				if(liveOutId.contains(t)) {
