@@ -17,6 +17,7 @@ import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.IfWithoutElseStatement;
 import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
@@ -165,6 +166,11 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 	@Override
 	public Boolean visit(FreeStatementAST freeStat) {
 		return false;
+	}
+
+	@Override
+	public Boolean visit(IfWithoutElseStatement ifWithoutElseStat) {
+		return ifWithoutElseStat.getTrueStats().accept(this);
 	}
 
 }

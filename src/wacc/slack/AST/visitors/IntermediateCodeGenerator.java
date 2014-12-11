@@ -27,6 +27,7 @@ import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.IfWithoutElseStatement;
 import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
@@ -1058,5 +1059,22 @@ public class IntermediateCodeGenerator implements
 
 	public TemporaryRegisterGenerator getTemporaryRegisterGenerator() {
 		return trg;
+	}
+
+	@Override
+	public Deque<PseudoInstruction> visit(IfWithoutElseStatement ifStat) {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		Label endl = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+
+		instrList.addAll(ifStat.getCond().accept(this));
+		instrList.add(new Cmp(returnedOperand, new ImmediateValue(0)));
+		instrList.add(new BranchInstruction(Condition.EQ, endl));
+
+		weight = weight / 2;
+		instrList.addAll(ifStat.getTrueStats().accept(this));
+		instrList.add(endl);
+
+		weight = (weight + 1) * 2;
+		return instrList;
 	}
 }
