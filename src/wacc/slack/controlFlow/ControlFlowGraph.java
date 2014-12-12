@@ -127,12 +127,13 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				//allRegisters.addAll(liveOutN);
 				allRegisters.addAll(n.defs);
 				allRegisters.addAll(n.uses);
-				
 			}
+			
 		}while(isChanged(liveIn,liveInPrevSize) ||  isChanged(liveOut,liveOutPrevSize));
 	/*	System.out.println(printGraph(liveIn));
 		System.out.println(printGraph(liveOut));
 		*/
+
 		return liveOut;
 	}
 	
