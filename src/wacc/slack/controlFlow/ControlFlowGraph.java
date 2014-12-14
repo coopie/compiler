@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import wacc.slack.assemblyOperands.Register;
+import wacc.slack.instructions.AssemblerDirective;
 import wacc.slack.instructions.BranchInstruction;
 import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
@@ -62,6 +63,13 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 			//carry on as if there were no pseudo instruction
 			l = currentInstruction.accept(labelVisitor);
 			if(l != null) {
+				//if the label is the last pseudoisntruction, baby siter will break, 
+				//so we return soemthing that isn-t null but it doesn't cause any troubles
+				if(prevNode == null) {
+					prevNode = new CFGNode(id,new AssemblerDirective(""));
+					this.putNode(prevNode, new HashSet<CFGNode>());
+					id++;
+				} 
 				labelLookUp.put(l,prevNode);
 				continue;
 			}
@@ -127,12 +135,13 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 				//allRegisters.addAll(liveOutN);
 				allRegisters.addAll(n.defs);
 				allRegisters.addAll(n.uses);
-				
 			}
+			
 		}while(isChanged(liveIn,liveInPrevSize) ||  isChanged(liveOut,liveOutPrevSize));
 	/*	System.out.println(printGraph(liveIn));
 		System.out.println(printGraph(liveOut));
 		*/
+
 		return liveOut;
 	}
 	
