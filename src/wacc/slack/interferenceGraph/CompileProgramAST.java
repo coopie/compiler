@@ -53,7 +53,6 @@ public class CompileProgramAST {
 				instrList.addAll(addFunctionToItsBody(fbody, f.getIdent(),
 						codeGen.getRegistersUsed(),
 						codeGen.getSpilledRegisters()));
-				
 
 			}
 
@@ -98,10 +97,10 @@ public class CompileProgramAST {
 
 	private int stackSpaceNeeded(int i) {
 		// TODO: should be * 4
-		if(i*4 % 8 == 0) {
-			return i*4 + 80;
+		if (i * 4 % 8 == 0) {
+			return i * 4 + 80;
 		} else {
-			return i*4 + 84;
+			return i * 4 + 84;
 		}
 
 	}
@@ -145,13 +144,14 @@ public class CompileProgramAST {
 				.add(new Label(IntermediateCodeGenerator.STRING_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%s\\0\""));
 
-		textSection.add(new Label(IntermediateCodeGenerator.SCAN_CHAR_FORMAT_LABEL));
+		textSection.add(new Label(
+				IntermediateCodeGenerator.SCAN_CHAR_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%s[1]\\0\""));
 
-		textSection.add(new Label(IntermediateCodeGenerator.PRINT_CHAR_FORMAT_LABEL));
+		textSection.add(new Label(
+				IntermediateCodeGenerator.PRINT_CHAR_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%c\\0\""));
 
-		
 		textSection.add(new Label(IntermediateCodeGenerator.INT_FORMAT_LABEL));
 		textSection.add(new AssemblerDirective("\t.ascii \"%d\\0\""));
 
@@ -244,7 +244,7 @@ public class CompileProgramAST {
 		instrList.add(new BLInstruction("p_null_reference_exception",
 				Condition.EQ));
 		instrList.add(new Pop(ArmRegister.pc));
-		
+
 		return instrList;
 	}
 
@@ -314,7 +314,7 @@ public class CompileProgramAST {
 		// IntermediateCodeGenerator()));
 		instrList.addAll(new GenerateOptimizedIntermediateCode(
 				IntermediateCodeGenerator.LARGE_INDEX_ERROR, 0).call());
-		
+
 		// Exit the program
 		instrList.add(new Mov(ArmRegister.r0, new ImmediateValue(-1)));
 		instrList.add(new BLInstruction("exit"));
@@ -330,22 +330,20 @@ public class CompileProgramAST {
 
 		instrList.add(new Pop(ArmRegister.pc));
 		return instrList;
-		
+
 	}
-	
+
 	private Deque<PseudoInstruction> IntegerOverflowError() throws Exception {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		instrList.add(new Label("p_throw_overflow_error"));
-		
+
 		instrList.addAll(new GenerateOptimizedIntermediateCode(
 				IntermediateCodeGenerator.INTEGER_ERROR, 0).call());
 		instrList.add(new Ldr(ArmRegister.r0, new ImmediateValue(-1)));
 		instrList.add(new BLInstruction("exit"));
 
-		
 		return instrList;
 	}
-	
 
 	private Deque<PseudoInstruction> addFunctionToItsBody(
 			Deque<PseudoInstruction> body, String functionName,

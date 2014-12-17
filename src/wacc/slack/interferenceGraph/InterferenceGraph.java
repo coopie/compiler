@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.Register;
 import wacc.slack.controlFlow.AbstractGraph;
 import wacc.slack.controlFlow.CFGNode;
@@ -40,6 +41,8 @@ public class InterferenceGraph extends AbstractGraph<InterferenceGraphNode> {
 				}
 			}
 		}
+		this.remove(InterferenceGraphNode.getInterferenceGraphNodeForRegister(ArmRegister.lr));
+//		System.out.println(this);
 	}
 
 	private Set<InterferenceGraphNode> convertRegisters(Set<Register> regs,
