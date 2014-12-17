@@ -54,7 +54,13 @@ class LabelBabySitter {
 				instructions.get(n).add(next);
 				count++;
 			} else {
-//				System.out.println("n");
+				String label = n.getInstruction().accept(labelVisitor).getName();
+				if(label != null) {
+					if(label.endsWith("_end")) {
+						count++;
+					}
+				}
+				
 			}
 		}
 		return instructions.size() == count;

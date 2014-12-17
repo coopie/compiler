@@ -84,10 +84,10 @@ public class ControlFlowGraph extends AbstractGraph<CFGNode> {
 			id++;
 		}
 		
-//		if(!sitter.allInstructionsHappy()) {
-//			System.out.println(this);
-//			throw new RuntimeException("undefined label found");
-//		}
+		if(!sitter.allInstructionsHappy()) {
+			System.out.println(this);
+			throw new RuntimeException("undefined label found");
+		}
 	}
 
 	public Map<CFGNode,Set<Register>> getLiveOut() {
