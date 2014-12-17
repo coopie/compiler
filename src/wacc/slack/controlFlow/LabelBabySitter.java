@@ -53,6 +53,8 @@ class LabelBabySitter {
 			if(next != null) {
 				instructions.get(n).add(next);
 				count++;
+			} else {
+//				System.out.println("n");
 			}
 		}
 		return instructions.size() == count;
