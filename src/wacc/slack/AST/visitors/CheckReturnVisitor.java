@@ -8,6 +8,7 @@ import wacc.slack.AST.assignables.ArrayElemAST;
 import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.assignables.MapAST;
 import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
@@ -164,6 +165,11 @@ public class CheckReturnVisitor implements ASTVisitor<Boolean> {
 
 	@Override
 	public Boolean visit(FreeStatementAST freeStat) {
+		return false;
+	}
+
+	@Override
+	public Boolean visit(MapAST mapAST) {
 		return false;
 	}
 

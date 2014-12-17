@@ -10,6 +10,7 @@ import wacc.slack.AST.assignables.ArrayElemAST;
 import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.assignables.MapAST;
 import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
@@ -243,5 +244,10 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	@Override
 	public String visit(FreeStatementAST freeStat) {
 		return visitExprStat(freeStat);
+	}
+
+	@Override
+	public String visit(MapAST mapAST) {
+		return mapAST.getArray() + ".map( " + mapAST.getFunction() + " )";
 	}
 }

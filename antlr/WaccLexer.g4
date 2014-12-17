@@ -58,6 +58,8 @@ DONE : 'done' ;
 //assign rhs
 NEWPAIR : 'newpair' ;
 CALL : 'call' ;
+MAP : '.map';
+//DOT : '.';
 
 //pair elem
 FST : 'fst' ;

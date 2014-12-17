@@ -21,6 +21,7 @@ import wacc.slack.AST.assignables.Assignable;
 import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.assignables.MapAST;
 import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.Param;
 import wacc.slack.AST.assignables.ParamList;
@@ -169,12 +170,14 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 			ExprAST expr2 = visitExpr(ctx.expr(1));
 			return new NewPairAST(expr1, expr2, filePos);
 		} else if (ctx.CALL() != null) {
-			String ident = ctx.IDENT().getText();
+			String ident = ctx.IDENT(0).getText();
 			ArgList argList = visitArgList(ctx.argList());
 			ErrorRecords.getInstance().addExpectation(
 					new FunctionCallExpectation(FuncAST.encodeFuncName(ident),
 							argList, filePos));
 			return new CallAST(FuncAST.encodeFuncName(ident), argList, filePos);
+		} else if(ctx.MAP() != null) {
+			return new MapAST(ctx.IDENT(0).getText(),FuncAST.encodeFuncName(ctx.IDENT(1).getText()),scope,filePos);
 		} else if (ctx.expr() != null) {
 			return visitExpr(ctx.expr(0));
 		} else {
