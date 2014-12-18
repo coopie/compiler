@@ -1,5 +1,5 @@
 #!/bin/bash
 filename=$(basename "$1")
 NAME="${filename%.*}"
-arm-linux-gnueabi-gcc -g -o $NAME -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ${NAME}.s 
+arm-linux-gnueabi-gcc -pthread -g -o $NAME -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ${NAME}.s 
 qemu-arm -g 1234 -L /usr/arm-linux-gnueabi/ $NAME &

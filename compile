@@ -2,4 +2,4 @@
 # Ruby front-end for your compiler.
 # You are free to change the language used for this script,
 # but do *not* change its name.
-java -cp "lib/*:bin/" wacc.slack.Compiler $1 -O1
+java -cp "lib/*:bin/" wacc.slack.Compiler $1 -O0

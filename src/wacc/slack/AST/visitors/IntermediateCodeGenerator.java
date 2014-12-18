@@ -1066,6 +1066,182 @@ public class IntermediateCodeGenerator implements
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
 		
+		//store the address of the function that is mapped  in MAP_FUNCTION_ADDRESS, so it can be picked up by mappable function wrapper
+		Register dataSectionPlace = trg.generate(weight);
+		Register functionAddress = trg.generate(weight);
+		instrList.add(new Ldr(dataSectionPlace,CompileProgramAST.MAP_FUNCTION_ADDRESS));
+		instrList.add(new Ldr(functionAddress, new Label(mapAST.getFunction())));
+		instrList.add(new Str(functionAddress, new Address(dataSectionPlace)));
+/*		
+		instrList.add(new Ldr(dataSectionPlace,CompileProgramAST.MAP_FUNCTION_ADDRESS2));
+		instrList.add(new Ldr(functionAddress, CompileProgramAST.MAP_WRAPPER_WORD));
+		instrList.add(new Str(functionAddress, new Address(dataSectionPlace)));*/
+		
+		Register four = dataSectionPlace;
+		instrList.add(new Mov(four,new ImmediateValue(4)));
+		
+		Register eight = functionAddress;
+		instrList.add(new Mov(eight,new ImmediateValue(8)));
+		
+		int sourceTypeSize = 4;
+		if (mapAST.getSourceArrayType().getType().equals(BaseType.T_bool)
+			|| mapAST.getSourceArrayType().getType().equals(BaseType.T_char)) {
+			sourceTypeSize = 1;
+		}
+		
+				
+		int typeSize = 4;
+		if (mapAST.getDestType().getType().equals(BaseType.T_bool)
+				|| mapAST.getDestType().getType().equals(BaseType.T_char)) {
+			typeSize = 1;
+		}
+
+		Register typeSizeReg = trg.generate(weight);
+		instrList.add(new Ldr(typeSizeReg, new ImmediateValue(typeSize)));
+		
+		//pointer to source array base (length in front
+		Register arrayBase = trg.generate(weight);
+		instrList.add(new Mov(arrayBase, mapAST.getScope().lookup(mapAST.getArray()).getTemporaryRegister()));
+		Register arrayLength = trg.generate(weight);
+		
+		//load the length of the array to the register
+		instrList.add(new Ldr(arrayLength,new Address(arrayBase)));
+		
+		//create the new array to where the results will be stored into
+		Register newArray = trg.generate(weight);
+		instrList.add(new Mul(ArmRegister.r0,arrayLength, typeSizeReg));
+		instrList.add(new Add(ArmRegister.r0, new ImmediateValue(4)));
+		instrList.add(new BLInstruction("malloc"));
+		instrList.add(new Mov(newArray,ArmRegister.r0));
+		
+		
+		//will hold all the pthread_t structs (8 bytes) that can be later joined to
+		Register threadsArray = trg.generate(weight);
+		
+		instrList.add(new Mul(ArmRegister.r0, arrayLength, eight));
+		instrList.add(new BLInstruction("malloc"));
+		instrList.add(new Mov(threadsArray, ArmRegister.r0));
+		
+		//will hold a struct {address of result, parameter}
+		Register arguemntsArray = trg.generate(weight);
+		
+		//TODO: will work only for ints
+		instrList.add(new Mul(ArmRegister.r0, arrayLength, eight));
+		//instrList.add(new Mul(ArmRegister.r0, arrayLength, new ImmediateValue(4 + sourceTypeSize))); //doens-t work becuase mul can-t have immedaite values, but otherwise correct
+		instrList.add(new BLInstruction("malloc"));
+		instrList.add(new Mov(arguemntsArray, ArmRegister.r0));
+		
+		//loop that creates all the threads
+		Register currentElement = trg.generate(weight);
+		instrList.add(new Mov(currentElement, new ImmediateValue(0)));
+		
+		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.add(new BranchInstruction(Condition.AL, end));
+
+		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		//while body start
+		instrList.add(start);
+		
+		
+		//sets the argument array for current element
+			//gets the elements of argument array we want to store into
+		//TODO: will work only for ints
+		instrList.add(new Mul(ArmRegister.r3, currentElement, eight));
+	//	instrList.add(new Mul(ArmRegister.r3,currentElement,new ImmediateValue(4 + sourceTypeSize))); //same as before
+		instrList.add(new Add(ArmRegister.r3,arguemntsArray));
+			//get the address of the newarray elem where the result will be stored into
+		//TODO: general type size not just four
+		instrList.add(new Mul(ArmRegister.r1,currentElement,four));
+		instrList.add(new Add(ArmRegister.r1,newArray));
+		instrList.add(new Add(ArmRegister.r1,new ImmediateValue(4)));
+			//stores the address of newarray elem into argument array
+		instrList.add(new Str(ArmRegister.r1,new Address(ArmRegister.r3)));
+			//skips what we just stored into
+		instrList.add(new Add(ArmRegister.r3, new ImmediateValue(4)));
+			//gets the address of element we want to pass into the function
+		//TODO: general typesize not just four
+		instrList.add(new Mul(ArmRegister.r1,currentElement,four));
+		instrList.add(new Add(ArmRegister.r1,arrayBase));
+		instrList.add(new Add(ArmRegister.r1,new ImmediateValue(4)));
+		if(sourceTypeSize == 4) {
+			//gets the element we want to pass in
+			instrList.add(new Ldr(ArmRegister.r1,new Address(ArmRegister.r1)));
+			//stores it into arguments array
+			instrList.add(new Str(ArmRegister.r1,new Address(ArmRegister.r3)));
+		} else {
+			//gets the element we want to pass in
+			instrList.add(new LdrB(ArmRegister.r1,new Address(ArmRegister.r1)));
+			//stores it into arguments array
+			instrList.add(new StrB(ArmRegister.r1,new Address(ArmRegister.r3)));
+		}
+	
+		
+		
+		//sets the first argument of pthread_create to point to threadsArray + 8*i
+		instrList.add(new Mul(ArmRegister.r0,currentElement,eight));
+		instrList.add(new Add(ArmRegister.r0, ArmRegister.r0, threadsArray));
+		
+		//second arguments is NULL
+		instrList.add(new Mov(ArmRegister.r1,new ImmediateValue(0)));
+		
+		//third arguments is the function
+		instrList.add(new Ldr(ArmRegister.r2,CompileProgramAST.MAP_WRAPPER_WORD));
+		
+		//fourth argument is the argument pointer
+		//TODO: general size not just ints
+		instrList.add(new Mul(ArmRegister.r3,currentElement,eight));
+		instrList.add(new Add(ArmRegister.r3,arguemntsArray));
+		
+		
+		instrList.add(new Add(currentElement, new ImmediateValue(1)));
+		instrList.add(new BLInstruction("pthread_create"));
+		//while body end
+		instrList.add(end);
+		instrList.add(new Cmp(currentElement, arrayLength));
+		instrList.add(new BranchInstruction(Condition.LT, start));
+		
+		
+		
+		
+		//loop that joins all the threads
+		instrList.add(new Mov(currentElement, new ImmediateValue(0)));
+		
+		end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.add(new BranchInstruction(Condition.AL, end));
+
+		start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		//while body start
+		instrList.add(start);
+		
+		//first argument is thread id
+		instrList.add(new Mul(ArmRegister.r0,currentElement,eight));
+		instrList.add(new Add(ArmRegister.r0, ArmRegister.r0, threadsArray));
+		
+		//second argument is NULL, because we don't care aboout return value
+		instrList.add(new Mov(ArmRegister.r1,new ImmediateValue(0)));
+		
+		instrList.add(new Add(currentElement, new ImmediateValue(1)));
+		instrList.add(new BLInstruction("pthread_join"));
+		//while body end
+		instrList.add(end);
+		instrList.add(new Cmp(currentElement, arrayLength));
+		instrList.add(new BranchInstruction(Condition.LT, start));
+		
+		//TODO: free all the stuff
+		
+			
+	
+	
+		returnedOperand = newArray;	
+		return instrList;
+		
+	}
+	
+	/*@Override
+	public Deque<PseudoInstruction> visit(MapAST mapAST) {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		
 		int sourceTypeSize = 4;
 		if (mapAST.getSourceArrayType().getType().equals(BaseType.T_bool)
 			|| mapAST.getSourceArrayType().getType().equals(BaseType.T_char)) {
@@ -1147,5 +1323,5 @@ public class IntermediateCodeGenerator implements
 		returnedOperand = newArrayBase;	
 		return instrList;
 		
-	}
+	}*/
 }

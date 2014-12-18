@@ -8,6 +8,7 @@ import wacc.slack.GenerateOptimizedIntermediateCode;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.assignables.FuncAST;
 import wacc.slack.AST.visitors.IntermediateCodeGenerator;
+import wacc.slack.assemblyOperands.Address;
 import wacc.slack.assemblyOperands.ArmRegister;
 import wacc.slack.assemblyOperands.ImmediateValue;
 import wacc.slack.assemblyOperands.Operand;
@@ -24,11 +25,17 @@ import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
+import wacc.slack.instructions.Str;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.visitors.GenerateAssembly;
 import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
 
 public class CompileProgramAST {
+
+	public static final Label MAP_WRAPPER_WORD = new Label("map_wrapper_word");
+
+	public static final Label MAP_FUNCTION_ADDRESS = new Label("map_function_address");
+	public static final Label MAP_FUNCTION_ADDRESS2 = new Label("map_function_address2");
 
 	private final ProgramAST program;
 
@@ -135,6 +142,12 @@ public class CompileProgramAST {
 		dataSection.add(new Label("msg_0"));
 		dataSection.add(new AssemblerDirective(".word 3"));
 		dataSection.add(new AssemblerDirective("\t.ascii \"%p\\0\""));
+		
+		dataSection.add(MAP_FUNCTION_ADDRESS);
+		dataSection.add(new AssemblerDirective(".word 0"));
+		
+		dataSection.add(MAP_FUNCTION_ADDRESS2);
+		dataSection.add(new AssemblerDirective(".word 0"));
 	}
 
 	private void initTextSection() {
@@ -180,10 +193,44 @@ public class CompileProgramAST {
 			compilerDefinedFunctions.addAll(checkDivideByZero());
 			compilerDefinedFunctions.addAll(divideByZeroError());
 			compilerDefinedFunctions.addAll(IntegerOverflowError());
+			compilerDefinedFunctions.addAll(mapWrapperWord());
 
 		}
 	}
 
+	private Deque<PseudoInstruction> mapWrapperWord() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+
+		Register resultAddress = ArmRegister.r3;
+		Register functionAddress = ArmRegister.r2;
+		instrList.add(MAP_WRAPPER_WORD);
+		
+		
+		//this function takes in a single argument
+		//which is a pointer to {result,param} struct, this function asumes 4 byte param
+		instrList.add(new Ldr(resultAddress,new Address(ArmRegister.r0)));
+		//gets the param which is offset by 4
+		instrList.add(new Add(ArmRegister.r0,new ImmediateValue(4)));
+		instrList.add(new Ldr(ArmRegister.r0,new Address(ArmRegister.r0)));
+		
+		//saves curent pc to lr and adds offset
+		instrList.add(new Mov(ArmRegister.lr, ArmRegister.pc));
+		instrList.add(new Add(ArmRegister.lr, new ImmediateValue(8)));
+		
+		//gets the address of the function it needs to call and jumps to it
+		instrList.add(new Ldr(ArmRegister.pc,MAP_FUNCTION_ADDRESS));
+		
+		//stores the results
+		instrList.add(new Str(ArmRegister.r0, new Address(resultAddress)));
+		//exits thread
+		instrList.add(new Mov(ArmRegister.r0,new ImmediateValue(0)));
+		instrList.add(new BLInstruction("pthread_exit"));
+		
+		
+
+		return instrList;
+	}
+	
 	private Deque<PseudoInstruction> checkDivideByZero() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
