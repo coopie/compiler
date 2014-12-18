@@ -15,6 +15,7 @@ import wacc.slack.AST.assignables.Assignable;
 import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.assignables.MapAST;
 import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.Param;
 import wacc.slack.AST.assignables.SndAST;
@@ -1076,5 +1077,92 @@ public class IntermediateCodeGenerator implements
 
 		weight = (weight + 1) * 2;
 		return instrList;
+	}
+	@Override
+	public Deque<PseudoInstruction> visit(MapAST mapAST) {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+		
+		
+		int sourceTypeSize = 4;
+		if (mapAST.getSourceArrayType().getType().equals(BaseType.T_bool)
+			|| mapAST.getSourceArrayType().getType().equals(BaseType.T_char)) {
+			sourceTypeSize = 1;
+		}
+		
+				
+		int typeSize = 4;
+		if (mapAST.getDestType().getType().equals(BaseType.T_bool)
+				|| mapAST.getDestType().getType().equals(BaseType.T_char)) {
+			typeSize = 1;
+		}
+
+		Register typeSizeReg = trg.generate(weight);
+		instrList.add(new Ldr(typeSizeReg, new ImmediateValue(typeSize)));
+
+	
+		Register arrayBase = trg.generate(weight);
+		instrList.add(new Mov(arrayBase, mapAST.getScope().lookup(mapAST.getArray()).getTemporaryRegister()));
+		Register arrayLength = trg.generate(weight);
+		Register arrayLengthTmp = trg.generate(weight);
+		
+		Register newArray = trg.generate(weight);
+			
+		//load the length of the array to the register
+		instrList.add(new Ldr(arrayLength,new Address(arrayBase)));
+		instrList.add(new Mov(arrayLengthTmp,arrayLength));
+		
+		//create the new array to where the results will be stored into
+		instrList.add(new Mul(ArmRegister.r0,arrayLength, typeSizeReg));
+		instrList.add(new Add(ArmRegister.r0, new ImmediateValue(4)));
+		instrList.add(new BLInstruction("malloc"));
+		instrList.add(new Mov(newArray,ArmRegister.r0));
+		Register newArrayBase = trg.generate(weight);
+		instrList.add(new Mov(newArrayBase,ArmRegister.r0));
+		
+		
+		//store the length into new arrayns
+		instrList.add(new Str(arrayLength,new Address(newArray)));
+		
+		//set the pointers of both arrays to first elements
+		instrList.add(new Add(newArray, new ImmediateValue(4)));
+		instrList.add(new Add(arrayBase, new ImmediateValue(4)));
+		
+		
+		//main loop for mapping
+		
+		Label end = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.add(new BranchInstruction(Condition.AL, end));
+
+		Label start = new Label(ControlFlowLabelGenerator.getNewUniqueLabel());
+		instrList.add(start);
+		//get elemnet from base array, pass it thorugh the function , store it in new array, readjsut the pointers
+		Register currentVal = trg.generate(weight);
+		
+		if(sourceTypeSize == 4) {
+			instrList.add(new Ldr(currentVal, new Address(arrayBase)));	
+		} else {
+			instrList.add(new LdrB(currentVal, new Address(arrayBase)));
+		}
+		
+		instrList.add(new Push(currentVal));
+		instrList.add(new BLInstruction(mapAST.getFunction()));
+		instrList.add(new Add(ArmRegister.sp, new ImmediateValue(4)));
+		
+		if(typeSize == 4) {
+			instrList.add(new Str(ArmRegister.r0, new Address(newArray)));
+		} else {
+			instrList.add(new StrB(ArmRegister.r0, new Address(newArray)));
+		}
+		instrList.add(new Add(arrayBase,new ImmediateValue(sourceTypeSize)));	
+		instrList.add(new Add(newArray,new ImmediateValue(typeSize)));	
+	
+		instrList.add(new Sub(arrayLengthTmp,new ImmediateValue(1)));
+		instrList.add(end);
+		instrList.add(new Cmp(arrayLengthTmp, new ImmediateValue(0)));
+		instrList.add(new BranchInstruction(Condition.GT, start));
+	
+		returnedOperand = newArrayBase;	
+		return instrList;
+		
 	}
 }

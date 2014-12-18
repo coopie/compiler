@@ -8,6 +8,7 @@ import wacc.slack.AST.assignables.ArrayElemAST;
 import wacc.slack.AST.assignables.CallAST;
 import wacc.slack.AST.assignables.FstAST;
 import wacc.slack.AST.assignables.FuncAST;
+import wacc.slack.AST.assignables.MapAST;
 import wacc.slack.AST.assignables.NewPairAST;
 import wacc.slack.AST.assignables.SndAST;
 import wacc.slack.AST.assignables.VariableAST;
@@ -80,5 +81,6 @@ public interface ASTVisitor<T> {
 
 	T visit(VariableAST variable);
 
+	T visit(MapAST mapAST);
 
 }
