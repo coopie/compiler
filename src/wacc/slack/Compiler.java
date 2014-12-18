@@ -20,7 +20,9 @@ import antlr.WaccLexer;
 import antlr.WaccParser;
 
 public class Compiler {
-
+	
+	public static boolean parallelMap = false;
+	
 	public static void main(String[] args) throws Exception {
 		String inputFile = null;
 		String outputFile = null;
@@ -39,6 +41,10 @@ public class Compiler {
 			outputFile = outputFile.replaceAll(".*/", "");
 			if(args.length > 1 && args[1].startsWith("-O")) {
 				optimisationLevel = Integer.parseInt(args[1].substring(2));
+				
+				if(args.length > 2 && args[2].equals("-pthread")) {
+					parallelMap = true;
+				}
 			}
 		}
 

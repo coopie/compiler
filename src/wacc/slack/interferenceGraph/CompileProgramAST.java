@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Set;
 
+import wacc.slack.Compiler;
 import wacc.slack.GenerateOptimizedIntermediateCode;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.assignables.FuncAST;
@@ -35,8 +36,6 @@ public class CompileProgramAST {
 	public static final Label MAP_WRAPPER_WORD = new Label("map_wrapper_word");
 
 	public static final Label MAP_FUNCTION_ADDRESS = new Label("map_function_address");
-	private static final Label MAP_WRAPPER_ADDRESS = new Label("map_function_address2");
-
 	private final ProgramAST program;
 
 	private static Deque<PseudoInstruction> textSection = new LinkedList<>();
@@ -145,8 +144,6 @@ public class CompileProgramAST {
 		dataSection.add(MAP_FUNCTION_ADDRESS);
 		dataSection.add(new AssemblerDirective(".word 0"));
 		
-		dataSection.add(MAP_WRAPPER_ADDRESS);
-		dataSection.add(new AssemblerDirective(".word " + MAP_WRAPPER_WORD.getName()));
 	}
 
 	private void initTextSection() {
@@ -193,7 +190,9 @@ public class CompileProgramAST {
 			compilerDefinedFunctions.addAll(checkDivideByZero());
 			compilerDefinedFunctions.addAll(divideByZeroError());
 			compilerDefinedFunctions.addAll(IntegerOverflowError());
-			compilerDefinedFunctions.addAll(mapWrapperWord());
+			if(Compiler.parallelMap) {
+				compilerDefinedFunctions.addAll(mapWrapperWord());
+			}
 
 		}
 	}
@@ -201,6 +200,7 @@ public class CompileProgramAST {
 	private Deque<PseudoInstruction> mapWrapperWord() {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 
+		
 		Register resultAddress = ArmRegister.r3;
 		Register functionAddress = ArmRegister.r2;
 		instrList.add(new AssemblerDirective(".global " + MAP_WRAPPER_WORD.getName() ));

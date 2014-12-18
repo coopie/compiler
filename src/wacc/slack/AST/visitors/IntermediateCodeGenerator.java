@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import wacc.slack.Compiler;
 import wacc.slack.AST.ProgramAST;
 import wacc.slack.AST.WaccAST;
 import wacc.slack.AST.Expr.BinaryExprAST;
@@ -1080,6 +1081,15 @@ public class IntermediateCodeGenerator implements
 	}
 	@Override
 	public Deque<PseudoInstruction> visit(MapAST mapAST) {
+		if(Compiler.parallelMap) {
+			return createParallelMap(mapAST);	
+		} else {
+			return createMap(mapAST);
+		}
+		
+	}
+
+	private Deque<PseudoInstruction> createParallelMap(MapAST mapAST) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
 		
@@ -1268,11 +1278,10 @@ public class IntermediateCodeGenerator implements
 	
 		returnedOperand = newArray;	
 		return instrList;
-		
 	}
 	
-	/*@Override
-	public Deque<PseudoInstruction> visit(MapAST mapAST) {
+	
+	private Deque<PseudoInstruction> createMap(MapAST mapAST) {
 		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
 		
 		
@@ -1357,5 +1366,5 @@ public class IntermediateCodeGenerator implements
 		returnedOperand = newArrayBase;	
 		return instrList;
 		
-	}*/
+	}
 }
