@@ -22,11 +22,13 @@ import wacc.slack.instructions.Cmp;
 import wacc.slack.instructions.Condition;
 import wacc.slack.instructions.Label;
 import wacc.slack.instructions.Ldr;
+import wacc.slack.instructions.LdrB;
 import wacc.slack.instructions.Mov;
 import wacc.slack.instructions.Pop;
 import wacc.slack.instructions.PseudoInstruction;
 import wacc.slack.instructions.Push;
 import wacc.slack.instructions.Str;
+import wacc.slack.instructions.StrB;
 import wacc.slack.instructions.Sub;
 import wacc.slack.instructions.visitors.GenerateAssembly;
 import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
@@ -34,6 +36,7 @@ import wacc.slack.instructions.visitors.GenerateAssemblyBuilder;
 public class CompileProgramAST {
 
 	public static final Label MAP_WRAPPER_WORD = new Label("map_wrapper_word");
+	public static final Label MAP_WRAPPER_BYTE = new Label("map_wrapper_byte");
 
 	public static final Label MAP_FUNCTION_ADDRESS = new Label("map_function_address");
 	private final ProgramAST program;
@@ -192,6 +195,7 @@ public class CompileProgramAST {
 			compilerDefinedFunctions.addAll(IntegerOverflowError());
 			if(Compiler.parallelMap) {
 				compilerDefinedFunctions.addAll(mapWrapperWord());
+				compilerDefinedFunctions.addAll(mapWrapperByte());
 			}
 
 		}
@@ -202,7 +206,6 @@ public class CompileProgramAST {
 
 		
 		Register resultAddress = ArmRegister.r3;
-		Register functionAddress = ArmRegister.r2;
 		instrList.add(new AssemblerDirective(".global " + MAP_WRAPPER_WORD.getName() ));
 		instrList.add(MAP_WRAPPER_WORD);
 
@@ -230,6 +233,48 @@ public class CompileProgramAST {
 		
 		//stores the results
 		instrList.add(new Str(ArmRegister.r0, new Address(resultAddress)));
+		
+		//exits thread
+		instrList.add(new Mov(ArmRegister.r0,new ImmediateValue(0)));
+		instrList.add(new BLInstruction("pthread_exit"));
+		
+		
+
+		return instrList;
+	}
+	
+	private Deque<PseudoInstruction> mapWrapperByte() {
+		Deque<PseudoInstruction> instrList = new LinkedList<PseudoInstruction>();
+
+		
+		Register resultAddress = ArmRegister.r3;
+		instrList.add(new AssemblerDirective(".global " + MAP_WRAPPER_BYTE.getName() ));
+		instrList.add(MAP_WRAPPER_BYTE);
+
+		//this function takes in a single argument
+		//which is a pointer to {result,param} struct, this function asumes 4 byte param
+		//gets the param which is offset by 4
+		instrList.add(new Ldr(resultAddress,new Address(ArmRegister.r0)));
+		instrList.add(new Add(ArmRegister.r0,new ImmediateValue(4)));
+		instrList.add(new LdrB(ArmRegister.r0,new Address(ArmRegister.r0)));
+		
+		instrList.add(new Push(ArmRegister.r0));
+		//gets the address of the function it needs to call and jumps to it
+			
+		instrList.add(new Ldr(ArmRegister.r10,MAP_FUNCTION_ADDRESS));
+		instrList.add(new Ldr(ArmRegister.r10,new Address(ArmRegister.r10)));
+		
+		instrList.add(new Push(ArmRegister.r10));
+		//saves curent pc to lr and adds offset
+		instrList.add(new Mov(ArmRegister.lr, ArmRegister.pc));
+		instrList.add(new Add(ArmRegister.lr, new ImmediateValue(8)));
+		instrList.add(new Pop(ArmRegister.pc));
+		
+		
+		instrList.add(new Add(ArmRegister.sp,new ImmediateValue(4)));
+		
+		//stores the results
+		instrList.add(new StrB(ArmRegister.r0, new Address(resultAddress)));
 		
 		//exits thread
 		instrList.add(new Mov(ArmRegister.r0,new ImmediateValue(0)));

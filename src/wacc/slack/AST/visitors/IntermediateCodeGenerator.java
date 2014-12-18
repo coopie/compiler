@@ -1099,10 +1099,6 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Ldr(dataSectionPlace,CompileProgramAST.MAP_FUNCTION_ADDRESS));
 		instrList.add(new Ldr(functionAddress, new Label(mapAST.getFunction())));
 		instrList.add(new Str(functionAddress, new Address(dataSectionPlace)));
-/*		
-		instrList.add(new Ldr(dataSectionPlace,CompileProgramAST.MAP_FUNCTION_ADDRESS2));
-		instrList.add(new Ldr(functionAddress, CompileProgramAST.MAP_WRAPPER_WORD));
-		instrList.add(new Str(functionAddress, new Address(dataSectionPlace)));*/
 		
 		Register four = dataSectionPlace;
 		instrList.add(new Mov(four,new ImmediateValue(4)));
@@ -1125,6 +1121,10 @@ public class IntermediateCodeGenerator implements
 
 		Register typeSizeReg = trg.generate(weight);
 		instrList.add(new Ldr(typeSizeReg, new ImmediateValue(typeSize)));
+		
+		Register sourceTypeSizeReg = trg.generate(weight);
+		instrList.add(new Ldr(sourceTypeSizeReg, new ImmediateValue(sourceTypeSize)));
+	
 		
 		//pointer to source array base (length in front
 		Register arrayBase = trg.generate(weight);
@@ -1154,10 +1154,9 @@ public class IntermediateCodeGenerator implements
 		
 		//will hold a struct {address of result, parameter}
 		Register arguemntsArray = trg.generate(weight);
-		
-		//TODO: will work only for ints
-		instrList.add(new Mul(ArmRegister.r0, arrayLength, eight));
-		//instrList.add(new Mul(ArmRegister.r0, arrayLength, new ImmediateValue(4 + sourceTypeSize))); //doens-t work becuase mul can-t have immedaite values, but otherwise correct
+		Register arguemntsArrayStructSize = trg.generate(weight);
+		instrList.add(new Add(arguemntsArrayStructSize, four, new ImmediateValue(sourceTypeSize)));
+		instrList.add(new Mul(ArmRegister.r0, arrayLength, arguemntsArrayStructSize));
 		instrList.add(new BLInstruction("malloc"));
 		instrList.add(new Mov(arguemntsArray, ArmRegister.r0));
 		
@@ -1174,14 +1173,11 @@ public class IntermediateCodeGenerator implements
 		
 		
 		//sets the argument array for current element
-			//gets the elements of argument array we want to store into
-		//TODO: will work only for ints
-		instrList.add(new Mul(ArmRegister.r3, currentElement, eight));
-	//	instrList.add(new Mul(ArmRegister.r3,currentElement,new ImmediateValue(4 + sourceTypeSize))); //same as before
+			//gets the elements of argument array we want to store into	
+		instrList.add(new Mul(ArmRegister.r3, currentElement, arguemntsArrayStructSize));
 		instrList.add(new Add(ArmRegister.r3,arguemntsArray));
 			//get the address of the newarray elem where the result will be stored into
-		//TODO: general type size not just four
-		instrList.add(new Mul(ArmRegister.r1,currentElement,four));
+		instrList.add(new Mul(ArmRegister.r1,currentElement,typeSizeReg));
 		instrList.add(new Add(ArmRegister.r1,newArray));
 		instrList.add(new Add(ArmRegister.r1,new ImmediateValue(4)));
 			//stores the address of newarray elem into argument array
@@ -1189,8 +1185,7 @@ public class IntermediateCodeGenerator implements
 			//skips what we just stored into
 		instrList.add(new Add(ArmRegister.r3, new ImmediateValue(4)));
 			//gets the address of element we want to pass into the function
-		//TODO: general typesize not just four
-		instrList.add(new Mul(ArmRegister.r1,currentElement,four));
+		instrList.add(new Mul(ArmRegister.r1,currentElement,sourceTypeSizeReg));
 		instrList.add(new Add(ArmRegister.r1,arrayBase));
 		instrList.add(new Add(ArmRegister.r1,new ImmediateValue(4)));
 		if(sourceTypeSize == 4) {
@@ -1215,25 +1210,23 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Mov(ArmRegister.r1,new ImmediateValue(0)));
 		
 		//third arguments is the function
-		instrList.add(new Ldr(ArmRegister.r2,CompileProgramAST.MAP_WRAPPER_WORD));
+		if(sourceTypeSize == 4) {
+			instrList.add(new Ldr(ArmRegister.r2,CompileProgramAST.MAP_WRAPPER_WORD));		
+		} else {
+			instrList.add(new Ldr(ArmRegister.r2,CompileProgramAST.MAP_WRAPPER_BYTE));
+		}
 		
 		//fourth argument is the argument pointer
-		//TODO: general size not just ints
-		instrList.add(new Mul(ArmRegister.r3,currentElement,eight));
+		instrList.add(new Mul(ArmRegister.r3,currentElement,arguemntsArrayStructSize));
 		instrList.add(new Add(ArmRegister.r3,arguemntsArray));
 		
-	
 		instrList.add(new BLInstruction("pthread_create"));		
-		instrList.add(new Add(currentElement, new ImmediateValue(1)));
-		
-		
+		instrList.add(new Add(currentElement, new ImmediateValue(1)));	
 		
 		//while body end
 		instrList.add(end);
 		instrList.add(new Cmp(currentElement, arrayLength));
 		instrList.add(new BranchInstruction(Condition.LT, start));
-		
-		
 		
 		
 		//loop that joins all the threads
