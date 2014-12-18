@@ -1271,9 +1271,12 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Cmp(currentElement, arrayLength));
 		instrList.add(new BranchInstruction(Condition.LT, start));
 		
-		//TODO: free all the stuff
-		
-			
+		//free arguments array and threads array as they are no longer needed and not visible from the outside
+		instrList.add(new Mov(ArmRegister.r0,arguemntsArray));
+		instrList.add(new BLInstruction("free"));
+
+		instrList.add(new Mov(ArmRegister.r0,threadsArray));
+		instrList.add(new BLInstruction("free"));
 	
 	
 		returnedOperand = newArray;	
