@@ -679,14 +679,22 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	@Override
 	public ParseTreeReturnable visitProgram(ProgramContext ctx) {
 		List<FuncAST> func = new LinkedList<>();
-
+		
+		scope = new SymbolTable<>();
+		
 		if (!ctx.IMPORT().isEmpty()) {
 			// Add import functions
-			func.addAll(doImports(ctx));
+			for(FuncAST f : doImports(ctx)) {
+				func.add(f);
+				List<Type> pTypes = new LinkedList<>();
+				for(Param p : f.getParamList()) {
+					pTypes.add(p.getType());
+				}
+				scope.insert(f.getIdent(), new FuncIdentInfo(f.getType(), pTypes, f.getFilePosition()));			
+			}
 		}
-
-		scope = new SymbolTable<>();
-
+		
+		
 		for (FuncContext f : ctx.func()) {
 			func.add(visitFunc(f));
 		}
