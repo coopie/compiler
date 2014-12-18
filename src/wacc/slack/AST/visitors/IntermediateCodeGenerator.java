@@ -1114,6 +1114,9 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new BLInstruction("malloc"));
 		instrList.add(new Mov(newArray,ArmRegister.r0));
 		
+		//store the length in new array
+		instrList.add(new Str(arrayLength, new Address(newArray)));
+		
 		
 		//will hold all the pthread_t structs (8 bytes) that can be later joined to
 		Register threadsArray = trg.generate(weight);
@@ -1192,9 +1195,12 @@ public class IntermediateCodeGenerator implements
 		instrList.add(new Mul(ArmRegister.r3,currentElement,eight));
 		instrList.add(new Add(ArmRegister.r3,arguemntsArray));
 		
-		
+	
+		instrList.add(new BLInstruction("pthread_create"));		
 		instrList.add(new Add(currentElement, new ImmediateValue(1)));
-		instrList.add(new BLInstruction("pthread_create"));
+		
+		
+		
 		//while body end
 		instrList.add(end);
 		instrList.add(new Cmp(currentElement, arrayLength));
@@ -1216,6 +1222,17 @@ public class IntermediateCodeGenerator implements
 		//first argument is thread id
 		instrList.add(new Mul(ArmRegister.r0,currentElement,eight));
 		instrList.add(new Add(ArmRegister.r0, ArmRegister.r0, threadsArray));
+		
+	/*	instrList.add(new Mov(ArmRegister.r1,ArmRegister.r0));
+		instrList.add(new Ldr(ArmRegister.r0, new Label("address_format")));
+		instrList.add(new BLInstruction("printf"));
+		
+		instrList.add(new Ldr(ArmRegister.r0, new Label("new_line_char")));
+		instrList.add(new BLInstruction("printf"));*/
+		
+		instrList.add(new Ldr(ArmRegister.r0,new Address(ArmRegister.r0)));
+		
+		
 		
 		//second argument is NULL, because we don't care aboout return value
 		instrList.add(new Mov(ArmRegister.r1,new ImmediateValue(0)));

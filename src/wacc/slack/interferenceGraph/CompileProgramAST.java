@@ -35,7 +35,7 @@ public class CompileProgramAST {
 	public static final Label MAP_WRAPPER_WORD = new Label("map_wrapper_word");
 
 	public static final Label MAP_FUNCTION_ADDRESS = new Label("map_function_address");
-	public static final Label MAP_FUNCTION_ADDRESS2 = new Label("map_function_address2");
+	private static final Label MAP_WRAPPER_ADDRESS = new Label("map_function_address2");
 
 	private final ProgramAST program;
 
@@ -146,8 +146,8 @@ public class CompileProgramAST {
 		dataSection.add(MAP_FUNCTION_ADDRESS);
 		dataSection.add(new AssemblerDirective(".word 0"));
 		
-		dataSection.add(MAP_FUNCTION_ADDRESS2);
-		dataSection.add(new AssemblerDirective(".word 0"));
+		dataSection.add(MAP_WRAPPER_ADDRESS);
+		dataSection.add(new AssemblerDirective(".word " + MAP_WRAPPER_WORD.getName()));
 	}
 
 	private void initTextSection() {
@@ -203,25 +203,34 @@ public class CompileProgramAST {
 
 		Register resultAddress = ArmRegister.r3;
 		Register functionAddress = ArmRegister.r2;
+		instrList.add(new AssemblerDirective(".global " + MAP_WRAPPER_WORD.getName() ));
 		instrList.add(MAP_WRAPPER_WORD);
-		
-		
+
 		//this function takes in a single argument
 		//which is a pointer to {result,param} struct, this function asumes 4 byte param
-		instrList.add(new Ldr(resultAddress,new Address(ArmRegister.r0)));
 		//gets the param which is offset by 4
+		instrList.add(new Ldr(resultAddress,new Address(ArmRegister.r0)));
 		instrList.add(new Add(ArmRegister.r0,new ImmediateValue(4)));
 		instrList.add(new Ldr(ArmRegister.r0,new Address(ArmRegister.r0)));
 		
+		instrList.add(new Push(ArmRegister.r0));
+		//gets the address of the function it needs to call and jumps to it
+			
+		instrList.add(new Ldr(ArmRegister.r10,MAP_FUNCTION_ADDRESS));
+		instrList.add(new Ldr(ArmRegister.r10,new Address(ArmRegister.r10)));
+		
+		instrList.add(new Push(ArmRegister.r10));
 		//saves curent pc to lr and adds offset
 		instrList.add(new Mov(ArmRegister.lr, ArmRegister.pc));
 		instrList.add(new Add(ArmRegister.lr, new ImmediateValue(8)));
+		instrList.add(new Pop(ArmRegister.pc));
 		
-		//gets the address of the function it needs to call and jumps to it
-		instrList.add(new Ldr(ArmRegister.pc,MAP_FUNCTION_ADDRESS));
+		
+		instrList.add(new Add(ArmRegister.sp,new ImmediateValue(4)));
 		
 		//stores the results
 		instrList.add(new Str(ArmRegister.r0, new Address(resultAddress)));
+		
 		//exits thread
 		instrList.add(new Mov(ArmRegister.r0,new ImmediateValue(0)));
 		instrList.add(new BLInstruction("pthread_exit"));
