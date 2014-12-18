@@ -41,6 +41,7 @@ import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.IfWithoutElseStatement;
 import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
@@ -85,6 +86,7 @@ import antlr.WaccParser.FreeStatContext;
 import antlr.WaccParser.FuncContext;
 import antlr.WaccParser.IdentExprContext;
 import antlr.WaccParser.IfStatContext;
+import antlr.WaccParser.IfWithoutElseStatContext;
 import antlr.WaccParser.IntLiterContext;
 import antlr.WaccParser.IntLiterExprContext;
 import antlr.WaccParser.IntSignContext;
@@ -114,7 +116,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 	private SymbolTable<IdentInfo> scope;
 	// Equals null if visitor is not in a function
-	private String currentFunction = null; 
+	private String currentFunction = null;
 
 	@Override
 	public ParseTreeReturnable visit(@NotNull ParseTree arg0) {
@@ -444,7 +446,7 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 				ctx.start.getCharPositionInLine());
 		IdentInfo funcInfo = scope.lookup(currentFunction);
 		ExprAST expr = visitExpr(ctx.expr());
-		if (funcInfo == null) { 
+		if (funcInfo == null) {
 			ErrorRecords.getInstance().record(
 					new IllegalOperationError(filePos));
 		} else {
@@ -539,6 +541,18 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		scope = scope.popScope();
 		StatAST stat = new IfStatementAST(visitExpr(ctx.expr()), trueAST,
 				falseAST, filePos);
+		return stat;
+	}
+
+	@Override
+	public StatAST visitIfWithoutElseStat(IfWithoutElseStatContext ctx) {
+		final FilePosition filePos = new FilePosition(ctx.start.getLine(),
+				ctx.start.getCharPositionInLine());
+		scope = scope.initializeNewScope();
+		StatAST trueAST = visitStat(ctx.stat());
+		scope = scope.popScope();
+		StatAST stat = new IfWithoutElseStatement(visitExpr(ctx.expr()),
+				trueAST, filePos);
 		return stat;
 	}
 
@@ -686,12 +700,13 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public FuncAST visitFunc(FuncContext ctx) {
 		List<Param> paramList = new LinkedList<>();
 		List<Type> paramTypes = new LinkedList<>();
-		
+
 		// Rembering top scope so I can add the function Identifier to it after
 		// I add the params to the function scope and extract the types of
 		// params
 		SymbolTable<IdentInfo> topScope = scope;
-		//new scope initialized before params are visited so they get the right scope
+		// new scope initialized before params are visited so they get the right
+		// scope
 		scope = scope.initializeNewScope();
 
 		if (ctx.paramList() != null) {
@@ -704,7 +719,6 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 
 		currentFunction = FuncAST.encodeFuncName(ctx.IDENT().getText());
 
-	
 		for (Param p : paramList) {
 			paramTypes.add(p.getType());
 			scope.insert(p.getIdent(), new IdentInfo(p.getType(), filePos));
@@ -768,4 +782,5 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 	public SymbolTable<IdentInfo> getScope() {
 		return scope;
 	}
+
 }

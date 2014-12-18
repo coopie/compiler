@@ -26,6 +26,10 @@ public abstract class AbstractGraph<T> implements Iterable<T>  {
 		return graph.get(node);
 	}
 
+	public void remove(T elem) {
+		graph.remove(elem);
+	}
+	
 	@Override
 	public String toString() {
 		return printGraph(graph);

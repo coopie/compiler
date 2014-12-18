@@ -21,6 +21,7 @@ import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.ExprStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.IfWithoutElseStatement;
 import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
@@ -247,7 +248,20 @@ public class PrintingVisitor implements ASTVisitor<String> {
 	}
 
 	@Override
+	public String visit(IfWithoutElseStatement ifStat) {
+		String r = newLine();
+
+		r += "if " + ifStat.getCond().accept(this);
+		indent();
+		r += ifStat.getTrueStats().accept(this);
+		endIndent();
+
+		return r;
+	}
+
+	@Override
 	public String visit(MapAST mapAST) {
 		return mapAST.getArray() + ".map( " + mapAST.getFunction() + " )";
+
 	}
 }

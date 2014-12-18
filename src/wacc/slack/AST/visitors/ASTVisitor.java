@@ -18,6 +18,7 @@ import wacc.slack.AST.statements.BeginEndAST;
 import wacc.slack.AST.statements.ExitStatementAST;
 import wacc.slack.AST.statements.FreeStatementAST;
 import wacc.slack.AST.statements.IfStatementAST;
+import wacc.slack.AST.statements.IfWithoutElseStatement;
 import wacc.slack.AST.statements.PrintStatementAST;
 import wacc.slack.AST.statements.PrintlnStatementAST;
 import wacc.slack.AST.statements.ReadStatementAST;
@@ -39,6 +40,8 @@ public interface ASTVisitor<T> {
 	T visit(BeginEndAST beginEnd);
 
 	T visit(IfStatementAST ifStat);
+	
+	T visit(IfWithoutElseStatement ifWithoutElseStat);
 
 	T visit(SkipStatementAST skipStat);
 

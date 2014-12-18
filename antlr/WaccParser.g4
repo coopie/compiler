@@ -26,6 +26,7 @@ stat :
 | EXIT expr                     #exitStat
 | PRINT expr                    #printStat
 | PRINTLN expr                  #printlnStat
+| IF expr THEN stat FI          #ifWithoutElseStat
 | IF expr THEN stat ELSE stat FI#ifStat
 | WHILE expr DO  stat  DONE     #whileStat
 | BEGIN stat  END               #beginStat

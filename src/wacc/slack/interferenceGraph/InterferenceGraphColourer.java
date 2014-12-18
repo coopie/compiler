@@ -217,7 +217,7 @@ public class InterferenceGraphColourer {
 	
 	/**
 	 * 
-	 * @param k The number of registers available registers
+	 * @param k The number of available registers
 	 * @param useSpilledRegsFromStart Used to skip the attempt at colouring without using scratchpad registers for spills
 	 * @return
 	 */
@@ -255,17 +255,20 @@ public class InterferenceGraphColourer {
 		// generate colour mappings for other ArmRegisters
 
 		for (ArmRegister r : ArmRegister.values()) {
+//		for(int i = 0; i < k; i++) {
+//			ArmRegister r = ArmRegister.values()[i];
+		
 			if (!key.containsValue(r)) {
-				for (int i = 1; i <= k; i++) {
-					if (!key.containsKey(i)) {
-						key.put(i, r);
+				for (int j = 1; j <= k; j++) {
+					if (!key.containsKey(j)) {
+						key.put(j, r);
 						break;
 					}
 				}
 			}
 		}
 
-	//	System.out.println("key is : " + key);
+		System.out.println("key is : " + key);
 
 		Map<TemporaryRegister, ArmRegister> temporaryMappings = new HashMap<TemporaryRegister, ArmRegister>();
 
@@ -286,7 +289,9 @@ public class InterferenceGraphColourer {
 					trg.generate(n.getWeight()));
 		}
 
-		return new TemporaryRegisterMapping(temporaryMappings, spilledNodesMap);
+		TemporaryRegisterMapping trm =  new TemporaryRegisterMapping(temporaryMappings, spilledNodesMap);
+		System.out.println(trm);
+		return trm;
 	}
 
 	private List<InterferenceGraphNode> getSpilledTemporaryNodes(int k) {
