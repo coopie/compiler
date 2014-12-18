@@ -4,6 +4,9 @@ COMMENT :'#' .*? '\n' -> skip;
 
 INTEGER : ('-' | '+')? DIGIT+ ;
 
+IMPORT : 'import';
+FILENAME : [_a-zA-Z0-9]* '.wacc';
+
 //operators
 PLUS : '+' ;
 MINUS : '-' ;

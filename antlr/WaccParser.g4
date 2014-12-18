@@ -8,7 +8,8 @@ options {
 }
 
 // EOF indicates that the program must consume to the end of the input.
-program: BEGIN func* stat END EOF;
+
+program: (IMPORT FILENAME SEMICOLON)* BEGIN func* stat END EOF;
 
 func : type IDENT OPEN_PARENTHESES paramList? CLOSE_PARENTHESES IS  stat  END ;
 

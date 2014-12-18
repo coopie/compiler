@@ -1,5 +1,11 @@
 package wacc.slack.AST;
 
+import wacc.slack.Compiler; 
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -631,11 +637,55 @@ public class ASTBuilder implements WaccParserVisitor<ParseTreeReturnable> {
 		}
 		return null;
 	}
+	
+	private List<FuncAST> doImports(ProgramContext ctx) {
+		List<FuncAST> functions = new LinkedList<>();
+		
+		for (TerminalNode filenameNode : ctx.FILENAME()) {
+			FilePosition importfilePos = new FilePosition(filenameNode.getSymbol().getLine(),
+					filenameNode.getSymbol().getCharPositionInLine());
+			
+			String filename = filenameNode.getText();
 
+			InputStream is = null;
+			try {
+				is = new FileInputStream(filename);
+			} catch (FileNotFoundException e) {
+				ErrorRecords
+						.getInstance()
+						.record(new SyntaxError(
+								"Cannot find file to import:  " 
+						+ filename, importfilePos));
+			}
+			
+			Compiler subcompiler = new Compiler();
+			ProgramAST ast = null;
+			if (is != null) {
+				try {
+					ast = (ProgramAST) subcompiler.buildAST(is);
+				} catch (IOException e) {
+					// Should never happen
+					e.printStackTrace();
+				}
+			}
+			
+			if (ast != null) {
+				functions.addAll(ast.getFunctions());
+			}
+		}
+		return functions;
+	}
+	
 	@Override
 	public ParseTreeReturnable visitProgram(ProgramContext ctx) {
-		scope = new SymbolTable<>();
 		List<FuncAST> func = new LinkedList<>();
+
+		if (!ctx.IMPORT().isEmpty()) {
+			// Add import functions
+			func.addAll(doImports(ctx));
+		}
+
+		scope = new SymbolTable<>();
 
 		for (FuncContext f : ctx.func()) {
 			func.add(visitFunc(f));
